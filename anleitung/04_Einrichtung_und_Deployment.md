@@ -81,7 +81,7 @@ Danach **Administratorzustimmung für Campus Sursee erteilen**.
 
 ### 2.4 Client-ID in der Webseite
 
-In `Quellcode\site\konfig.js` steht bereits:
+In `frontend\konfig.js` steht bereits:
 
 ```js
 mandantId: "2553fb74-5dcc-4072-8bb5-399d18f72af9",
@@ -114,18 +114,18 @@ Es gibt keine Git-Anbindung und keine automatische Veröffentlichung.
 
 1. Änderung lokal machen und mit `?mock=1` prüfen, siehe `03_Technische_Dokumentation.md`, Abschnitt 11.
 2. Bei Netlify anmelden, zur Site von `menue.campus-sursee.ch` gehen.
-3. Reiter **Deploys**, dann den Ordner `site` per **Drag & Drop** auf das Feld ziehen.
+3. Reiter **Deploys**, dann den Ordner `frontend` per **Drag & Drop** auf das Feld ziehen.
 4. Netlify veröffentlicht sofort. Danach die Seite mit geleertem Zwischenspeicher aufrufen und kurz gegenprüfen.
 
 > Es muss immer der **ganze Ordner** gezogen werden, nicht einzelne Dateien. Netlify ersetzt den Inhalt vollständig; eine Datei, die im Ordner fehlt, verschwindet auch von der Site.
 
-Der Quellcode in `Quellcode\site\` dieses Ordners ist der Stand vom 28.08.2026. Wer daran arbeitet, sollte die geänderte Fassung anschliessend hierher zurückspielen, damit die Dokumentation nicht auseinanderläuft.
+Der Quellcode in `frontend\` dieses Ordners ist der Stand vom 28.08.2026. Wer daran arbeitet, sollte die geänderte Fassung anschliessend hierher zurückspielen, damit die Dokumentation nicht auseinanderläuft.
 
 ---
 
 ## 5. Erstinbetriebnahme, Prüfliste
 
-- [ ] Ordner `site` auf Netlify gezogen
+- [ ] Ordner `frontend` auf Netlify gezogen
 - [ ] `https://menue.campus-sursee.ch/admin.html` öffnet sich und die Anmeldung gelingt
       *Dieser eine Schritt belegt auf einmal, dass Umleitungsadresse, Graph-Berechtigung und Benutzerzuweisung stimmen.*
 - [ ] Testklasse angelegt, Zugangscode wurde automatisch erzeugt
@@ -168,7 +168,7 @@ Falls die Webseite je vollständig neu aufgesetzt werden muss:
 1. **SharePoint:** Listen «Klassen» und «Bestellungen» mit den Spalten aus `03_Technische_Dokumentation.md`, Abschnitt 4. Die internen Feldnamen müssen genau stimmen, sonst greift `graph.js` ins Leere. Neue Listen-IDs in `konfig.js` eintragen.
 2. **Power Automate:** Flow B und Flow C neu bauen, Aufbau und Lunchgate-Anbindung siehe `03_Technische_Dokumentation.md`, Abschnitt 7. Neue Aufruf-Adressen in `konfig.js` und im Kopf von `index.html` eintragen. Den Aufräum-Flow nicht vergessen.
 3. **Entra ID:** App-Registrierung nach Abschnitt 2 dieses Dokuments.
-4. **Netlify:** neue Site anlegen, Ordner `site` hochladen, Domäne `menue.campus-sursee.ch` verbinden.
+4. **Netlify:** neue Site anlegen, Ordner `frontend` hochladen, Domäne `menue.campus-sursee.ch` verbinden.
 5. Prüfliste aus Abschnitt 5 abarbeiten.
 
-Der vollständige Quellcode liegt in `Quellcode\site\`. Er enthält keine Abhängigkeit zu einem Bauprozess: Was dort liegt, ist genau das, was ausgeliefert wird.
+Der vollständige Quellcode liegt in `frontend\`. Er enthält keine Abhängigkeit zu einem Bauprozess: Was dort liegt, ist genau das, was ausgeliefert wird.

@@ -63,7 +63,7 @@ Gäste (kein Konto im Mandanten)      Réception (Microsoft-365-Konto)
 
 ## 3. Dateien und ihre Aufgabe
 
-Alles im Ordner `Quellcode\site\` ist genau das, was auf Netlify liegt.
+Alles im Ordner `frontend\` ist genau das, was auf Netlify liegt.
 
 | Datei | Aufgabe | Anmeldung nötig |
 |---|---|---|
@@ -80,7 +80,7 @@ Jede Seite trägt ihr HTML, CSS und JavaScript in einer einzigen Datei. Geteilt 
 
 **Gestaltung:** Weiss, minimal, vier CSS-Variablen (`--orange #E8722A`, `--schwarz #111111`, `--grau #767676`, `--linie #ebebeb`), Systemschriften, Radien von 10px. Das Logo ist ein Inline-SVG, es wird nichts nachgeladen.
 
-**Veröffentlichen:** Netlify, Ordner `site` per Drag & Drop auf die bestehende Site ziehen (Deploys, dann Drag & Drop). Es gibt keine Git-Anbindung und keine automatische Veröffentlichung.
+**Veröffentlichen:** Netlify, Ordner `frontend` per Drag & Drop auf die bestehende Site ziehen (Deploys, dann Drag & Drop). Es gibt keine Git-Anbindung und keine automatische Veröffentlichung.
 
 ---
 
@@ -199,7 +199,7 @@ Umgebung `Default-2553fb74-5dcc-4072-8bb5-399d18f72af9`, alle Flows laufen unter
 | **API Bestellung speichern** (Flow C) | POST, speichert eine Bestellung | nur `index.html` |
 | **Aufraeumen Menuewahl** | täglich 03:00, löscht Klassen und Bestellungen älter als 30 Tage | Zeitplan, Flow-ID `063e1fa8-494b-4274-9402-608e88d59889` |
 
-Die Aufruf-Adressen samt Signatur stehen in `Quellcode\site\konfig.js` und im Kopf von `index.html`. Sie gehören nicht in dieses Dokument.
+Die Aufruf-Adressen samt Signatur stehen in `frontend\konfig.js` und im Kopf von `index.html`. Sie gehören nicht in dieses Dokument.
 
 **Antwort von Flow B**
 
@@ -285,7 +285,7 @@ Freigegeben ist nur, was wirklich gebraucht wird:
 Auf dem Arbeitsplatz sind weder Node noch Python installiert. Geprüft wird im Browser.
 
 ```
-powershell -ExecutionPolicy Bypass -File Quellcode\serve.ps1
+powershell -ExecutionPolicy Bypass -File code\serve.ps1
 ```
 
 Danach läuft ein Server auf `http://localhost:8123/`.
@@ -322,4 +322,4 @@ Für Tests mit echter Anmeldung müssen die drei `localhost:8123`-Adressen in de
 | Lunchgate | `restaurant_id` 5081 |
 | Testklasse | Code `TEST1234` |
 
-Zugangsdaten und Aufruf-Adressen mit Signatur stehen bewusst nicht hier, sondern in `Quellcode\site\konfig.js` beziehungsweise bei den Betriebskonten.
+Zugangsdaten und Aufruf-Adressen mit Signatur stehen bewusst nicht hier, sondern in `frontend\konfig.js` beziehungsweise bei den Betriebskonten.

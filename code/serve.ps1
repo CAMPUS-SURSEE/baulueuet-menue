@@ -1,5 +1,5 @@
 # Mini static server for local preview (PowerShell 5.1)
-$root = Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) 'site'
+$root = Join-Path (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)) 'frontend'
 $listener = New-Object System.Net.HttpListener
 $listener.Prefixes.Add('http://localhost:8123/')
 $listener.Start()

@@ -10,31 +10,70 @@ Kursteilnehmende am Campus Sursee wählen ihr Mittagsmenü über eine Webseite s
 
 | Ich bin | Ich lese |
 |---|---|
-| an der Réception und will das System bedienen | `01_Anleitung_Reception.md` |
-| bei den ICT-Services und habe eine Störung | `02_Betriebshandbuch_Support.md` |
-| bei den ICT-Services und will verstehen, wie es gebaut ist | `03_Technische_Dokumentation.md` |
-| dabei, etwas zu ändern oder zu veröffentlichen | `04_Einrichtung_und_Deployment.md` |
-| neu im Projekt und frage mich, warum es so ist | `05_Entscheide_und_Verlauf.md` |
+| an der Réception und will das System bedienen | [`anleitung/01_Anleitung_Reception.md`](anleitung/01_Anleitung_Reception.md) |
+| bei den ICT-Services und habe eine Störung | [`anleitung/02_Betriebshandbuch_Support.md`](anleitung/02_Betriebshandbuch_Support.md) |
+| bei den ICT-Services und will verstehen, wie es gebaut ist | [`anleitung/03_Technische_Dokumentation.md`](anleitung/03_Technische_Dokumentation.md) |
+| dabei, etwas zu ändern oder zu veröffentlichen | [`anleitung/04_Einrichtung_und_Deployment.md`](anleitung/04_Einrichtung_und_Deployment.md) |
+| neu im Projekt und frage mich, warum es so ist | [`anleitung/05_Entscheide_und_Verlauf.md`](anleitung/05_Entscheide_und_Verlauf.md) |
+| dabei, den Code zu ändern | [`anleitung/06_Hinweise_Quellcode.md`](anleitung/06_Hinweise_Quellcode.md) |
 
 ---
 
 ## Was hier liegt
 
 ```
-Baulüüt Menü Umfrage digital\
-├── 00_README.md                      dieses Dokument
-├── 01_Anleitung_Reception.md         Bedienung, für die Anwender
-├── 02_Betriebshandbuch_Support.md    Störungsbehebung, für die ICT
-├── 03_Technische_Dokumentation.md    Architektur, Datenmodell, Schnittstellen
-├── 04_Einrichtung_und_Deployment.md  Einrichten und veröffentlichen
-├── 05_Entscheide_und_Verlauf.md      warum es so gebaut ist, was offen ist
-├── Quellcode\
-│   ├── site\                         genau das, was auf Netlify liegt
-│   ├── serve.ps1                     kleiner Server zum lokalen Testen
-│   └── README_Quellcode.md           Hinweise für alle, die den Code ändern
-└── Vorlagen\
+baulueuet-menue/
+├── README.md                         dieses Dokument
+├── frontend/                         die Webseite, genau so wie sie gehostet wird
+│   ├── index.html                    Gästeseite, Menüwahl
+│   ├── admin.html                    Verwaltung der Klassen
+│   ├── kursblatt.html                Aushang mit QR-Code
+│   ├── menueblatt.html               Bestellübersicht für die Küche
+│   ├── konfig.js                     alle Kennungen und Adressen an einer Stelle
+│   ├── auth.js                       Anmeldung an Entra ID
+│   ├── graph.js                      Zugriff auf die SharePoint-Listen
+│   ├── _headers                      Sicherheitsheader und CSP (Netlify)
+│   └── .nojekyll                     damit GitHub Pages `_headers` nicht wegfiltert
+├── code/
+│   └── serve.ps1                     kleiner Server zum lokalen Testen
+├── anleitung/
+│   ├── 01_Anleitung_Reception.md     Bedienung, für die Anwender
+│   ├── 02_Betriebshandbuch_Support.md  Störungsbehebung, für die ICT
+│   ├── 03_Technische_Dokumentation.md  Architektur, Datenmodell, Schnittstellen
+│   ├── 04_Einrichtung_und_Deployment.md  Einrichten und veröffentlichen
+│   ├── 05_Entscheide_und_Verlauf.md  warum es so gebaut ist, was offen ist
+│   └── 06_Hinweise_Quellcode.md      Hinweise für alle, die den Code ändern
+└── Vorlagen/
     ├── Menueauswahlblatt_Original_Word.docx   das alte Papierblatt als Referenz
     └── logo-bauluut.svg
+```
+
+Alle Pfadangaben in den Dokumenten sind ab diesem Wurzelverzeichnis zu lesen.
+
+---
+
+## Veröffentlichen über GitHub Pages
+
+Der Ordner `frontend` ist so aufgebaut, dass er direkt als Quelle für GitHub Pages
+dienen kann: **Settings → Pages → Source: Deploy from a branch → Branch `main`,
+Ordner `/frontend`**. Es gibt keinen Bauprozess; was in `frontend` liegt, wird
+unverändert ausgeliefert.
+
+Drei Dinge dazu:
+
+- `.nojekyll` muss bleiben. Ohne diese Datei ignoriert GitHub Pages alles, was mit
+  einem Unterstrich beginnt, also auch `_headers`.
+- `_headers` wirkt nur bei Netlify. GitHub Pages liest die Datei nicht, die
+  Sicherheitsheader und die Content Security Policy entfallen dort. Für den
+  Produktivbetrieb bleibt Netlify die Referenz, siehe
+  [`anleitung/04_Einrichtung_und_Deployment.md`](anleitung/04_Einrichtung_und_Deployment.md).
+- Für die Domäne `menue.campus-sursee.ch` bräuchte es zusätzlich eine Datei
+  `frontend/CNAME` mit dem Domänennamen und den passenden DNS-Eintrag.
+
+Lokal anschauen ohne Hosting:
+
+```
+powershell -ExecutionPolicy Bypass -File code\serve.ps1
 ```
 
 ---

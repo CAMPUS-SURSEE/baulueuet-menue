@@ -5,7 +5,7 @@
 **Gilt für:** die Webseite `https://menue.campus-sursee.ch` samt SharePoint-Listen, Power-Automate-Flows und Entra-App-Registrierung
 **Verwandte Dokumente:** `ANLEITUNG_ANMELDUNG.md` (Einrichtung der App-Registrierung), `HANDOFF_Menuewahl_BAULUUT_Stand_2026-08-28.md` (Projektstand und Architektur)
 
-Alle Zitate von Fehlermeldungen in diesem Handbuch stammen wortgetreu aus dem Quellcode im Ordner `Quellcode\site\`.
+Alle Zitate von Fehlermeldungen in diesem Handbuch stammen wortgetreu aus dem Quellcode im Ordner `frontend\`.
 
 ---
 
@@ -53,7 +53,7 @@ Kursteilnehmende wählen ihr Mittagsmenü über eine Webseite statt auf Papier. 
 | Flow «Aufraeumen Menuewahl» | täglich 03:00, löscht Altbestand | Power Automate |
 | App-Registrierung «Menuewahl BAULUUT Admin» | Anmeldung der Réception, Zugangskontrolle | Entra ID |
 
-Alle IDs, Adressen und Flow-Aufrufadressen stehen an einem Ort: `Quellcode\site\konfig.js`. Die Gästeseite `index.html` trägt die beiden Flow-Adressen zusätzlich in ihrem eigenen Konfigurationsblock ganz oben im `<script>`. Diese Adressen enthalten eine Signatur und gehören nicht in Tickets, Mails oder Chats.
+Alle IDs, Adressen und Flow-Aufrufadressen stehen an einem Ort: `frontend\konfig.js`. Die Gästeseite `index.html` trägt die beiden Flow-Adressen zusätzlich in ihrem eigenen Konfigurationsblock ganz oben im `<script>`. Diese Adressen enthalten eine Signatur und gehören nicht in Tickets, Mails oder Chats.
 
 ### 1.2 Wer redet mit wem
 
@@ -118,7 +118,7 @@ Wichtig zum Verständnis der Meldungen: Auf `kursblatt.html` und `menueblatt.htm
 
 > In konfig.js ist keine Client-ID eingetragen. Bitte die App-Registrierung anlegen, siehe ANLEITUNG_ANMELDUNG.md.
 
-dann ist die Datei `konfig.js` auf Netlify unvollständig oder wurde durch eine ältere Fassung überschrieben. Behebung: `konfig.js` aus `Quellcode\site\` prüfen, die Client-ID muss gesetzt sein, und den Ordner neu veröffentlichen (Abschnitt 5.4).
+dann ist die Datei `konfig.js` auf Netlify unvollständig oder wurde durch eine ältere Fassung überschrieben. Behebung: `konfig.js` aus `frontend\` prüfen, die Client-ID muss gesetzt sein, und den Ordner neu veröffentlichen (Abschnitt 5.4).
 
 ### 3.2 Anmeldebibliothek und CDN
 
@@ -168,7 +168,7 @@ Auf `admin.html` erscheint dieser Text im roten Balken oben, auf `kursblatt.html
 
 > Liste oder Eintrag nicht gefunden. Bitte die IDs in konfig.js prüfen.
 
-dann stimmen `siteId`, `listeKlassen` oder `listeBestellungen` in `Quellcode\site\konfig.js` nicht mehr mit SharePoint überein, oder der Eintrag wurde zwischenzeitlich gelöscht. Zuerst die Seite neu laden; besteht das Bild, die IDs abgleichen.
+dann stimmen `siteId`, `listeKlassen` oder `listeBestellungen` in `frontend\konfig.js` nicht mehr mit SharePoint überein, oder der Eintrag wurde zwischenzeitlich gelöscht. Zuerst die Seite neu laden; besteht das Bild, die IDs abgleichen.
 
 ### 3.4 Anmeldung abgelaufen, Token-Fehler
 
@@ -182,11 +182,11 @@ dann stimmen `siteId`, `listeKlassen` oder `listeBestellungen` in `Quellcode\sit
 
 **Symptom B:** Die Seite springt in einer Schlaufe auf `login.microsoftonline.com` und zurück, ohne je fertig zu laden.
 
-**Ursache:** Die stille Erneuerung im verborgenen Rahmen scheitert. Häufigste Gründe: Der Eintrag `frame-src https://login.microsoftonline.com` in `Quellcode\site\_headers` fehlt oder wurde verändert, oder der Browser blockiert Cookies von Drittanbietern für `login.microsoftonline.com`.
+**Ursache:** Die stille Erneuerung im verborgenen Rahmen scheitert. Häufigste Gründe: Der Eintrag `frame-src https://login.microsoftonline.com` in `frontend\_headers` fehlt oder wurde verändert, oder der Browser blockiert Cookies von Drittanbietern für `login.microsoftonline.com`.
 
 **Prüfschritt:** Konsole und Netzwerkanalyse öffnen und auf CSP-Verstösse beziehungsweise blockierte Rahmen achten. Testweise ein privates Fenster mit Standardeinstellungen verwenden.
 
-**Behebung:** `_headers` gegen die Fassung in `Quellcode\site\_headers` abgleichen und den Ordner neu veröffentlichen. Cookieblockade im Browserprofil lockern.
+**Behebung:** `_headers` gegen die Fassung in `frontend\_headers` abgleichen und den Ordner neu veröffentlichen. Cookieblockade im Browserprofil lockern.
 
 **Symptom C:** Es erscheint
 
@@ -273,7 +273,7 @@ dann steht der Status der Klasse auf «geschlossen». Behebung: in `admin.html` 
 
 1. Lunchgate ist gestört oder liefert für heute keine Menüs.
 2. Flow B läuft auf einen Fehler, etwa wegen einer unterbrochenen Verbindung.
-3. Die Flow-Aufrufadresse in `Quellcode\site\konfig.js` stimmt nicht mehr, weil der Flow neu erstellt oder die Signatur erneuert wurde.
+3. Die Flow-Aufrufadresse in `frontend\konfig.js` stimmt nicht mehr, weil der Flow neu erstellt oder die Signatur erneuert wurde.
 4. Der Power-Automate-Host ist in der Content Security Policy in `_headers` nicht mehr freigegeben.
 
 **Prüfschritte**
@@ -321,19 +321,19 @@ dann steht der Status der Klasse auf «geschlossen». Behebung: in `admin.html` 
 | QR-Bibliothek nicht geladen | Im Rahmen steht «Der QR-Code konnte nicht erzeugt werden. Bitte laden Sie die Seite mit bestehender Internetverbindung neu.» | Siehe Abschnitt 3.2. |
 | Kamera-App des Geräts kann keine QR-Codes | Mit einem zweiten Gerät gegenprüfen. | Der vollständige Gästelink steht als Text unter dem Symbol und kann von Hand eingetippt oder abfotografiert werden. |
 
-Falls der Verdacht besteht, dass am Generator selbst etwas kaputt ist: Der Ordner `qr-test\` im Projektordner enthält die Testumgebung dafür. Sie liegt bewusst ausserhalb von `site` und wird nicht mitveröffentlicht.
+Falls der Verdacht besteht, dass am Generator selbst etwas kaputt ist: Der Ordner `qr-test\` im Projektordner enthält die Testumgebung dafür. Sie liegt bewusst ausserhalb von `frontend` und wird nicht mitveröffentlicht.
 
 ### 3.10 Seite bleibt leer, Konsole meldet nichts
 
 **Symptom:** Die Seite lädt, bleibt aber weiss oder hängt beim Ladehinweis. In der Konsole steht keine oder nur eine unauffällige Meldung, und in der Netzwerkanalyse fehlt ein Aufruf, den es geben müsste.
 
-**Ursache:** Die Content Security Policy in `Quellcode\site\_headers` blockiert den Aufruf. Fehlt dort eine Adresse, blockiert der Browser sie stillschweigend, ohne dass die Seite selbst etwas davon merkt. Das ist das tückischste Fehlerbild des Systems, weil es keinen Fehlertext gibt.
+**Ursache:** Die Content Security Policy in `frontend\_headers` blockiert den Aufruf. Fehlt dort eine Adresse, blockiert der Browser sie stillschweigend, ohne dass die Seite selbst etwas davon merkt. Das ist das tückischste Fehlerbild des Systems, weil es keinen Fehlertext gibt.
 
 **Prüfschritte**
 
 1. Konsole (F12) öffnen und gezielt nach Zeilen suchen, die mit «Refused to …» beginnen oder das Wort «Content Security Policy» enthalten. Diese Meldungen sind leicht zu übersehen.
 2. Netzwerkanalyse: Fehlt der Aufruf ganz oder ist er als blockiert markiert?
-3. `_headers` gegen die Fassung in `Quellcode\site\_headers` vergleichen.
+3. `_headers` gegen die Fassung in `frontend\_headers` vergleichen.
 
 **Behebung:** Die betroffene Adresse in der passenden Direktive ergänzen und den Ordner neu veröffentlichen. Zur Orientierung, welche Direktive wofür da ist:
 
@@ -347,7 +347,7 @@ Falls der Verdacht besteht, dass am Generator selbst etwas kaputt ist: Der Ordne
 
 Wird eine dieser Adressen je geändert, etwa weil ein Flow neu erstellt wurde, muss sie hier ebenfalls nachgeführt werden.
 
-**Andere Ursache mit gleichem Bild:** Eine der Dateien `konfig.js`, `auth.js` oder `graph.js` fehlt auf Netlify, weil beim Veröffentlichen nur einzelne Dateien statt des ganzen Ordners `site` gezogen wurden. In der Netzwerkanalyse steht dann ein 404 auf die fehlende Datei. Behebung: den vollständigen Ordner neu veröffentlichen.
+**Andere Ursache mit gleichem Bild:** Eine der Dateien `konfig.js`, `auth.js` oder `graph.js` fehlt auf Netlify, weil beim Veröffentlichen nur einzelne Dateien statt des ganzen Ordners `frontend` gezogen wurden. In der Netzwerkanalyse steht dann ein 404 auf die fehlende Datei. Behebung: den vollständigen Ordner neu veröffentlichen.
 
 ### 3.11 Bestellungen erscheinen nicht in der Verwaltung
 
@@ -489,7 +489,7 @@ Betroffen sind zwei Bibliotheken: `@azure/msal-browser` (aktuell 4.30.0, eingebu
    ```bash
    curl -sL <URL> | openssl dgst -sha384 -binary | openssl base64 -A
    ```
-3. In **allen** betroffenen Seiten in `Quellcode\site\` sowohl die Versionsnummer in der Adresse als auch den Wert im Attribut `integrity="sha384-…"` ersetzen. Beides muss zusammenpassen, sonst verweigert der Browser das Laden und die Seite meldet «Die Anmeldebibliothek konnte nicht geladen werden. …».
+3. In **allen** betroffenen Seiten in `frontend\` sowohl die Versionsnummer in der Adresse als auch den Wert im Attribut `integrity="sha384-…"` ersetzen. Beides muss zusammenpassen, sonst verweigert der Browser das Laden und die Seite meldet «Die Anmeldebibliothek konnte nicht geladen werden. …».
 4. Zuerst lokal oder mit `?mock=1` prüfen, danach veröffentlichen (Abschnitt 5.4).
 5. Nach der Veröffentlichung alle drei Admin-Seiten einmal echt anmelden und das Kursblatt einmal mit QR-Code öffnen.
 
@@ -499,10 +499,10 @@ Anlass für eine Anhebung ist eine Sicherheitsmeldung zur Bibliothek oder ein ko
 
 Es gibt **keine** Git-Anbindung und keine automatische Veröffentlichung. Der Weg ist manuell:
 
-1. Änderung in `Quellcode\site\` vornehmen.
+1. Änderung in `frontend\` vornehmen.
 2. Lokal prüfen: `serve.ps1` starten, `http://localhost:8123/` öffnen. Für Seiten mit Anmeldung müssen die drei `localhost:8123`-Umleitungsadressen in der App-Registrierung eingetragen sein.
 3. `https://app.netlify.com` öffnen, die bestehende Site auswählen, Reiter **Deploys**.
-4. Den **ganzen Ordner** `site` in das Feld für Drag & Drop ziehen. Nicht einzelne Dateien, sonst fehlen `konfig.js`, `auth.js`, `graph.js` oder `_headers` und die Seiten bleiben leer (Abschnitt 3.10).
+4. Den **ganzen Ordner** `frontend` in das Feld für Drag & Drop ziehen. Nicht einzelne Dateien, sonst fehlen `konfig.js`, `auth.js`, `graph.js` oder `_headers` und die Seiten bleiben leer (Abschnitt 3.10).
 5. Warten, bis der Deploy als «Published» markiert ist.
 6. Gegenprüfen: `admin.html` öffnen, eine Klasse auswählen, Kursblatt und Menüblatt aufrufen und einen Gästelink testen. Beim Prüfen den Browsercache umgehen (Strg und F5).
 

@@ -52,8 +52,8 @@ Ausführlich steht das in `03_Technische_Dokumentation.md`, Abschnitt 10.
 
 ---
 
-## Verhältnis zum Arbeitsverzeichnis
+## Verhältnis zum laufenden Betrieb
 
-Dieser Ordner ist eine **Momentaufnahme** vom 28.08.2026. Gearbeitet wurde in `C:\Claude\menuwahl-bauluut\`. Wer dort etwas ändert und veröffentlicht, sollte die geänderten Dateien anschliessend hierher zurückspielen, damit Dokumentation und Wirklichkeit nicht auseinanderlaufen.
+Dieses Repository ist der **massgebende Stand**, nicht eine Kopie davon. Netlify hängt daran und liefert nach jedem Push auf `main` aus, was in `frontend` liegt. Es gibt kein zweites Arbeitsverzeichnis, aus dem nachträglich zurückgespielt werden müsste; das frühere `C:\Claude\menuwahl-bauluut\` ist damit gegenstandslos.
 
-Veröffentlicht wird von Hand: Ordner `frontend` bei Netlify per Drag & Drop ablegen. Siehe `04_Einrichtung_und_Deployment.md`, Abschnitt 4.
+Gesteuert wird die Auslieferung durch `netlify.toml` im Wurzelverzeichnis. Der Ablauf Schritt für Schritt steht in `04_Einrichtung_und_Deployment.md`, Abschnitt 4.

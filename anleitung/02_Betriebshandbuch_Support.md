@@ -497,16 +497,17 @@ Anlass für eine Anhebung ist eine Sicherheitsmeldung zur Bibliothek oder ein ko
 
 ### 5.4 Änderung an der Webseite veröffentlichen
 
-Es gibt **keine** Git-Anbindung und keine automatische Veröffentlichung. Der Weg ist manuell:
+Netlify ist an das Git-Repository angebunden. Ein Push auf `main` veröffentlicht automatisch, ein eigener Schritt bei Netlify entfällt.
 
 1. Änderung in `frontend\` vornehmen.
-2. Lokal prüfen: `serve.ps1` starten, `http://localhost:8123/` öffnen. Für Seiten mit Anmeldung müssen die drei `localhost:8123`-Umleitungsadressen in der App-Registrierung eingetragen sein.
-3. `https://app.netlify.com` öffnen, die bestehende Site auswählen, Reiter **Deploys**.
-4. Den **ganzen Ordner** `frontend` in das Feld für Drag & Drop ziehen. Nicht einzelne Dateien, sonst fehlen `konfig.js`, `auth.js`, `graph.js` oder `_headers` und die Seiten bleiben leer (Abschnitt 3.10).
-5. Warten, bis der Deploy als «Published» markiert ist.
-6. Gegenprüfen: `admin.html` öffnen, eine Klasse auswählen, Kursblatt und Menüblatt aufrufen und einen Gästelink testen. Beim Prüfen den Browsercache umgehen (Strg und F5).
+2. Lokal prüfen: `code\serve.ps1` starten, `http://localhost:8123/` öffnen. Für Seiten mit Anmeldung müssen die drei `localhost:8123`-Umleitungsadressen in der App-Registrierung eingetragen sein.
+3. Committen und auf `main` pushen.
+4. Bei Netlify unter **Deploys** verfolgen, bis der Deploy als «Published» markiert ist. Das dauert üblicherweise weniger als eine Minute.
+5. Gegenprüfen: `admin.html` öffnen, eine Klasse auswählen, Kursblatt und Menüblatt aufrufen und einen Gästelink testen. Beim Prüfen den Browsercache umgehen (Strg und F5).
 
-Eine fehlerhafte Veröffentlichung lässt sich in Netlify über den Deploy-Verlauf sofort auf einen früheren Stand zurücksetzen. Das ist der schnellste Ausweg, wenn nach einer Änderung nichts mehr geht.
+Eine fehlerhafte Veröffentlichung lässt sich in Netlify über den Deploy-Verlauf sofort auf einen früheren Stand zurücksetzen («Publish deploy» beim gewünschten älteren Eintrag). Das ist der schnellste Ausweg, wenn nach einer Änderung nichts mehr geht; der Fehler im Repository ist danach in Ruhe zu bereinigen, sonst holt der nächste Push den kaputten Stand zurück.
+
+**Wenn ein Deploy gar nicht erst startet:** prüfen, ob `netlify.toml` im Wurzelverzeichnis noch vorhanden und gültig ist. Fehlt darin `publish = "frontend"`, veröffentlicht Netlify das Wurzelverzeichnis statt der Webseite; die Site zeigt dann eine Dateiliste oder einen 404.
 
 ### 5.5 Neue Klasse anlegen (Réception, zur Auskunft)
 

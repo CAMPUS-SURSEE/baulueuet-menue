@@ -80,7 +80,7 @@ Jede Seite trägt ihr HTML, CSS und JavaScript in einer einzigen Datei. Geteilt 
 
 **Gestaltung:** Weiss, minimal, vier CSS-Variablen (`--orange #E8722A`, `--schwarz #111111`, `--grau #767676`, `--linie #ebebeb`), Systemschriften, Radien von 10px. Das Logo ist ein Inline-SVG, es wird nichts nachgeladen.
 
-**Veröffentlichen:** Netlify, Ordner `frontend` per Drag & Drop auf die bestehende Site ziehen (Deploys, dann Drag & Drop). Es gibt keine Git-Anbindung und keine automatische Veröffentlichung.
+**Veröffentlichen:** Netlify, angebunden an das Git-Repository. Ein Push auf `main` veröffentlicht automatisch. Was Netlify dabei tut, steht in `netlify.toml` im Wurzelverzeichnis: Ordner `frontend` ausliefern, nichts bauen, nichts nachbearbeiten. Siehe `04_Einrichtung_und_Deployment.md`, Abschnitt 4.
 
 ---
 

@@ -24,6 +24,7 @@ Kursteilnehmende am Campus Sursee wählen ihr Mittagsmenü über eine Webseite s
 ```
 baulueuet-menue/
 ├── README.md                         dieses Dokument
+├── netlify.toml                      Hosting-Einstellungen für Netlify
 ├── frontend/                         die Webseite, genau so wie sie gehostet wird
 │   ├── index.html                    Gästeseite, Menüwahl
 │   ├── admin.html                    Verwaltung der Klassen
@@ -52,29 +53,38 @@ Alle Pfadangaben in den Dokumenten sind ab diesem Wurzelverzeichnis zu lesen.
 
 ---
 
-## Veröffentlichen über GitHub Pages
+## Veröffentlichen
 
-Der Ordner `frontend` ist so aufgebaut, dass er direkt als Quelle für GitHub Pages
-dienen kann: **Settings → Pages → Source: Deploy from a branch → Branch `main`,
-Ordner `/frontend`**. Es gibt keinen Bauprozess; was in `frontend` liegt, wird
-unverändert ausgeliefert.
+Gehostet wird bei **Netlify**, angebunden an dieses Git-Repository: Ein Push auf
+`main` veröffentlicht automatisch. Die Einstellungen dafür stehen in
+[`netlify.toml`](netlify.toml) und nicht in der Netlify-Oberfläche.
 
-Drei Dinge dazu:
+| Einstellung | Wert | Bedeutung |
+|---|---|---|
+| `publish` | `frontend` | nur dieser Ordner geht ins Netz; `anleitung`, `code` und `Vorlagen` bleiben aussen vor |
+| `command` | leer | es gibt keinen Bauprozess |
+| `skip_processing` | `true` | Netlify optimiert nichts nach, ausgeliefert wird genau der Stand aus dem Repository |
 
-- `.nojekyll` muss bleiben. Ohne diese Datei ignoriert GitHub Pages alles, was mit
-  einem Unterstrich beginnt, also auch `_headers`.
-- `_headers` wirkt nur bei Netlify. GitHub Pages liest die Datei nicht, die
-  Sicherheitsheader und die Content Security Policy entfallen dort. Für den
-  Produktivbetrieb bleibt Netlify die Referenz, siehe
-  [`anleitung/04_Einrichtung_und_Deployment.md`](anleitung/04_Einrichtung_und_Deployment.md).
-- Für die Domäne `menue.campus-sursee.ch` bräuchte es zusätzlich eine Datei
-  `frontend/CNAME` mit dem Domänennamen und den passenden DNS-Eintrag.
+Sicherheitsheader und Content Security Policy stehen bewusst **nicht** in
+`netlify.toml`, sondern in [`frontend/_headers`](frontend/_headers), samt
+Begründung zu jeder einzelnen Regel. Bitte nur dort nachführen: Zwei Fassungen
+derselben Richtlinie führen zu Fehlern, die kaum zu finden sind, weil der
+Browser blockierte Aufrufe stillschweigend verwirft.
 
-Lokal anschauen ohne Hosting:
+Der Ablauf Schritt für Schritt steht in
+[`anleitung/04_Einrichtung_und_Deployment.md`](anleitung/04_Einrichtung_und_Deployment.md),
+Abschnitt 4. Dort ist auch der Weg ohne Git beschrieben, das Ablegen des Ordners
+`frontend` per Drag & Drop, der die Ausnahme bleiben soll.
+
+Lokal anschauen, ohne etwas zu veröffentlichen:
 
 ```
 powershell -ExecutionPolicy Bypass -File code\serve.ps1
 ```
+
+Die Datei `frontend/.nojekyll` hat für Netlify keine Bedeutung. Sie bleibt
+liegen, damit der Ordner notfalls auch als Quelle für GitHub Pages taugt; ohne
+sie würde Pages `_headers` wegen des Unterstrichs ignorieren.
 
 ---
 

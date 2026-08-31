@@ -110,22 +110,32 @@ Wer nicht zugewiesen ist, erhält bei der Anmeldung `AADSTS50105`.
 
 ## 4. Eine Änderung veröffentlichen
 
-Es gibt keine Git-Anbindung und keine automatische Veröffentlichung.
+Netlify ist an das Git-Repository `CAMPUS-SURSEE/baulueuet-menue` angebunden und veröffentlicht bei jedem Push auf `main` automatisch.
 
 1. Änderung lokal machen und mit `?mock=1` prüfen, siehe `03_Technische_Dokumentation.md`, Abschnitt 11.
-2. Bei Netlify anmelden, zur Site von `menue.campus-sursee.ch` gehen.
-3. Reiter **Deploys**, dann den Ordner `frontend` per **Drag & Drop** auf das Feld ziehen.
-4. Netlify veröffentlicht sofort. Danach die Seite mit geleertem Zwischenspeicher aufrufen und kurz gegenprüfen.
+2. Committen und auf `main` pushen.
+3. Bei Netlify unter **Deploys** verfolgen, bis der Eintrag «Published» heisst.
+4. Danach die Seite mit geleertem Zwischenspeicher aufrufen und kurz gegenprüfen.
 
-> Es muss immer der **ganze Ordner** gezogen werden, nicht einzelne Dateien. Netlify ersetzt den Inhalt vollständig; eine Datei, die im Ordner fehlt, verschwindet auch von der Site.
+Was Netlify dabei tut, steht in `netlify.toml` im Wurzelverzeichnis:
 
-Der Quellcode in `frontend\` dieses Ordners ist der Stand vom 28.08.2026. Wer daran arbeitet, sollte die geänderte Fassung anschliessend hierher zurückspielen, damit die Dokumentation nicht auseinanderläuft.
+| Einstellung | Wert | Warum |
+|---|---|---|
+| `publish` | `frontend` | nur dieser Ordner geht ins Netz, `anleitung`, `code` und `Vorlagen` bleiben aussen vor |
+| `command` | leer | es gibt keinen Bauprozess |
+| `skip_processing` | `true` | Netlify soll nichts nachträglich optimieren, damit die Prüfsummen der Bibliotheken stimmen |
+
+Diese Datei hat Vorrang vor den Einstellungen in der Netlify-Oberfläche. Wird sie geändert, gilt die Änderung ab dem nächsten Deploy.
+
+> **Ohne Git veröffentlichen** geht weiterhin: Reiter **Deploys**, den Ordner `frontend` per Drag & Drop auf das Feld ziehen. Dabei muss immer der **ganze Ordner** gezogen werden, nicht einzelne Dateien; Netlify ersetzt den Inhalt vollständig. Dieser Weg umgeht das Repository und sollte die Ausnahme bleiben, weil der veröffentlichte Stand danach nicht mehr dem Repository entspricht.
+
+Seit der Anbindung an Git ist dieses Repository der massgebende Stand: Was in `frontend\` liegt, ist das, was im Netz steht. Ein separates Arbeitsverzeichnis, aus dem nachträglich zurückgespielt werden müsste, gibt es nicht mehr.
 
 ---
 
 ## 5. Erstinbetriebnahme, Prüfliste
 
-- [ ] Ordner `frontend` auf Netlify gezogen
+- [ ] Netlify mit dem Git-Repository verbunden, erster Deploy aus `main` ist «Published»
 - [ ] `https://menue.campus-sursee.ch/admin.html` öffnet sich und die Anmeldung gelingt
       *Dieser eine Schritt belegt auf einmal, dass Umleitungsadresse, Graph-Berechtigung und Benutzerzuweisung stimmen.*
 - [ ] Testklasse angelegt, Zugangscode wurde automatisch erzeugt
@@ -168,7 +178,7 @@ Falls die Webseite je vollständig neu aufgesetzt werden muss:
 1. **SharePoint:** Listen «Klassen» und «Bestellungen» mit den Spalten aus `03_Technische_Dokumentation.md`, Abschnitt 4. Die internen Feldnamen müssen genau stimmen, sonst greift `graph.js` ins Leere. Neue Listen-IDs in `konfig.js` eintragen.
 2. **Power Automate:** Flow B und Flow C neu bauen, Aufbau und Lunchgate-Anbindung siehe `03_Technische_Dokumentation.md`, Abschnitt 7. Neue Aufruf-Adressen in `konfig.js` und im Kopf von `index.html` eintragen. Den Aufräum-Flow nicht vergessen.
 3. **Entra ID:** App-Registrierung nach Abschnitt 2 dieses Dokuments.
-4. **Netlify:** neue Site anlegen, Ordner `frontend` hochladen, Domäne `menue.campus-sursee.ch` verbinden.
+4. **Netlify:** neue Site aus dem Git-Repository anlegen. Build-Einstellungen kommen aus `netlify.toml` und müssen in der Oberfläche nicht erfasst werden. Anschliessend Domäne `menue.campus-sursee.ch` verbinden.
 5. Prüfliste aus Abschnitt 5 abarbeiten.
 
 Der vollständige Quellcode liegt in `frontend\`. Er enthält keine Abhängigkeit zu einem Bauprozess: Was dort liegt, ist genau das, was ausgeliefert wird.

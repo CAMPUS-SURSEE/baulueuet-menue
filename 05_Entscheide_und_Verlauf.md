@@ -1,0 +1,147 @@
+# Entscheide und Verlauf
+
+**Stand:** 28.08.2026
+
+Warum das System so gebaut ist, wie es gebaut ist. Dieses Dokument beantwortet die Fragen, die sich sonst in einem Jahr niemand mehr beantworten kann.
+
+---
+
+## 1. Warum überhaupt
+
+Bisher füllten Kursteilnehmende ein Papierblatt aus, das die Réception bis 10:00 Uhr einsammelte und der Küche übergab. Das kostete Zeit, war schlecht lesbar, und Allergien gingen unter. Die digitale Fassung behält den Ablauf bei und ersetzt nur das Papier durch eine Webseite.
+
+Das gedruckte Menüblatt für die Küche gibt es weiterhin. Es ist bewusst dem alten Word-Blatt nachempfunden, das unter `Vorlagen\Menueauswahlblatt_Original_Word.docx` beiliegt, damit sich in der Küche nichts umgewöhnen muss.
+
+---
+
+## 2. Warum keine Anmeldung für die Gäste
+
+Kursteilnehmende sind externe Personen ohne Konto im Mandanten. Eine Anmeldung wäre für sie eine Hürde, die den ganzen Zweck zunichtemacht. Die Gästeseite ist deshalb anonym erreichbar und über den achtstelligen Zugangscode geschützt.
+
+**Was das bedeutet:** Wer den Code kennt, kann bestellen. Das ist bewusst so. Bei einem Mittagsmenü ist der Schaden eines Missbrauchs gering, und der Code ist lang genug, dass er sich nicht erraten lässt.
+
+---
+
+## 3. Warum Power Apps abgelöst wurde
+
+Die Verwaltung lief zunächst als Power-Apps-Canvas-App. Sie funktionierte, hatte aber aus Sicht der Betreuung mehrere Nachteile:
+
+- Änderungen nur im Power-Apps-Studio, mit eigenen Eigenheiten und leicht verlorenen Formeln
+- eine zweite Oberfläche mit eigenem Aussehen neben der bereits vorhandenen Webseite
+- Lizenz- und Freigabefragen bei jeder neuen Person
+- kein Quellcode, der sich versionieren, lesen oder ablegen liesse
+
+Die Ablösung durch `admin.html` bringt: eine einzige Technologie für alles, lesbaren und ablegbaren Quellcode, dasselbe Aussehen wie die Gästeseite, und keine zusätzliche Lizenzfrage.
+
+**Was dabei verloren ging:** nichts. Alle Funktionen der App wurden übernommen, dazu kamen die Detailliste der Bestellungen und die beiden Druckknöpfe, die vorher noch offen waren.
+
+---
+
+## 4. Warum Flow B trotzdem weiterlebt
+
+Naheliegend wäre gewesen, alle Power-Automate-Flows abzuschaffen. Das geht nicht, aus zwei Gründen:
+
+1. **Die Gästeseite braucht einen anonymen Zugang** zu den Daten. Ohne Anmeldung gibt es kein Token für Microsoft Graph. Flow B und Flow C sind dieser Zugang.
+2. **Die Lunchgate-Schnittstelle lässt sich nicht aus dem Browser aufrufen.** Sie verlangt Basic Authentication und sendet keine CORS-Freigaben. Ausserdem hätten die Zugangsdaten im öffentlich lesbaren Quelltext gestanden. Flow B ist deshalb die einzige Stelle, welche die Tagesmenüs holt; auch das Menüblatt bezieht sie von dort.
+
+Ein vierter Flow «API Bestellungen laden» war geplant und wurde **nie gebaut**. Er ist überflüssig geworden, weil `menueblatt.html` die Bestellungen direkt über Graph holt.
+
+---
+
+## 5. Warum das Kursblatt über Graph läuft und nicht über Flow B
+
+Kursblätter werden **im Voraus** gedruckt, oft Tage vor dem Kurs. Flow B ist auf den laufenden Tag ausgerichtet, weil er die Tagesmenüs mitliefert. Über Graph stimmen die Klassendaten für jedes Datum. Menütexte braucht das Kursblatt ohnehin keine.
+
+---
+
+## 6. Warum zuerst alles selbst gebaut und dann auf Bibliotheken umgestellt wurde
+
+Die erste Fassung enthielt einen selbst geschriebenen QR-Encoder (rund 380 Zeilen) und einen selbst geschriebenen OAuth-Ablauf mit PKCE (rund 230 Zeilen). Der Gedanke dahinter: keine Abhängigkeit von fremden Servern, eine sehr enge Content Security Policy, nichts, was zusätzlich ausgeliefert werden muss.
+
+Auf ausdrücklichen Wunsch wurde das umgestellt auf **so wenig selbstgebauten Code wie möglich**. Heute übernehmen `@azure/msal-browser` die Anmeldung und `qrcode-generator` den QR-Code, beide per CDN.
+
+**Abwägung, ehrlich benannt:**
+
+| | Eigenbau | Bibliothek vom CDN |
+|---|---|---|
+| Abhängigkeit von Dritten | keine | `cdn.jsdelivr.net` muss erreichbar sein |
+| Code, den jemand warten muss | rund 610 Zeilen mehr | rund 610 Zeilen weniger |
+| Sicherheitslücken | müssen selbst gefunden werden | werden vom Hersteller behoben, Version muss aber nachgeführt werden |
+| Content Security Policy | sehr eng | eine zusätzliche Quelle erlaubt |
+
+Abgesichert ist die Abhängigkeit durch feste Versionen und `integrity`-Prüfsummen: Eine unbemerkt ausgetauschte Datei würde vom Browser abgelehnt. Fällt der CDN aus, melden die Seiten das im Klartext, statt leer zu bleiben.
+
+Der alte QR-Encoder liegt nicht mehr im Quellcode. Der Testordner `qr-test` im Arbeitsverzeichnis ist damit gegenstandslos.
+
+---
+
+## 7. Kleinere Entscheide
+
+**Ganze Listen holen und im Browser filtern.** Serverseitige `$filter` auf SharePoint-Listenspalten setzen einen Spaltenindex voraus und scheitern sonst sporadisch. Bei höchstens ein paar hundert Einträgen ist das Filtern im Browser einfacher und zuverlässiger.
+
+**Datum beim Schreiben auf Mittag UTC setzen.** So landet der Wert auch bei Zeitzonenverschiebung sicher auf dem gewünschten Tag. Beim Lesen wird immer über die lokale Zeitzone umgerechnet, damit auch die von der alten Power App angelegten Einträge richtig erscheinen.
+
+**Zugangscode ohne 0, O, 1 und I.** Der Code steht auf einem gedruckten Blatt und wird von Hand abgetippt. Verwechselbare Zeichen sind dort ein echtes Ärgernis.
+
+**Bestellungen bleiben beim Löschen einer Klasse stehen.** Bewusst so: Ein versehentliches Löschen soll nicht stillschweigend die Bestellungen mitreissen. Die Rückfrage weist ausdrücklich darauf hin. Der Aufräum-Flow entfernt die verwaisten Einträge nach 30 Tagen.
+
+**Aufbewahrung 30 Tage.** Es sind Namen mit Angaben zu Allergien, also Gesundheitsdaten. Sie werden nur so lange behalten, wie sie für den Betrieb gebraucht werden.
+
+**Keine Fusszeile auf den Seiten.** Auf Wunsch entfernt, damit die Blätter im Druck ruhiger wirken.
+
+---
+
+## 8. Bekannte Schwächen
+
+Diese Punkte sind bekannt und bewusst in Kauf genommen. Sie gehören auf die Liste, falls das System einmal ausgebaut wird.
+
+| Schwäche | Auswirkung | Möglicher Ausbau |
+|---|---|---|
+| Flow C prüft das Datum nicht serverseitig | Wer die Schnittstelle direkt aufruft, könnte am falschen Tag bestellen | Datumsprüfung in Flow C ergänzen |
+| Aufteilung der Vorspeisenzeile am Wort « oder » | Schreibt die Küche die Zeile anders, landet alles im Feld Suppe | Lunchgate-Felder sauberer trennen, oder in SharePoint pflegen |
+| Zugriff auf die Verwaltung wird von Hand zugewiesen | Bei Personalwechsel leicht vergessen | Entra ID P1 und Gruppenzuweisung |
+| Abhängigkeit von `cdn.jsdelivr.net` | Bei Ausfall keine Anmeldung und kein QR-Code | Bibliotheken lokal mit ausliefern |
+| Veröffentlichung von Hand per Drag & Drop | Kein Verlauf, kein Rückschritt auf eine frühere Fassung | Git-Anbindung an Netlify |
+| Verwaiste Bestellungen nach dem Löschen einer Klasse | Bleiben bis zu 30 Tage in der Liste | Aufräum-Flow um verwaiste Einträge erweitern |
+
+---
+
+## 9. Verlauf
+
+| Datum | Was |
+|---|---|
+| bis 26.08.2026 | Konzept, SharePoint-Listen, Gästeseite `index.html`, Flow B und Flow C |
+| 27.08.2026 | Lunchgate-Anbindung direkt in Flow B, Aufräum-Flow, erste Fassung der Power-Apps-Verwaltung |
+| 28.08.2026, Vormittag | Gästeseite: Knopf «Auswahl bearbeiten» und Merken der eigenen Bestellung im Browser. Druckblätter `kursblatt.html` und `menueblatt.html` |
+| 28.08.2026, Mittag | **Ablösung von Power Apps.** Neue Verwaltung `admin.html`, Anmeldung an Entra ID, Zugriff auf SharePoint über Microsoft Graph. Flow D wird gegenstandslos |
+| 28.08.2026, Nachmittag | Umstellung auf Bibliotheken vom CDN (MSAL, qrcode-generator), Fusszeilen entfernt, vollständige Dokumentation |
+
+**Beim Umbau gefundene und behobene Fehler**, festgehalten, weil sie sich wiederholen könnten:
+
+- Eine Race Condition beim Speichern: Der abschliessende Zweig setzte die Knopfbeschriftung nachträglich wieder zurück, nachdem die Ansicht schon gewechselt hatte.
+- Ein horizontaler Überlauf der Kopfzeile auf Bildschirmen unter etwa 520 Pixeln Breite.
+- Ein fehlender Ruhezonenrand am QR-Code nach dem Wechsel auf die Bibliothek. Ursache war, dass `margin` in SVG-Einheiten zählt und nicht in Modulen.
+
+---
+
+## 10. Was geprüft wurde und was nicht
+
+Auf dem Arbeitsplatz sind weder Node noch Python installiert, geprüft wurde deshalb im Browser gegen den lokalen Server.
+
+**Geprüft:**
+
+- Datumsumrechnung für beide in SharePoint vorkommenden Schreibweisen
+- Zugangscode über 500 Läufe, nur erlaubte Zeichen
+- Verwaltung im Testmodus vollständig: Liste, Suche, Umschalter, Anlegen, Bearbeiten, Löschen, Link kopieren, Zähler gegen die Bestelltabelle nachgerechnet
+- Beide Druckblätter im Testmodus, Sortierung und Zähler stimmig
+- QR-Code mit **jsQR**, einem fremden Decoder, zurückgelesen: vier Gästelinks kamen zeichengleich zurück. Ruhezone genau vier Module, Symbol 62.8 mm im Rahmen von 78 mm
+- MSAL lädt vom CDN mit intakter Prüfsumme und initialisiert mit der echten Client-ID
+- Content Security Policy gegen eine Kopie der Gästeseite, keine Verletzungen
+
+**Nicht geprüft, offen:**
+
+- der Zugriff auf SharePoint über Graph gegen echte Daten. Am ehesten stolpert man über die Schreibweise der Auswahlwerte in der Spalte `Status`
+- die Anmeldung mit einem echten Konto. Ob Umleitungsadressen, Graph-Berechtigung und Benutzerzuweisung stimmen, zeigt der erste Login auf einen Schlag
+- der QR-Code mit einer echten Handykamera. Technisch ist er gegen die Norm belegt, der Praxistest dauert zehn Sekunden und sollte einmal gemacht werden
+
+> Ein Hinweis zur Redlichkeit: Während der Arbeit wurde versucht, die registrierten Umleitungsadressen zu prüfen, indem der Anmeldeendpunkt aufgerufen wurde. Dieser Test taugt nicht. Eine absichtlich falsche Adresse liefert dieselbe Anmeldemaske, der Fehler erscheint erst nach der Anmeldung. Wer das künftig prüfen will, muss sich tatsächlich anmelden.

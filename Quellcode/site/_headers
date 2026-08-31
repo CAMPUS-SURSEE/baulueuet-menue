@@ -1,0 +1,26 @@
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: no-referrer
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://baulueuet.ch; connect-src 'self' https://graph.microsoft.com https://login.microsoftonline.com https://default2553fb745dcc40728bb5399d18f72a.f9.environment.api.powerplatform.com; frame-src https://login.microsoftonline.com; base-uri 'none'; form-action 'self' https://login.microsoftonline.com; frame-ancestors 'none'
+
+# Hinweise zur Richtlinie oben:
+#   script-src 'unsafe-inline'  weil alle Seiten ihr JavaScript inline im
+#                               <script>-Block tragen.
+#   script-src cdn.jsdelivr.net für die beiden eingebundenen Bibliotheken:
+#                               MSAL (Anmeldung) und qrcode-generator
+#                               (QR-Code auf dem Kursblatt). Beide sind in den
+#                               Seiten mit einer Integritätsprüfsumme
+#                               (integrity="sha384-...") auf eine feste Fassung
+#                               festgenagelt. Wird eine Version angehoben, muss
+#                               die Prüfsumme mitgezogen werden, sonst lädt der
+#                               Browser die Datei nicht mehr.
+#   img-src baulueuet.ch        nur für das Favicon.
+#   connect-src                 Microsoft Graph und die Anmeldung für die
+#                               Admin-Seiten, dazu der Power-Automate-Host für
+#                               Flow B und C (Gästeseite und Tagesmenüs).
+#   frame-src login...          MSAL erneuert Token still in einem verborgenen
+#                               Rahmen; ohne diesen Eintrag scheitert das.
+# Wird eine dieser Adressen je geändert, muss sie auch hier nachgeführt werden,
+# sonst blockiert der Browser den Aufruf stillschweigend.

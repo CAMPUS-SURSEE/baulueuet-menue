@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Menüwahl Verwaltung</title>
+<link rel="icon" type="image/webp" href="https://baulueuet.ch/wp-content/uploads/2019/06/cropped-bauluut_favicon_neg3-32x32.webp">
+<style>
+  :root {
+    --orange: #E8722A;
+    --schwarz: #111111;
+    --grau: #767676;
+    --linie: #ebebeb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #fff;
+    color: var(--schwarz);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px 64px; }
+
+  /* ---------- Kopfzeile ---------- */
+  header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    padding: 28px 0 20px;
+    border-bottom: 1px solid var(--linie);
+  }
+  header .logo { width: 84px; flex: none; line-height: 0; }
+  header .logo svg { width: 100%; height: auto; fill: var(--schwarz); }
+  header h1 {
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--grau);
+  }
+  .kopf-rechts {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 0.85rem;
+    color: var(--grau);
+    text-align: right;
+  }
+  .kopf-name { max-width: 220px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* Auf schmalen Bildschirmen rutscht der rechte Block auf eine eigene Zeile
+     und der Name wird gekürzt, sonst schiebt er die Seite seitlich hinaus. */
+  @media (max-width: 520px) {
+    .kopf-name { max-width: 150px; }
+  }
+
+  /* ---------- allgemeine Bausteine ---------- */
+  .legende {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--grau);
+    margin-bottom: 14px;
+  }
+  .hinweis { font-size: 0.8rem; color: var(--grau); }
+
+  button.knopf {
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 10px 18px;
+    border: 1px solid var(--schwarz);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--schwarz);
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  button.knopf:active { opacity: 0.7; }
+  button.knopf:disabled { opacity: 0.4; cursor: default; }
+  button.knopf.voll {
+    border: none;
+    background: var(--schwarz);
+    color: #fff;
+    padding: 14px 26px;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+  }
+  button.knopf.leise {
+    border-color: var(--linie);
+    color: var(--grau);
+    font-weight: 500;
+    padding: 8px 14px;
+    font-size: 0.82rem;
+  }
+  button.textknopf {
+    border: none;
+    background: none;
+    padding: 0;
+    font: inherit;
+    font-size: 0.85rem;
+    color: var(--grau);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  button.textknopf:hover { color: var(--schwarz); }
+
+  input[type=text], input[type=search], input[type=date], input[type=time], select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 12px 0;
+    border: none;
+    border-bottom: 1px solid var(--linie);
+    border-radius: 0;
+    background: #fff;
+    color: var(--schwarz);
+    transition: border-color 0.15s;
+  }
+  input[type=text]:focus, input[type=search]:focus, input[type=date]:focus,
+  input[type=time]:focus, select:focus {
+    outline: none;
+    border-bottom: 1px solid var(--schwarz);
+  }
+  label.feldlabel {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin: 18px 0 4px;
+  }
+
+  .fehlerfeld {
+    display: none;
+    border-left: 3px solid #c0392b;
+    color: #c0392b;
+    padding: 6px 12px;
+    margin-top: 20px;
+    font-size: 0.9rem;
+  }
+
+  .lade { text-align: center; padding: 96px 0; color: var(--grau); font-size: 0.9rem; }
+  .spinner {
+    width: 26px; height: 26px;
+    border: 2px solid var(--linie);
+    border-top-color: var(--schwarz);
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    animation: dreh 0.8s linear infinite;
+  }
+  @keyframes dreh { to { transform: rotate(360deg); } }
+
+  .status-karte { text-align: center; padding: 72px 0 0; max-width: 480px; margin: 0 auto; }
+  .status-karte .symbol { margin-bottom: 20px; }
+  .status-karte .symbol svg {
+    width: 44px; height: 44px;
+    stroke: var(--schwarz);
+    stroke-width: 1.5;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .status-karte h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; }
+  .status-karte p { color: var(--grau); font-size: 0.95rem; }
+  .status-karte button { margin-top: 28px; }
+
+  /* ---------- Raster ---------- */
+  .raster { display: grid; grid-template-columns: 1fr; gap: 32px; padding-top: 28px; }
+  @media (min-width: 900px) {
+    .raster { grid-template-columns: 380px minmax(0, 1fr); gap: 40px; align-items: start; }
+  }
+
+  /* ---------- Klassenliste ---------- */
+  .werkzeuge { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 20px; }
+  .werkzeuge button { flex: 1 1 auto; white-space: nowrap; }
+
+  .liste { display: grid; }
+  .zeile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    border: 1px solid var(--linie);
+    background: #fff;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    margin-top: -1px;
+    position: relative;
+  }
+  .zeile:first-child { margin-top: 0; border-radius: 10px 10px 0 0; }
+  .zeile:last-child { border-radius: 0 0 10px 10px; }
+  .zeile.gewaehlt { border-color: var(--schwarz); z-index: 1; }
+  .zeile .links { min-width: 0; flex: 1 1 auto; }
+  .zeile .z-titel {
+    font-weight: 600;
+    font-size: 0.95rem;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .zeile .z-firma {
+    font-size: 0.88rem; color: var(--grau);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .zeile .z-datum { font-size: 0.82rem; color: var(--grau); margin-top: 4px; }
+  .zeile .rechts { flex: none; text-align: right; }
+  .zeile .z-anzahl { font-size: 0.95rem; font-weight: 600; }
+  .zeile .z-anzahl span { font-size: 0.72rem; font-weight: 500; color: var(--grau); }
+
+  .punkt {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-bottom: 4px;
+  }
+  .punkt.offen { background: var(--orange); }
+  .punkt.zu { background: #fff; border: 1px solid var(--grau); }
+
+  .leer-liste { padding: 24px 0; color: var(--grau); font-size: 0.9rem; }
+
+  /* ---------- Detail ---------- */
+  .detail-leer { color: var(--grau); font-size: 0.92rem; padding: 24px 0; }
+
+  .detail-kopf { border-bottom: 1px solid var(--linie); padding-bottom: 20px; }
+  .detail-kopf .d-titel { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.01em; }
+  .detail-kopf .d-firma { color: var(--grau); font-size: 0.95rem; margin-top: 2px; }
+  .detail-kopf .d-datum { font-weight: 500; font-size: 0.95rem; margin-top: 10px; }
+  .detail-kopf .d-zeit { color: var(--grau); font-size: 0.9rem; }
+
+  .marke {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    padding: 4px 10px;
+    border-radius: 10px;
+    border: 1px solid var(--linie);
+    color: var(--grau);
+  }
+  .marke.offen { border-color: var(--orange); color: var(--orange); }
+
+  .linkzeile {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+    margin-top: 20px;
+  }
+  .linkzeile .gastlink {
+    font-size: 0.88rem;
+    color: var(--grau);
+    word-break: break-all;
+    flex: 1 1 260px;
+  }
+
+  .zaehler {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border: 1px solid var(--linie);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 24px;
+  }
+  @media (min-width: 640px) { .zaehler { grid-template-columns: repeat(6, 1fr); } }
+  .zaehler div {
+    padding: 12px 8px;
+    text-align: center;
+    border-right: 1px solid var(--linie);
+    border-bottom: 1px solid var(--linie);
+  }
+  .zaehler div:last-child { border-right: none; }
+  .zaehler b { display: block; font-size: 1.3rem; font-weight: 700; }
+  .zaehler span {
+    font-size: 0.66rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.14em; color: var(--grau);
+  }
+
+  .knopfreihe { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+
+  .tabellenrahmen { margin-top: 28px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th {
+    text-align: left;
+    font-size: 0.66rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.14em; color: var(--grau);
+    padding: 0 12px 8px 0;
+    border-bottom: 1px solid var(--linie);
+    white-space: nowrap;
+  }
+  td { padding: 11px 12px 11px 0; border-bottom: 1px solid var(--linie); vertical-align: top; }
+  td:last-child, th:last-child { padding-right: 0; }
+  td.allergie { color: var(--orange); font-weight: 700; }
+  .keine-bestellungen { color: var(--grau); font-size: 0.9rem; padding: 20px 0; }
+
+  .loeschzeile { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--linie); }
+
+  .formularfeld { max-width: 460px; }
+  .formularknoepfe { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 36px; }
+
+  .kopiert { font-size: 0.82rem; color: var(--grau); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo" aria-label="BAULÜÜT, Grill und mehr, Bar, Lounge"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 126.6 105.3" role="img"><path d="M66.4 0s.7 3.9-6.5 8.7c-7.3 4.9-8.5 10-6.8 16.2h6.5s-3.5-7.5 4.1-12.3c0 0-2 6.8 2.7 8.7 3.6 1.4 6.6-1.7 6.6-1.7s.1 3.1-1.9 5.3h4.7s2.1-4.9.4-11.1c0 0-4.2 4.9-7.2 2.9-2-1.3-1.3-4.1-.8-6.7.5-2.4.6-6.6-1.8-10zm46.3 27.4c0 12.2-21.6 22.1-48.2 22.1s-48.2-9.9-48.2-22.1h96.4zM11.6 89.9c-1.2.7-3.1 1-5.7 1H0V70.6h4.7c3.2 0 4.9.5 6.4 1.5 1.4.9 2.2 2.2 2.2 4 0 1.9-1.1 3.6-3.1 4.3 3.3.6 4.4 2.9 4.4 4.7s-.8 3.6-3 4.8zM7.8 74.1c-.8-.4-1.8-.6-2.9-.6h-.7v5.7h1.3c1.1 0 1.7-.1 2.2-.4.9-.5 1.5-1.3 1.5-2.4.1-.9-.5-1.8-1.4-2.3zm-2.2 8H4.2v5.6h2c1.1 0 1.9-.1 2.7-.4.8-.4 1.4-1.1 1.4-2.2 0-1.6-1.3-3-4.7-3zm23.9 8.8l-1.6-4.5h-7.5l-1.5 4.5h-4.2l7.1-20.3h4.8l7.6 20.3h-4.7zm-4.7-13.4l-.9-2.5c0 .1-.3 1.1-.7 2.5l-1.9 5.6h5.4l-1.9-5.6zm27.1 3.4c0 3.7-.5 6.1-2.3 7.9-1.4 1.4-3.6 2.4-6.6 2.4-2.8 0-5.5-.8-7.1-2.9-1.3-1.7-1.6-3.9-1.6-7.2V70.6h4.2v10.7c0 2.1.2 3.7 1.1 4.8.8.9 1.9 1.5 3.8 1.5 1.4 0 2.5-.4 3.2-1.2 1-1.1 1.3-2.5 1.3-4.8v-11h4v10.3zm14.6 10h-12V70.6h4.2v16.8h8l-.2 3.5zm19.2-10c0 3.7-.5 6.1-2.3 7.9-1.4 1.4-3.6 2.4-6.6 2.4-2.8 0-5.5-.8-7.1-2.9-1.3-1.7-1.7-4-1.7-7.3V70.6h4.2v10.7c0 2.1.2 3.7 1.1 4.8.8.9 1.9 1.5 3.8 1.5 1.4 0 2.5-.4 3.2-1.2 1-1.1 1.3-2.5 1.3-4.8v-11h4v10.3zm-8.6-6a2.26 2.26 0 0 0 2.3-2.3 2.3 2.3 0 1 0-4.6 0 2.26 2.26 0 0 0 2.3 2.3m29.3 6c0 3.7-.5 6.1-2.3 7.9-1.4 1.4-3.6 2.4-6.6 2.4-2.8 0-5.5-.8-7.1-2.9-1.3-1.7-1.6-3.9-1.6-7.2V70.6H93v10.7c0 2.1.2 3.7 1.1 4.8.8.9 1.9 1.5 3.8 1.5 1.4 0 2.5-.4 3.2-1.2 1-1.1 1.3-2.5 1.3-4.8v-11h4v10.3zm16.9-6.8h-5.4v16.8h-4.2V74.1h-5.4v-3.5h15.3l-.3 3.5zm.5 16.8c-1.7 0-2.8-1.2-2.8-2.9 0-1.6 1.1-2.8 2.9-2.8 1.7 0 2.8 1.2 2.8 2.9-.1 1.7-1.2 2.8-2.9 2.8z"/><path d="M97.7 74.9a2.26 2.26 0 0 0 2.3-2.3 2.3 2.3 0 1 0-4.6 0c-.1 1.3 1 2.3 2.3 2.3M5.6 100.8l-.4.1v2.3l-.1.1-.7-.2c-.4.2-.8.2-1.2.2-1.8 0-3.2-1.2-3.2-3.2 0-1.7 1.1-3.3 3.5-3.3.6 0 1.1.1 1.7.2v1.7c-.1.1-.3.1-.4.1h0l-.3-1.2c-.4-.1-.9-.1-1.3-.1-.5 0-.8 0-1 .1-.3.1-1.1.9-1.1 2.6 0 1.8.9 2.5 2.3 2.5.3 0 .7 0 .9-.1v-1.7l-1-.1v-.1c0-.1 0-.3.1-.4h2.3l-.1.5z"/><path d="M8.2 99.7v3l.9.1h0c0 .1 0 .3-.1.4H6.5l.1-.4.7-.1v-3.2l-.2-.1c-.3-.1-.4-.2-.4-.3V99l1.3-.3.1.7h0c.6-.6.9-.7 1.1-.7.1 0 .2 0 .3.1l.1.7c-.2.1-.4.1-1.4.2zm4.7 3.2c0 .1 0 .3-.1.4h-2.4l.1-.4.7-.1v-3.2l-.2-.1c-.3-.1-.4-.2-.4-.3V99l1.5-.3v4l.8.2h0zm-1.2-5.1c-.4 0-.5-.2-.5-.5a.47.47 0 0 1 .5-.5.5.5 0 1 1 0 1zm4.5 5.1c0 .1 0 .3-.1.4h-2.4l.1-.4.7-.1v-5.3l-.2-.1c-.3-.1-.4-.2-.4-.3v-.2l1.5-.3v6.2l.8.1h0zm3.1 0c0 .1 0 .3-.1.4h-2.4l.1-.4.7-.1v-5.3l-.2-.1c-.3-.1-.4-.2-.4-.3v-.2l1.5-.3v6.2l.8.1h0zm8.5 0c0 .1 0 .3-.1.4l-1.5.1.1-.7h0c-.5.4-1 .7-1.5.7-.8 0-1.4-.4-1.4-1.2v-2.6l-.2-.1c-.3-.1-.4-.2-.4-.3V99l1.5-.3v3.6c.2.2.6.3.9.3.4 0 .7-.1 1.1-.3v-3l-.9-.1h0c0-.1 0-.3.1-.4h1.8l-.3.6v3.3l.8.2h0zm6.2 0c0 .1 0 .3-.1.4h-2.3l.1-.4.7-.1v-3c-.2-.2-.6-.3-.9-.3-.4 0-.8.1-1.1.3v3l.7.1h0c0 .1 0 .3-.1.4h-2.3l.1-.4.7-.1v-3.2l-.2-.1c-.3-.1-.4-.2-.4-.3V99l1.3-.3.1.6h0c.6-.5 1-.6 1.5-.6.9 0 1.4.4 1.4 1.2v2.9l.8.1h0zm5.5 0c0 .1 0 .3-.1.4l-1.5.1.1-.7h0c-.4.5-.9.7-1.3.7-1.2 0-1.9-.9-1.9-2.2 0-1.4 1.1-2.5 2.5-2.5.2 0 .5 0 .7.1v-1.4l-.2-.1c-.3-.1-.4-.2-.4-.3v-.2l1.5-.3v6.2l.6.2h0zm-2.6-.3a1.93 1.93 0 0 0 1-.3v-3c-.4-.1-.9-.1-1.2-.1s-1 .6-1 1.9c-.1 1 .4 1.5 1.2 1.5zm13.8.3c0 .1 0 .3-.1.4h-2.2l.1-.4.6-.1v-3c-.2-.2-.6-.3-.9-.3-.4 0-.8.1-1.1.3v3l.7.1h0c0 .1 0 .3-.1.4h-2.2l.1-.4.6-.1v-3c-.2-.2-.5-.3-.9-.3s-.7.1-1.1.3v3l.7.1h0c0 .1 0 .3-.1.4h-2.3l.1-.4.7-.1v-3.2l-.2-.1c-.3-.1-.4-.2-.4-.3V99l1.3-.3.1.6h0c.6-.5.9-.6 1.4-.6.6 0 1 .2 1.2.7.6-.5 1-.7 1.5-.7.8 0 1.4.3 1.4 1.2v2.9l1.1.1h0zm4.5-2.1h-3c0 1.2.6 1.8 1.6 1.8.5 0 .9-.2 1.2-.4l.1.2c-.3.5-.8.9-1.6.9-1.3 0-2.2-.9-2.2-2.3s1-2.4 2.1-2.4c1 0 1.8.6 1.8 1.7.1.2.1.4 0 .5zm-.7-.5c0-.7-.4-1.1-1.2-1.1h-.4c-.2 0-.6.5-.6 1.2l2.2-.1h0zm6.9 2.6c0 .1 0 .3-.1.4h-2.2l.1-.4.7-.1v-3c-.2-.2-.6-.3-.9-.3-.4 0-.8.1-1.1.3v3l.7.1h0c0 .1 0 .3-.1.4h-2.3l.1-.4.7-.1v-5.3l-.2-.1c-.3-.1-.4-.2-.4-.3v-.2l1.5-.3v2.8h0c.5-.5.9-.6 1.5-.6.9 0 1.4.4 1.4 1.2v2.9h.6 0zm2.6-3.2v3l.9.1h0c0 .1 0 .3-.1.4h-2.5l.1-.4.7-.1v-3.2l-.2-.1c-.3-.1-.4-.2-.4-.3V99l1.3-.3.1.7h0c.6-.6.9-.7 1.1-.7.1 0 .2 0 .3.1l.1.7c-.2.1-.5.1-1.4.2zm5.1.3c-.4 0-.6-.3-.6-.6 0-.4.2-.6.6-.6s.6.2.6.6-.2.6-.6.6zm6.4 3.3h-2.8l.1-.5.8-.1v-5.1l-.9-.1v-.1c0-.1 0-.3.1-.4h2.5c1.4 0 2.2.7 2.2 1.6 0 .7-.4 1.1-1.1 1.4v.1c.8.2 1.4.7 1.4 1.5 0 1-1 1.7-2.3 1.7zm-.3-5.8h-.7v2.4l1.3-.1c.4-.2.7-.7.7-1.2 0-.7-.4-1.1-1.3-1.1zm-.1 2.8h-.6v2.4l1 .1c.8-.1 1.2-.5 1.2-1.2.1-.9-.5-1.3-1.6-1.3zm7.9 2.6c-.1.3-.3.5-.7.5s-.6-.1-.8-.5c-.6.4-.9.5-1.3.5-.8 0-1.3-.3-1.3-1.1 0-.7.4-1 1.3-1.2l1.3-.2v-1.5l-1.6.2c-.4 0-.6-.1-.6-.4 0-.1 0-.3.1-.4h2.5c.3.3.4.6.4 1.1v2.7c.1.1.3.1.5.1h.3v.2zm-1.6-1.6l-1.5.4c-.1.1-.2.3-.2.5 0 .4.2.7.8.7.3 0 .7-.1.9-.1v-1.5zm4.1-1.6v3l.9.1h0c0 .1 0 .3-.1.4h-2.5l.1-.4.7-.1v-3.2l-.2-.1c-.3-.1-.4-.2-.4-.3V99l1.3-.3.1.7h0c.6-.6.9-.7 1.1-.7.1 0 .2 0 .3.1l.1.7c-.2.1-.4.1-1.4.2zm5.1.3c-.4 0-.6-.3-.6-.6 0-.4.2-.6.6-.6s.6.2.6.6c.1.4-.2.6-.6.6zm8.1 3.3H94l.1-.5.8-.1v-5.1l-.9-.1v-.1c0-.1 0-.3.1-.4h2.7l-.1.5-.9.1v5.2l2-.1.3-1.4h.1c.1 0 .3 0 .4.1v1.9zm3.3 0c-1.3 0-2.3-.9-2.3-2.3a2.26 2.26 0 0 1 2.3-2.3c1.3 0 2.3.8 2.3 2.3 0 1.4-1.1 2.3-2.3 2.3zm-.1-4.1c-.9 0-1.3.8-1.3 1.8 0 1.1.5 1.8 1.4 1.8.8 0 1.3-.7 1.3-1.8.1-1.3-.5-1.8-1.4-1.8zm8.4 3.7c0 .1 0 .3-.1.4l-1.5.1.1-.7h0c-.5.4-1 .7-1.5.7-.8 0-1.4-.4-1.4-1.2v-2.6l-.2-.1c-.3-.1-.4-.2-.4-.3V99l1.5-.3v3.6c.2.2.6.3.9.3.4 0 .7-.1 1.1-.3v-3l-.9-.1h0c0-.1 0-.3.1-.4h1.8l-.1.6v3.3l.6.2h0zm6.1 0c0 .1 0 .3-.1.4h-2.2l.1-.4.7-.1v-3c-.2-.2-.6-.3-.9-.3-.4 0-.8.1-1.1.3v3l.7.1h0c0 .1 0 .3-.1.4h-2.3l.1-.4.7-.1v-3.2l-.2-.1c-.3-.1-.4-.2-.4-.3V99l1.3-.3.1.6h0c.6-.5 1-.6 1.5-.6.9 0 1.4.4 1.4 1.2v2.9l.7.1h0zm4.2-3.6h0c.2.3.4.6.4 1 0 .9-.6 1.6-1.8 1.6-.2 0-.5 0-.7-.1-.3.1-.4.4-.4.6 0 .1 0 .2.1.3h1.5c1.1 0 1.6.3 1.6 1 0 .8-1.2 1.6-2.4 1.6s-1.7-.3-1.7-.8c0-.3.1-.5.8-1h0c-.4-.1-.6-.4-.6-.7 0-.4.3-.8.8-1-.5-.2-.8-.7-.8-1.3 0-1 .8-1.7 1.8-1.7.3 0 .5 0 .7.1h1.5v.3c-.2 0-.4.1-.8.1zm-.9 4.2h-1.4c-.3.5-.3.6-.3.7 0 .3.3.5 1.2.5.5 0 1.1-.2 1.4-.4 0-.1.1-.2.1-.3 0-.3-.2-.5-1-.5zm-.6-4.3h-.4c-.2 0-.5.4-.5 1.1 0 .8.4 1.1 1 1.1h.4c.2 0 .5-.4.5-1.1 0-.8-.4-1.1-1-1.1zm6.9 1.6h-3c0 1.2.6 1.8 1.6 1.8.5 0 .9-.2 1.2-.4l.1.2c-.3.5-.8.9-1.6.9-1.3 0-2.2-.9-2.2-2.3s1-2.4 2.1-2.4c1 0 1.8.6 1.8 1.7v.5zm-.8-.5c0-.7-.4-1.1-1.2-1.1h-.4c-.2 0-.6.5-.6 1.2l2.2-.1h0z"/></svg></div>
+    <h1>Menüwahl Verwaltung</h1>
+    <div class="kopf-rechts">
+      <span class="kopf-name" id="kopf-name"></span>
+      <button type="button" class="textknopf" id="btn-abmelden" style="display:none">Abmelden</button>
+    </div>
+  </header>
+
+  <!-- Laden -->
+  <div id="ansicht-laden" class="lade">
+    <div class="spinner"></div>
+    Verwaltung wird geladen …
+  </div>
+
+  <!-- Anmeldefehler -->
+  <div id="ansicht-fehler" class="status-karte" style="display:none">
+    <div class="symbol"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9.5"/><line x1="12" y1="7.5" x2="12" y2="13"/><line x1="12" y1="16.5" x2="12" y2="16.51"/></svg></div>
+    <h2>Anmeldung nicht möglich</h2>
+    <p id="fehler-text"></p>
+    <button type="button" class="knopf" id="btn-erneut">Erneut versuchen</button>
+  </div>
+
+  <!-- Arbeitsbereich -->
+  <div id="ansicht-app" style="display:none">
+    <div id="fehler-global" class="fehlerfeld"></div>
+
+    <div class="raster">
+
+      <!-- linke Spalte: Klassenliste -->
+      <section aria-labelledby="legende-liste">
+        <div class="legende" id="legende-liste">Klassen</div>
+        <input type="search" id="suche" placeholder="Suchen: Titel, Firma oder Code" autocomplete="off">
+        <div class="werkzeuge">
+          <button type="button" class="knopf" id="btn-umschalten">Vergangene anzeigen</button>
+          <button type="button" class="knopf" id="btn-neu">Neue Klasse</button>
+        </div>
+        <div class="liste" id="liste"></div>
+        <div class="leer-liste" id="liste-leer" style="display:none"></div>
+      </section>
+
+      <!-- rechte Spalte: Detail -->
+      <section aria-labelledby="legende-detail">
+        <div class="legende" id="legende-detail">Details</div>
+
+        <div id="detail-leer" class="detail-leer">
+          Links eine Klasse auswählen, um Bestellungen und Gästelink zu sehen.
+        </div>
+
+        <div id="detail-ansicht" style="display:none">
+          <div class="detail-kopf">
+            <div class="d-titel" id="d-titel"></div>
+            <div class="d-firma" id="d-firma"></div>
+            <div class="d-datum" id="d-datum"></div>
+            <div class="d-zeit" id="d-zeit"></div>
+            <span class="marke" id="d-status"></span>
+          </div>
+
+          <div class="linkzeile">
+            <span class="gastlink" id="d-link"></span>
+            <button type="button" class="knopf" id="btn-kopieren">Link kopieren</button>
+            <span class="kopiert" id="kopiert-text"></span>
+          </div>
+
+          <div class="zaehler" id="d-zaehler"></div>
+
+          <div class="knopfreihe">
+            <button type="button" class="knopf" id="btn-kursblatt">Kursblatt drucken</button>
+            <button type="button" class="knopf" id="btn-menueblatt">Menüblatt drucken</button>
+            <button type="button" class="knopf" id="btn-bearbeiten">Bearbeiten</button>
+          </div>
+
+          <div class="tabellenrahmen" id="d-tabelle"></div>
+
+          <div class="loeschzeile">
+            <button type="button" class="knopf leise" id="btn-loeschen">Klasse löschen</button>
+          </div>
+        </div>
+
+        <form id="detail-formular" style="display:none" novalidate>
+          <div id="formular-fehler" class="fehlerfeld"></div>
+          <div class="formularfeld">
+            <label class="feldlabel" for="f-titel">Titel *</label>
+            <input type="text" id="f-titel" maxlength="120" autocomplete="off">
+
+            <label class="feldlabel" for="f-firma">Firma</label>
+            <input type="text" id="f-firma" maxlength="120" autocomplete="off">
+
+            <label class="feldlabel" for="f-datum">Datum</label>
+            <input type="date" id="f-datum">
+
+            <label class="feldlabel" for="f-zeit">Essenszeit</label>
+            <input type="time" id="f-zeit">
+
+            <div id="f-statusblock">
+              <label class="feldlabel" for="f-status">Status</label>
+              <select id="f-status">
+                <option value="offen">offen</option>
+                <option value="geschlossen">geschlossen</option>
+              </select>
+            </div>
+          </div>
+          <div class="formularknoepfe">
+            <button type="submit" class="knopf voll" id="btn-speichern">Klasse speichern</button>
+            <button type="button" class="textknopf" id="btn-abbrechen">Abbrechen</button>
+          </div>
+        </form>
+      </section>
+
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@4.30.0/lib/msal-browser.min.js"
+        integrity="sha384-RGxxfG5yRS8DLU7ZJ8OoLhbV/BsJFHyPuMVHrTLbpj3t5Z15LnviJmaznKY/a7LZ"
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="konfig.js"></script>
+<script src="auth.js"></script>
+<script src="graph.js"></script>
+<script>
+"use strict";
+
+/* ====================================================================
+   admin.html: Verwaltung der Klassen und Bestellungen.
+   Ersetzt die frühere Power-Apps-Canvas-App.
+
+   Aufbau: ganz oben werden die beiden Module Auth und Graph in lokale
+   Namen gelegt. Im Mock-Modus (?mock=1) zeigen diese Namen auf Attrappen,
+   der übrige Code bleibt unverändert.
+   ==================================================================== */
+
+const el = id => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+const istMock = params.get("mock") === "1";
+
+
+/* ---------- Attrappen für den Mock-Modus ---------- */
+
+function mockBauen() {
+  function tagVerschoben(n) {
+    const d = new Date();
+    d.setDate(d.getDate() + n);
+    return d.getFullYear() + "-"
+      + String(d.getMonth() + 1).padStart(2, "0") + "-"
+      + String(d.getDate()).padStart(2, "0");
+  }
+
+  let naechsteId = 100;
+
+  const klassen = [
+    { id: "1", titel: "SORBA EDV AG Lernende 2. Jahr", firma: "SORBA EDV AG",
+      datum: tagVerschoben(14), essenszeit: "12:00", code: "K7HMP3RA",
+      status: "offen", bemerkung: "", erstellt: null },
+    { id: "2", titel: "Baukader Führungsseminar", firma: "Campus Sursee",
+      datum: tagVerschoben(3), essenszeit: "11:45", code: "TQ4X9BND",
+      status: "offen", bemerkung: "", erstellt: null },
+    { id: "3", titel: "Polierkurs Modul 4", firma: "Implenia Schweiz AG",
+      datum: tagVerschoben(0), essenszeit: "12:15", code: "M2VJ8KWS",
+      status: "offen", bemerkung: "", erstellt: null },
+    { id: "4", titel: "Kranführerkurs Abschluss", firma: "Marti AG",
+      datum: tagVerschoben(-9), essenszeit: "12:00", code: "R6ZDF4YT",
+      status: "geschlossen", bemerkung: "", erstellt: null }
+  ];
+
+  const bestellungen = [
+    { id: "b1", klasseId: "3", vorname: "Anna",   nachname: "Berger",
+      vorspeise: "Suppe", hauptgang: "Menü 1", bemerkung: "" },
+    { id: "b2", klasseId: "3", vorname: "Luca",   nachname: "Meier",
+      vorspeise: "Salat", hauptgang: "Menü 2", bemerkung: "laktosefrei" },
+    { id: "b3", klasseId: "3", vorname: "Sarah",  nachname: "Odermatt",
+      vorspeise: "Keine", hauptgang: "Menü 1", bemerkung: "" },
+    { id: "b4", klasseId: "3", vorname: "Marco",  nachname: "Zünd",
+      vorspeise: "Suppe", hauptgang: "Menü 2", bemerkung: "Nussallergie" },
+    { id: "b5", klasseId: "3", vorname: "Elena",  nachname: "Huber",
+      vorspeise: "Salat", hauptgang: "Menü 1", bemerkung: "" },
+    { id: "b6", klasseId: "1", vorname: "Jonas",  nachname: "Amrein",
+      vorspeise: "Suppe", hauptgang: "Menü 1", bemerkung: "" },
+    { id: "b7", klasseId: "1", vorname: "Nina",   nachname: "Wyss",
+      vorspeise: "Keine", hauptgang: "Menü 2", bemerkung: "glutenfrei" },
+    { id: "b8", klasseId: "2", vorname: "Peter",  nachname: "Steiner",
+      vorspeise: "Salat", hauptgang: "Menü 2", bemerkung: "" },
+    { id: "b9", klasseId: "4", vorname: "Ruedi",  nachname: "Bucher",
+      vorspeise: "Suppe", hauptgang: "Menü 1", bemerkung: "" },
+    { id: "b10", klasseId: "4", vorname: "Silvia", nachname: "Frei",
+      vorspeise: "Salat", hauptgang: "Menü 1", bemerkung: "vegetarisch" }
+  ];
+
+  function warten() {
+    return new Promise(r => setTimeout(r, 220));
+  }
+
+  function kopie(o) {
+    return JSON.parse(JSON.stringify(o));
+  }
+
+  const MockAuth = {
+    anmeldungSicherstellen: async function () {
+      await warten();
+      return { name: "Testperson (Mock-Modus)", adresse: "mock@campus-sursee.ch" };
+    },
+    konto: function () {
+      return { name: "Testperson (Mock-Modus)", adresse: "mock@campus-sursee.ch" };
+    },
+    abmelden: function () { location.reload(); },
+    token: async function () { return "mock"; }
+  };
+
+  const MockGraph = {
+    klassen: async function () {
+      await warten();
+      return kopie(klassen).sort((a, b) => (b.datum || "").localeCompare(a.datum || ""));
+    },
+    klasseNachCode: async function (code) {
+      await warten();
+      const suche = (code || "").trim().toUpperCase();
+      return kopie(klassen).find(k => (k.code || "").toUpperCase() === suche) || null;
+    },
+    klasseAnlegen: async function (daten) {
+      await warten();
+      const id = String(naechsteId++);
+      klassen.push({
+        id: id,
+        titel: daten.titel || "",
+        firma: daten.firma || "",
+        datum: daten.datum || "",
+        essenszeit: daten.essenszeit || "",
+        code: daten.code || "",
+        status: daten.status || "offen",
+        bemerkung: "",
+        erstellt: new Date().toISOString()
+      });
+      return id;
+    },
+    klasseAendern: async function (id, daten) {
+      await warten();
+      const k = klassen.find(x => String(x.id) === String(id));
+      if (!k) throw new Error("Klasse nicht gefunden (Mock).");
+      ["titel", "firma", "datum", "essenszeit", "status"].forEach(f => {
+        if (daten[f] !== undefined) k[f] = daten[f];
+      });
+      return k;
+    },
+    klasseLoeschen: async function (id) {
+      await warten();
+      const i = klassen.findIndex(x => String(x.id) === String(id));
+      if (i < 0) throw new Error("Klasse nicht gefunden (Mock).");
+      klassen.splice(i, 1);
+      return null;
+    },
+    bestellungen: async function (klasseId) {
+      await warten();
+      return kopie(bestellungen)
+        .filter(b => klasseId === undefined || String(b.klasseId) === String(klasseId))
+        .sort((a, b) => (a.nachname || "").localeCompare(b.nachname || "", "de-CH")
+                     || (a.vorname || "").localeCompare(b.vorname || "", "de-CH"));
+    },
+    zaehler: Graph.zaehler
+  };
+
+  return { auth: MockAuth, graph: MockGraph };
+}
+
+/* Ab hier arbeitet die ganze Seite nur noch mit diesen beiden Namen. */
+let Anmeldung = Auth;
+let Daten = Graph;
+if (istMock) {
+  const attrappe = mockBauen();
+  Anmeldung = attrappe.auth;
+  Daten = attrappe.graph;
+}
+
+
+/* ---------- Zustand ---------- */
+
+let alleKlassen = [];      // alle Klassen, absteigend nach Datum
+let anzahlProKlasse = {};  // klasseId -> Anzahl Bestellungen
+let gewaehlteId = null;    // id der ausgewählten Klasse
+let gewaehlteKlasse = null;
+let gewaehlteBestellungen = [];
+let zeigeVergangene = false;
+let suchtext = "";
+let bearbeiteId = null;    // id beim Bearbeiten, null beim Neuanlegen
+let kopiertTimer = null;
+
+
+/* ---------- kleine Helfer ---------- */
+
+function leeren(knoten) {
+  while (knoten.firstChild) knoten.removeChild(knoten.firstChild);
+}
+
+function neu(tag, klasse, text) {
+  const k = document.createElement(tag);
+  if (klasse) k.className = klasse;
+  if (text !== undefined && text !== null) k.textContent = text;
+  return k;
+}
+
+function fehlerZeigen(e) {
+  const feld = el("fehler-global");
+  feld.textContent = (e && e.message) ? e.message : String(e);
+  feld.style.display = "block";
+  window.scrollTo(0, 0);
+}
+
+function fehlerVerbergen() {
+  el("fehler-global").style.display = "none";
+}
+
+
+/* ---------- Klassenliste ---------- */
+
+function sichtbareKlassen() {
+  const heute = Hilfe.heute();
+  const suche = suchtext.trim().toLowerCase();
+  return alleKlassen.filter(k => {
+    const vergangen = (k.datum || "") < heute;
+    if (vergangen !== zeigeVergangene) return false;
+    if (!suche) return true;
+    return (k.titel + " " + k.firma + " " + k.code).toLowerCase().indexOf(suche) >= 0;
+  });
+}
+
+function listeZeichnen() {
+  const behaelter = el("liste");
+  leeren(behaelter);
+
+  const treffer = sichtbareKlassen();
+  const leerfeld = el("liste-leer");
+
+  if (!treffer.length) {
+    leerfeld.style.display = "block";
+    leerfeld.textContent = suchtext.trim()
+      ? "Keine Klasse gefunden."
+      : (zeigeVergangene ? "Keine vergangenen Klassen vorhanden."
+                         : "Keine aktuellen Klassen vorhanden.");
+    return;
+  }
+  leerfeld.style.display = "none";
+
+  treffer.forEach(k => {
+    const zeile = neu("button", "zeile");
+    zeile.type = "button";
+    if (String(k.id) === String(gewaehlteId)) zeile.classList.add("gewaehlt");
+
+    const links = neu("div", "links");
+    links.appendChild(neu("div", "z-titel", k.titel || "Ohne Titel"));
+    if (k.firma) links.appendChild(neu("div", "z-firma", k.firma));
+    const zeitText = k.essenszeit ? ", " + k.essenszeit + " Uhr" : "";
+    links.appendChild(neu("div", "z-datum",
+      (Hilfe.datumText(k.datum) || "ohne Datum") + zeitText));
+    zeile.appendChild(links);
+
+    const rechts = neu("div", "rechts");
+    const punkt = neu("span", "punkt " + (k.status === "offen" ? "offen" : "zu"));
+    punkt.title = k.status === "offen" ? "offen" : "geschlossen";
+    rechts.appendChild(punkt);
+    const anzahl = neu("div", "z-anzahl");
+    anzahl.appendChild(document.createTextNode(String(anzahlProKlasse[String(k.id)] || 0)));
+    anzahl.appendChild(neu("span", null, " Best."));
+    rechts.appendChild(anzahl);
+    zeile.appendChild(rechts);
+
+    zeile.addEventListener("click", () => klasseWaehlen(k.id));
+    behaelter.appendChild(zeile);
+  });
+}
+
+async function listeLaden(behalteAuswahl) {
+  fehlerVerbergen();
+  try {
+    const [klassen, bestellungen] = await Promise.all([
+      Daten.klassen(),
+      Daten.bestellungen()
+    ]);
+    alleKlassen = klassen;
+    anzahlProKlasse = {};
+    bestellungen.forEach(b => {
+      const k = String(b.klasseId);
+      anzahlProKlasse[k] = (anzahlProKlasse[k] || 0) + 1;
+    });
+    if (!behalteAuswahl) gewaehlteId = null;
+    if (gewaehlteId && !alleKlassen.some(k => String(k.id) === String(gewaehlteId))) {
+      gewaehlteId = null;
+      detailLeerZeigen();
+    }
+    listeZeichnen();
+  } catch (e) {
+    fehlerZeigen(e);
+  }
+}
+
+
+/* ---------- Detailbereich ---------- */
+
+function detailUmschalten(welche) {
+  el("detail-leer").style.display = welche === "leer" ? "block" : "none";
+  el("detail-ansicht").style.display = welche === "ansicht" ? "block" : "none";
+  el("detail-formular").style.display = welche === "formular" ? "block" : "none";
+}
+
+function detailLeerZeigen() {
+  gewaehlteKlasse = null;
+  gewaehlteBestellungen = [];
+  detailUmschalten("leer");
+}
+
+async function klasseWaehlen(id) {
+  gewaehlteId = String(id);
+  gewaehlteKlasse = alleKlassen.find(k => String(k.id) === gewaehlteId) || null;
+  listeZeichnen();
+  if (!gewaehlteKlasse) { detailLeerZeigen(); return; }
+
+  ansichtKopfZeichnen();
+  detailUmschalten("ansicht");
+  bestellungenZeichnen(null);   // Ladehinweis
+
+  fehlerVerbergen();
+  try {
+    const liste = await Daten.bestellungen(gewaehlteId);
+    // Zwischenzeitlich könnte eine andere Klasse gewählt worden sein.
+    if (String(gewaehlteId) !== String(id)) return;
+    gewaehlteBestellungen = liste;
+    anzahlProKlasse[gewaehlteId] = liste.length;
+    zaehlerZeichnen(liste);
+    bestellungenZeichnen(liste);
+    listeZeichnen();
+  } catch (e) {
+    fehlerZeigen(e);
+    bestellungenZeichnen([]);
+  }
+}
+
+function ansichtKopfZeichnen() {
+  const k = gewaehlteKlasse;
+  el("d-titel").textContent = k.titel || "Ohne Titel";
+  el("d-firma").textContent = k.firma || "";
+  el("d-firma").style.display = k.firma ? "block" : "none";
+  el("d-datum").textContent = Hilfe.datumText(k.datum) || "ohne Datum";
+  el("d-zeit").textContent = k.essenszeit ? "Mittagessen um " + k.essenszeit + " Uhr" : "";
+
+  const marke = el("d-status");
+  const offen = k.status === "offen";
+  marke.textContent = offen ? "Bestellung offen" : "Bestellung geschlossen";
+  marke.className = "marke" + (offen ? " offen" : "");
+
+  el("d-link").textContent = Hilfe.gastLink(k.code);
+  el("kopiert-text").textContent = "";
+
+  zaehlerZeichnen(gewaehlteBestellungen);
+}
+
+function zaehlerZeichnen(liste) {
+  const z = Daten.zaehler(liste || []);
+  const behaelter = el("d-zaehler");
+  leeren(behaelter);
+  [["Total", z.total], ["Suppe", z.suppe], ["Salat", z.salat],
+   ["Keine", z.keine], ["Menü 1", z.menu1], ["Menü 2", z.menu2]].forEach(([name, wert]) => {
+    const kasten = neu("div");
+    kasten.appendChild(neu("b", null, String(wert)));
+    kasten.appendChild(neu("span", null, name));
+    behaelter.appendChild(kasten);
+  });
+}
+
+function bestellungenZeichnen(liste) {
+  const behaelter = el("d-tabelle");
+  leeren(behaelter);
+
+  if (liste === null) {
+    behaelter.appendChild(neu("div", "keine-bestellungen", "Bestellungen werden geladen …"));
+    return;
+  }
+  if (!liste.length) {
+    behaelter.appendChild(neu("div", "keine-bestellungen",
+      "Für diese Klasse liegt noch keine Bestellung vor."));
+    return;
+  }
+
+  const tabelle = neu("table");
+  const kopf = neu("thead");
+  const kopfzeile = neu("tr");
+  ["Name", "Vorspeise", "Hauptgang", "Bemerkung"].forEach(t => {
+    kopfzeile.appendChild(neu("th", null, t));
+  });
+  kopf.appendChild(kopfzeile);
+  tabelle.appendChild(kopf);
+
+  const koerper = neu("tbody");
+  liste.forEach(b => {
+    const zeile = neu("tr");
+    zeile.appendChild(neu("td", null, ((b.nachname || "") + " " + (b.vorname || "")).trim()));
+    zeile.appendChild(neu("td", null, b.vorspeise || ""));
+    zeile.appendChild(neu("td", null, b.hauptgang || ""));
+    zeile.appendChild(neu("td", b.bemerkung ? "allergie" : null, b.bemerkung || ""));
+    koerper.appendChild(zeile);
+  });
+  tabelle.appendChild(koerper);
+  behaelter.appendChild(tabelle);
+}
+
+
+/* ---------- Formular ---------- */
+
+function formularOeffnen(klasse) {
+  bearbeiteId = klasse ? String(klasse.id) : null;
+  el("formular-fehler").style.display = "none";
+
+  el("f-titel").value = klasse ? (klasse.titel || "") : "";
+  el("f-firma").value = klasse ? (klasse.firma || "") : "";
+  el("f-datum").value = klasse ? (klasse.datum || "") : Hilfe.heute();
+  el("f-zeit").value = klasse ? (klasse.essenszeit || "") : "12:00";
+  el("f-status").value = klasse && klasse.status === "geschlossen" ? "geschlossen" : "offen";
+
+  el("f-statusblock").style.display = klasse ? "block" : "none";
+  el("btn-speichern").textContent = klasse ? "Änderungen speichern" : "Klasse speichern";
+  el("btn-speichern").disabled = false;
+  el("legende-detail").textContent = klasse ? "Klasse bearbeiten" : "Neue Klasse";
+
+  detailUmschalten("formular");
+  el("f-titel").focus();
+}
+
+function formularSchliessen() {
+  el("legende-detail").textContent = "Details";
+  if (gewaehlteKlasse) {
+    ansichtKopfZeichnen();
+    bestellungenZeichnen(gewaehlteBestellungen);
+    detailUmschalten("ansicht");
+  } else {
+    detailUmschalten("leer");
+  }
+}
+
+async function formularSpeichern(ereignis) {
+  ereignis.preventDefault();
+  const fehlerfeld = el("formular-fehler");
+  fehlerfeld.style.display = "none";
+  fehlerVerbergen();
+
+  const titel = el("f-titel").value.trim();
+  if (!titel) {
+    fehlerfeld.textContent = "Bitte einen Titel eingeben.";
+    fehlerfeld.style.display = "block";
+    el("f-titel").focus();
+    return;
+  }
+
+  const satz = {
+    titel: titel,
+    firma: el("f-firma").value.trim(),
+    datum: el("f-datum").value,
+    essenszeit: el("f-zeit").value
+  };
+
+  const knopf = el("btn-speichern");
+  const beschriftung = knopf.textContent;
+  knopf.disabled = true;
+  knopf.textContent = "Wird gespeichert...";
+
+  try {
+    let id;
+    if (bearbeiteId) {
+      satz.status = el("f-status").value;
+      await Daten.klasseAendern(bearbeiteId, satz);
+      id = bearbeiteId;
+    } else {
+      satz.status = "offen";
+      satz.code = Hilfe.neuerCode();
+      id = await Daten.klasseAnlegen(satz);
+    }
+
+    gewaehlteId = id ? String(id) : null;
+    // Falls die neue Klasse in der Vergangenheit liegt, den Filter mitziehen,
+    // damit sie in der Liste auch sichtbar ist.
+    if (satz.datum) zeigeVergangene = satz.datum < Hilfe.heute();
+    umschalterBeschriften();
+
+    el("legende-detail").textContent = "Details";
+    await listeLaden(true);
+    if (gewaehlteId) {
+      await klasseWaehlen(gewaehlteId);
+    } else {
+      detailLeerZeigen();
+    }
+  } catch (e) {
+    fehlerfeld.textContent = (e && e.message) ? e.message : String(e);
+    fehlerfeld.style.display = "block";
+    // Nur im Fehlerfall bleibt das Formular offen, nur hier braucht es die
+    // alte Beschriftung zurück. Nach dem Speichern darf sie nicht wieder
+    // gesetzt werden: das Formular ist dann längst geschlossen, und ein
+    // sofortiger Klick auf «Bearbeiten» würde sonst wieder überschrieben.
+    knopf.textContent = beschriftung;
+  } finally {
+    knopf.disabled = false;
+  }
+}
+
+
+/* ---------- Löschen ---------- */
+
+async function klasseLoeschen() {
+  if (!gewaehlteKlasse) return;
+  const name = gewaehlteKlasse.titel || "diese Klasse";
+  const frage = "Klasse «" + name + "» wirklich löschen?\n\n"
+    + "Die bereits erfassten Bestellungen dieser Klasse werden dabei nicht "
+    + "mitgelöscht; sie bleiben in der Liste «Bestellungen» stehen.";
+  if (!window.confirm(frage)) return;
+
+  fehlerVerbergen();
+  const knopf = el("btn-loeschen");
+  knopf.disabled = true;
+  try {
+    await Daten.klasseLoeschen(gewaehlteKlasse.id);
+    gewaehlteId = null;
+    detailLeerZeigen();
+    await listeLaden(false);
+  } catch (e) {
+    fehlerZeigen(e);
+  } finally {
+    knopf.disabled = false;
+  }
+}
+
+
+/* ---------- Gästelink kopieren ---------- */
+
+function linkKopieren() {
+  if (!gewaehlteKlasse) return;
+  const text = Hilfe.gastLink(gewaehlteKlasse.code);
+
+  function rueckmeldung(erfolg) {
+    const feld = el("kopiert-text");
+    feld.textContent = erfolg ? "Kopiert" : "Kopieren nicht möglich, bitte von Hand markieren.";
+    if (kopiertTimer) clearTimeout(kopiertTimer);
+    kopiertTimer = setTimeout(() => { feld.textContent = ""; }, 2000);
+  }
+
+  function ersatzweg() {
+    try {
+      const feld = document.createElement("textarea");
+      feld.value = text;
+      feld.setAttribute("readonly", "readonly");
+      feld.style.position = "fixed";
+      feld.style.opacity = "0";
+      document.body.appendChild(feld);
+      feld.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(feld);
+      rueckmeldung(ok);
+    } catch (e) {
+      rueckmeldung(false);
+    }
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => rueckmeldung(true), ersatzweg);
+  } else {
+    ersatzweg();
+  }
+}
+
+
+/* ---------- Drucken ---------- */
+
+function blattOeffnen(seite) {
+  if (!gewaehlteKlasse) return;
+  window.open(seite + "?klasse=" + encodeURIComponent(gewaehlteKlasse.code || ""), "_blank");
+}
+
+
+/* ---------- Umschalter und Suche ---------- */
+
+function umschalterBeschriften() {
+  el("btn-umschalten").textContent = zeigeVergangene ? "Aktuelle anzeigen" : "Vergangene anzeigen";
+  el("legende-liste").textContent = zeigeVergangene ? "Vergangene Klassen" : "Aktuelle Klassen";
+}
+
+
+/* ---------- Ereignisse ---------- */
+
+el("suche").addEventListener("input", ev => {
+  suchtext = ev.target.value;
+  listeZeichnen();
+});
+
+el("btn-umschalten").addEventListener("click", () => {
+  zeigeVergangene = !zeigeVergangene;
+  umschalterBeschriften();
+  listeZeichnen();
+});
+
+el("btn-neu").addEventListener("click", () => {
+  gewaehlteId = null;
+  gewaehlteKlasse = null;
+  gewaehlteBestellungen = [];
+  listeZeichnen();
+  formularOeffnen(null);
+});
+
+el("btn-bearbeiten").addEventListener("click", () => {
+  if (gewaehlteKlasse) formularOeffnen(gewaehlteKlasse);
+});
+
+el("btn-abbrechen").addEventListener("click", formularSchliessen);
+el("detail-formular").addEventListener("submit", formularSpeichern);
+el("btn-loeschen").addEventListener("click", klasseLoeschen);
+el("btn-kopieren").addEventListener("click", linkKopieren);
+el("btn-kursblatt").addEventListener("click", () => blattOeffnen("kursblatt.html"));
+el("btn-menueblatt").addEventListener("click", () => blattOeffnen("menueblatt.html"));
+el("btn-abmelden").addEventListener("click", () => Anmeldung.abmelden());
+el("btn-erneut").addEventListener("click", () => location.reload());
+
+
+/* ---------- Start ---------- */
+
+function ansichtZeigen(welche) {
+  ["laden", "fehler", "app"].forEach(a => {
+    el("ansicht-" + a).style.display = (a === welche) ? "" : "none";
+  });
+}
+
+async function starten() {
+  ansichtZeigen("laden");
+  let konto;
+  try {
+    konto = await Anmeldung.anmeldungSicherstellen();
+  } catch (e) {
+    el("fehler-text").textContent = (e && e.message) ? e.message : String(e);
+    ansichtZeigen("fehler");
+    return;
+  }
+
+  if (!konto) konto = Anmeldung.konto();
+  el("kopf-name").textContent = konto ? (konto.name || konto.adresse || "") : "";
+  el("btn-abmelden").style.display = "";
+
+  umschalterBeschriften();
+  detailUmschalten("leer");
+  ansichtZeigen("app");
+  await listeLaden(false);
+}
+
+starten();
+</script>
+</body>
+</html>

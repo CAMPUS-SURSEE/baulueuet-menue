@@ -20,8 +20,13 @@
     background: #fff;
     color: var(--schwarz);
     line-height: 1.5;
+    /* Ein langer Kurstitel oder eine lange Adresse darf die Seite nie
+       seitlich hinausschieben; im Zweifel wird im Wort umgebrochen. */
+    overflow-wrap: break-word;
   }
-  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px 64px; }
+  /* Der seitliche Rand wächst mit der Fensterbreite: auf dem Telefon 16 px,
+     ab Tablet die gewohnten 24 px. */
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 clamp(16px, 3vw, 24px) 64px; }
 
   /* ---------- Kopfzeile ---------- */
   header {
@@ -32,7 +37,7 @@
     padding: 28px 0 20px;
     border-bottom: 1px solid var(--linie);
   }
-  header .logo { width: 84px; flex: none; line-height: 0; }
+  header .logo { width: clamp(64px, 15vw, 84px); flex: none; line-height: 0; }
   header .logo svg { width: 100%; height: auto; fill: var(--schwarz); }
   header h1 {
     font-size: 0.8rem;
@@ -45,16 +50,22 @@
     margin-left: auto;
     display: flex;
     align-items: center;
-    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px 16px;
+    min-width: 0;
     font-size: 0.85rem;
     color: var(--grau);
     text-align: right;
   }
-  .kopf-name { max-width: 220px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   /* Auf schmalen Bildschirmen rutscht der rechte Block auf eine eigene Zeile
-     und der Name wird gekürzt, sonst schiebt er die Seite seitlich hinaus. */
-  @media (max-width: 520px) {
-    .kopf-name { max-width: 150px; }
+     und der Name wird gekürzt, sonst schiebt er die Seite seitlich hinaus.
+     Die Obergrenze wächst mit der Fensterbreite mit, statt an einer festen
+     Schwelle zu springen. */
+  .kopf-name {
+    max-width: min(220px, 45vw);
+    min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
 
   /* ---------- allgemeine Bausteine ---------- */
@@ -141,7 +152,7 @@
     font-size: 0.9rem;
   }
 
-  .lade { text-align: center; padding: 96px 0; color: var(--grau); font-size: 0.9rem; }
+  .lade { text-align: center; padding: clamp(56px, 14vw, 96px) 0; color: var(--grau); font-size: 0.9rem; }
   .spinner {
     width: 26px; height: 26px;
     border: 2px solid var(--linie);
@@ -152,7 +163,7 @@
   }
   @keyframes dreh { to { transform: rotate(360deg); } }
 
-  .status-karte { text-align: center; padding: 72px 0 0; max-width: 480px; margin: 0 auto; }
+  .status-karte { text-align: center; padding: clamp(48px, 12vw, 72px) 0 0; max-width: 480px; margin: 0 auto; }
   .status-karte .symbol { margin-bottom: 20px; }
   .status-karte .symbol svg {
     width: 44px; height: 44px;
@@ -166,17 +177,31 @@
   .status-karte p { color: var(--grau); font-size: 0.95rem; }
   .status-karte button { margin-top: 28px; }
 
-  /* ---------- Raster ---------- */
-  .raster { display: grid; grid-template-columns: 1fr; gap: 32px; padding-top: 28px; }
-  @media (min-width: 900px) {
-    .raster { grid-template-columns: 380px minmax(0, 1fr); gap: 40px; align-items: start; }
+  /* ---------- Raster ----------
+     Zwei Spalten, sobald genug Platz da ist, sonst untereinander.
+
+     Beide Spalten sind mit minmax(0, ...) angelegt, und die Abschnitte darin
+     tragen min-width: 0. Ohne diese Null darf ein Rasterfeld nicht schmaler
+     werden als sein längster nicht umbrechbarer Inhalt: eine Klassenzeile mit
+     langem Titel machte die linke Spalte dann breiter als ihre 380 px und
+     schob sich über die rechte Spalte. Genau daher kamen die Felder, die
+     sich gegenseitig verdeckt haben. */
+  .raster { display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; padding-top: 28px; }
+  .raster > section { min-width: 0; }
+  @media (min-width: 800px) {
+    .raster { grid-template-columns: minmax(0, 290px) minmax(0, 1fr); gap: 32px; align-items: start; }
+  }
+  @media (min-width: 1040px) {
+    .raster { grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 40px; }
   }
 
   /* ---------- Klassenliste ---------- */
   .werkzeuge { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 20px; }
   .werkzeuge button { flex: 1 1 auto; white-space: nowrap; }
 
-  .liste { display: grid; }
+  /* Auch hier die Null: die Zeilen sollen sich der Spalte anpassen und ihren
+     Titel kürzen, nicht die Spalte auseinanderdrücken. */
+  .liste { display: grid; grid-template-columns: minmax(0, 1fr); }
   .zeile {
     display: flex;
     align-items: center;
@@ -196,6 +221,7 @@
   .zeile:first-child { margin-top: 0; border-radius: 10px 10px 0 0; }
   .zeile:last-child { border-radius: 0 0 10px 10px; }
   .zeile.gewaehlt { border-color: var(--schwarz); z-index: 1; }
+  .zeile:focus-visible { outline: 2px solid var(--schwarz); outline-offset: -2px; z-index: 2; }
   .zeile .links { min-width: 0; flex: 1 1 auto; }
   .zeile .z-titel {
     font-weight: 600;
@@ -226,7 +252,7 @@
   .detail-leer { color: var(--grau); font-size: 0.92rem; padding: 24px 0; }
 
   .detail-kopf { border-bottom: 1px solid var(--linie); padding-bottom: 20px; }
-  .detail-kopf .d-titel { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.01em; }
+  .detail-kopf .d-titel { font-size: clamp(1.15rem, 4.5vw, 1.35rem); font-weight: 700; letter-spacing: -0.01em; }
   .detail-kopf .d-firma { color: var(--grau); font-size: 0.95rem; margin-top: 2px; }
   .detail-kopf .d-datum { font-weight: 500; font-size: 0.95rem; margin-top: 10px; }
   .detail-kopf .d-zeit { color: var(--grau); font-size: 0.9rem; }
@@ -271,24 +297,29 @@
     color: var(--grau);
     word-break: break-all;
     flex: 1 1 240px;
+    min-width: 0;
   }
 
+  /* Die Zahlenreihe füllt so viele Spalten, wie nebeneinander Platz haben:
+     drei auf dem Telefon, sechs auf dem Bildschirm der Réception. Die
+     Trennlinien entstehen aus dem 1-px-Abstand über dem grauen Hintergrund;
+     so bleiben sie bei jeder Spaltenzahl gleich fein, und am Rand entstehen
+     keine doppelten Striche. */
   .zaehler {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+    gap: 1px;
+    background: var(--linie);
     border: 1px solid var(--linie);
     border-radius: 10px;
     overflow: hidden;
     margin-top: 24px;
   }
-  @media (min-width: 640px) { .zaehler { grid-template-columns: repeat(6, 1fr); } }
   .zaehler div {
     padding: 12px 8px;
     text-align: center;
-    border-right: 1px solid var(--linie);
-    border-bottom: 1px solid var(--linie);
+    background: #fff;
   }
-  .zaehler div:last-child { border-right: none; }
   .zaehler b { display: block; font-size: 1.3rem; font-weight: 700; }
   .zaehler span {
     font-size: 0.66rem; font-weight: 600; text-transform: uppercase;
@@ -312,12 +343,55 @@
   td.allergie { color: var(--orange); font-weight: 700; }
   .keine-bestellungen { color: var(--grau); font-size: 0.9rem; padding: 20px 0; }
 
+  /* Auf dem Telefon ist eine vierspaltige Tabelle nicht mehr lesbar. Dort
+     wird aus jeder Zeile eine Karte: der Name als Überschrift, darunter die
+     Angaben mit ihrer Spaltenbezeichnung. Die Bezeichnung steht im Attribut
+     data-spalte, das die Tabelle beim Zeichnen mitbekommt. Im Markup bleibt
+     alles eine Tabelle, nur die Darstellung wechselt. Leere Zellen (meist
+     die Bemerkung) fallen weg, statt eine leere Zeile zu hinterlassen. */
+  @media screen and (max-width: 560px) {
+    .tabellenrahmen table,
+    .tabellenrahmen tbody,
+    .tabellenrahmen tr,
+    .tabellenrahmen td { display: block; }
+    .tabellenrahmen thead { display: none; }
+    .tabellenrahmen tr {
+      border: 1px solid var(--linie);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-top: -1px;
+    }
+    .tabellenrahmen tr:first-child { border-radius: 10px 10px 0 0; margin-top: 0; }
+    .tabellenrahmen tr:last-child { border-radius: 0 0 10px 10px; }
+    .tabellenrahmen tr:only-child { border-radius: 10px; }
+    .tabellenrahmen td { border: none; padding: 0; }
+    .tabellenrahmen td:empty { display: none; }
+    .tabellenrahmen td + td { margin-top: 10px; }
+    .tabellenrahmen td::before {
+      content: attr(data-spalte);
+      display: block;
+      font-size: 0.66rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.14em; color: var(--grau);
+    }
+    .tabellenrahmen td.namensfeld { font-size: 1rem; font-weight: 600; }
+    .tabellenrahmen td.namensfeld::before { display: none; }
+  }
+
   .loeschzeile { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--linie); }
 
   .formularfeld { max-width: 460px; }
   .formularknoepfe { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 36px; }
 
   .kopiert { font-size: 0.82rem; color: var(--grau); }
+
+  /* Auf dem Telefon wird mit dem Finger getippt: die Schaltflächen bekommen
+     die übliche Mindesthöhe, die Hauptschaltfläche die volle Breite. */
+  @media (max-width: 560px) {
+    button.knopf { min-height: 44px; }
+    button.knopf.voll { width: 100%; }
+    .knopfreihe button { flex: 1 1 150px; }
+    .formularknoepfe { justify-content: center; }
+  }
 </style>
 </head>
 <body>
@@ -762,6 +836,15 @@ function detailLeerZeigen() {
   detailUmschalten("leer");
 }
 
+/* Ab 800 px stehen Liste und Details nebeneinander, darunter untereinander.
+   Im zweiten Fall liegen die Details unterhalb des sichtbaren Bereichs: nach
+   der Auswahl wird dorthin gescrollt, sonst scheint der Klick nichts zu tun. */
+function detailInSichtBringen() {
+  if (window.matchMedia("(min-width: 800px)").matches) return;
+  const ziel = el("legende-detail");
+  if (ziel && ziel.scrollIntoView) ziel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 async function klasseWaehlen(id) {
   gewaehlteId = String(id);
   gewaehlteKlasse = alleKlassen.find(k => String(k.id) === gewaehlteId) || null;
@@ -770,6 +853,7 @@ async function klasseWaehlen(id) {
 
   ansichtKopfZeichnen();
   detailUmschalten("ansicht");
+  detailInSichtBringen();
   bestellungenZeichnen(null);   // Ladehinweis
 
   fehlerVerbergen();
@@ -861,10 +945,12 @@ function bestellungenZeichnen(liste) {
     return;
   }
 
+  const spalten = ["Name", "Vorspeise", "Hauptgang", "Bemerkung"];
+
   const tabelle = neu("table");
   const kopf = neu("thead");
   const kopfzeile = neu("tr");
-  ["Name", "Vorspeise", "Hauptgang", "Bemerkung"].forEach(t => {
+  spalten.forEach(t => {
     kopfzeile.appendChild(neu("th", null, t));
   });
   kopf.appendChild(kopfzeile);
@@ -873,10 +959,22 @@ function bestellungenZeichnen(liste) {
   const koerper = neu("tbody");
   liste.forEach(b => {
     const zeile = neu("tr");
-    zeile.appendChild(neu("td", null, ((b.nachname || "") + " " + (b.vorname || "")).trim()));
-    zeile.appendChild(neu("td", null, b.vorspeise || ""));
-    zeile.appendChild(neu("td", null, b.hauptgang || ""));
-    zeile.appendChild(neu("td", b.bemerkung ? "allergie" : null, b.bemerkung || ""));
+    const werte = [
+      ((b.nachname || "") + " " + (b.vorname || "")).trim(),
+      b.vorspeise || "",
+      b.hauptgang || "",
+      b.bemerkung || ""
+    ];
+    werte.forEach((wert, i) => {
+      /* Die Bemerkung ist die einzige Spalte mit Farbe, und sie ist auch die
+         einzige, die oft leer bleibt. */
+      const klasse = (i === 3 && b.bemerkung) ? "allergie" : (i === 0 ? "namensfeld" : null);
+      const zelle = neu("td", klasse, wert);
+      /* Auf schmalen Bildschirmen wird aus der Zeile eine Karte; dann steht
+         diese Bezeichnung als Beschriftung über dem Wert (siehe CSS). */
+      zelle.setAttribute("data-spalte", spalten[i]);
+      zeile.appendChild(zelle);
+    });
     koerper.appendChild(zeile);
   });
   tabelle.appendChild(koerper);

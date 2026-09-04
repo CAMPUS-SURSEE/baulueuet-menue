@@ -167,11 +167,13 @@ Diese Punkte sind bekannt und bewusst in Kauf genommen. Sie gehören auf die Lis
 | 28.08.2026, Vormittag | Gästeseite: Knopf «Auswahl bearbeiten» und Merken der eigenen Bestellung im Browser. Druckblätter `kursblatt.html` und `menueblatt.html` |
 | 28.08.2026, Mittag | **Ablösung von Power Apps.** Neue Verwaltung `admin.html`, Anmeldung an Entra ID, Zugriff auf SharePoint über Microsoft Graph. Flow D wird gegenstandslos |
 | 28.08.2026, Nachmittag | Umstellung auf Bibliotheken vom CDN (MSAL, qrcode-generator), Fusszeilen entfernt, vollständige Dokumentation |
+| 04.09.2026 | Alle fünf Seiten durchgehend auf schmale Bildschirme ausgelegt: überlappende Spalten in der Verwaltung behoben, Tabellen auf dem Telefon als Karten, seitliche Ränder und Schriftgrössen wachsen mit der Fensterbreite |
 
 **Beim Umbau gefundene und behobene Fehler**, festgehalten, weil sie sich wiederholen könnten:
 
 - Eine Race Condition beim Speichern: Der abschliessende Zweig setzte die Knopfbeschriftung nachträglich wieder zurück, nachdem die Ansicht schon gewechselt hatte.
 - Ein horizontaler Überlauf der Kopfzeile auf Bildschirmen unter etwa 520 Pixeln Breite.
+- Überlappende Spalten in der Verwaltung: Die Klassenliste stand in einer Rasterspalte fester Breite, das Rasterfeld darin durfte aber nicht schmaler werden als der längste Kurstitel. Eine Zeile mit langem Titel schob sich deshalb über die Detailspalte und verdeckte dort Beschriftungen und Schaltflächen. Behoben mit `minmax(0, ...)` für beide Spalten und `min-width: 0` für die Abschnitte darin; erst dadurch greift das Kürzen des Titels.
 - Ein fehlender Ruhezonenrand am QR-Code nach dem Wechsel auf die Bibliothek. Ursache war, dass `margin` in SVG-Einheiten zählt und nicht in Modulen.
 
 ---

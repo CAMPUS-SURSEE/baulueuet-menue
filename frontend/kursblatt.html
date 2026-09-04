@@ -20,11 +20,14 @@
     background: #fff;
     color: var(--schwarz);
     line-height: 1.5;
+    /* Ein langer Kurstitel darf die Seite nie seitlich hinausschieben. */
+    overflow-wrap: break-word;
   }
-  .wrap { max-width: 620px; margin: 0 auto; padding: 0 24px 64px; }
+  /* Der seitliche Rand wächst mit der Fensterbreite mit. */
+  .wrap { max-width: 620px; margin: 0 auto; padding: 0 clamp(16px, 3vw, 24px) 64px; }
 
   header { text-align: center; padding: 48px 0 0; }
-  header .logo { width: 150px; height: auto; display: inline-block; }
+  header .logo { width: clamp(110px, 30vw, 150px); height: auto; display: inline-block; }
   header .logo svg { width: 100%; height: auto; fill: var(--schwarz); }
   header h1 {
     font-size: 0.8rem;
@@ -40,15 +43,18 @@
     border-bottom: 1px solid var(--linie);
     padding: 28px 0;
   }
-  .klassenkopf .klasse { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.01em; }
+  .klassenkopf .klasse { font-size: clamp(1.15rem, 5vw, 1.4rem); font-weight: 700; letter-spacing: -0.01em; }
   .klassenkopf .firma { color: var(--grau); margin-top: 2px; font-size: 1rem; }
   .klassenkopf .datum { margin-top: 12px; font-weight: 500; font-size: 1rem; }
   .klassenkopf .zeit { color: var(--grau); font-size: 0.95rem; }
 
-  .qr-feld { text-align: center; padding: 44px 0 0; }
+  .qr-feld { text-align: center; padding: clamp(28px, 8vw, 44px) 0 0; }
+  /* Höchstens 280 px, sonst so breit wie der Platz hergibt: mit festen
+     280 px ragte der Code auf einem 320-px-Bildschirm über den Rand hinaus.
+     Quadratisch bleibt er über das Seitenverhältnis. */
   .qr-rahmen {
-    width: 280px;
-    height: 280px;
+    width: min(280px, 100%);
+    aspect-ratio: 1 / 1;
     margin: 0 auto;
     border: 1px solid var(--linie);
     border-radius: 12px;

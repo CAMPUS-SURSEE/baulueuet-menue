@@ -20,14 +20,17 @@
     background: #fff;
     color: var(--schwarz);
     line-height: 1.5;
+    /* Ein langer Menübeschrieb darf die Seite nie seitlich hinausschieben. */
+    overflow-wrap: break-word;
   }
-  .wrap { max-width: 480px; margin: 0 auto; padding: 0 24px 64px; }
+  /* Der seitliche Rand wächst mit der Fensterbreite mit. */
+  .wrap { max-width: 480px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 24px) 64px; }
 
   header {
     text-align: center;
-    padding: 48px 0 0;
+    padding: clamp(32px, 9vw, 48px) 0 0;
   }
-  header .logo { width: 120px; height: auto; display: inline-block; }
+  header .logo { width: clamp(92px, 26vw, 120px); height: auto; display: inline-block; }
   header .logo svg { width: 100%; height: auto; fill: var(--schwarz); }
   header h1 {
     font-size: 0.8rem;
@@ -45,7 +48,7 @@
     border-bottom: 1px solid var(--linie);
     padding-bottom: 28px;
   }
-  .klassenkopf .klasse { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+  .klassenkopf .klasse { font-size: clamp(1.1rem, 5vw, 1.25rem); font-weight: 700; letter-spacing: -0.01em; }
   .klassenkopf .firma { color: var(--grau); margin-top: 2px; font-size: 0.95rem; }
   .klassenkopf .datum { margin-top: 10px; font-weight: 500; font-size: 0.95rem; }
   .klassenkopf .zeit { color: var(--grau); font-size: 0.9rem; }
@@ -82,17 +85,19 @@
     display: block;
     position: relative;
     border: 1px solid var(--linie);
-    padding: 18px 18px 18px 52px;
+    padding: 18px 16px 18px 48px;
     background: #fff;
     cursor: pointer;
     transition: border-color 0.15s;
     margin-top: -1px;
   }
+  /* Tastaturbedienung: die Karte zeigt an, auf welchem Feld man steht. */
+  .wahl-karte:has(input:focus-visible) { border-color: var(--schwarz); z-index: 2; }
   .wahl-karte:first-child { margin-top: 0; border-radius: 10px 10px 0 0; }
   .wahl-karte:last-child { border-radius: 0 0 10px 10px; }
   .wahl-karte input {
     position: absolute;
-    left: 18px;
+    left: 16px;
     top: 21px;
     width: 18px;
     height: 18px;

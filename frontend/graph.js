@@ -133,7 +133,7 @@ const Graph = (function () {
   const LISTE_KLASSEN = "/sites/" + KONFIG.siteId + "/lists/" + KONFIG.listeKlassen;
   const LISTE_BESTELLUNGEN = "/sites/" + KONFIG.siteId + "/lists/" + KONFIG.listeBestellungen;
 
-  const FELDER_KLASSE = "Title,Firma,Datum,Essenszeit,Code,Status,Suppe,Salat,Menu1,Menu2,Dessert,Bemerkung";
+  const FELDER_KLASSE = "Title,Firma,Datum,Essenszeit,Code,Status,Teilnehmer,Suppe,Salat,Menu1,Menu2,Dessert,Bemerkung";
   const FELDER_BESTELLUNG = "Title,KlasseID,KlasseCode,Vorname,Nachname,Vorspeise,Hauptgang,Bemerkung";
 
   async function anfrage(pfad, optionen) {

@@ -119,7 +119,8 @@
   }
   button.textknopf:hover { color: var(--schwarz); }
 
-  input[type=text], input[type=search], input[type=date], input[type=time], select {
+  input[type=text], input[type=search], input[type=date], input[type=time],
+  input[type=number], select {
     width: 100%;
     font-family: inherit;
     font-size: 1rem;
@@ -132,7 +133,7 @@
     transition: border-color 0.15s;
   }
   input[type=text]:focus, input[type=search]:focus, input[type=date]:focus,
-  input[type=time]:focus, select:focus {
+  input[type=time]:focus, input[type=number]:focus, select:focus {
     outline: none;
     border-bottom: 1px solid var(--schwarz);
   }
@@ -142,6 +143,7 @@
     font-weight: 500;
     margin: 18px 0 4px;
   }
+  .feldhinweis { font-size: 0.78rem; color: var(--grau); margin-top: 6px; }
 
   .fehlerfeld {
     display: none;
@@ -189,15 +191,72 @@
   .raster { display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; padding-top: 28px; }
   .raster > section { min-width: 0; }
   @media (min-width: 800px) {
-    .raster { grid-template-columns: minmax(0, 290px) minmax(0, 1fr); gap: 32px; align-items: start; }
-  }
-  @media (min-width: 1040px) {
-    .raster { grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 40px; }
+    /* Die Liste wächst mit dem Fenster mit: schmal auf dem Tablet, ab
+       gut 1100 px die gewohnten 380 px. Dazwischen gibt es keinen
+       Sprung, die Spalte wird einfach stetig breiter. */
+    .raster {
+      grid-template-columns: minmax(0, clamp(260px, 34vw, 380px)) minmax(0, 1fr);
+      gap: clamp(28px, 3vw, 40px);
+      align-items: start;
+    }
   }
 
-  /* ---------- Klassenliste ---------- */
-  .werkzeuge { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 20px; }
-  .werkzeuge button { flex: 1 1 auto; white-space: nowrap; }
+  /* ---------- Terminliste ---------- */
+
+  /* «Neuer Termin» steht als einzige Schaltfläche über allem anderen: es ist
+     der Handgriff, der an der Réception am häufigsten gebraucht wird. */
+  .neu-oben { width: 100%; margin-bottom: 24px; }
+
+  /* Der Filter klappt unter seiner Schaltfläche auf. Der Rahmen liegt über
+     der Liste, damit sich beim Auf- und Zuklappen nichts verschiebt. */
+  .filterbereich {
+    position: relative;
+    display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
+    margin: 14px 0 20px;
+  }
+  #btn-filter.aktiv { border-color: var(--schwarz); color: var(--schwarz); font-weight: 600; }
+  .filter-lage { font-size: 0.8rem; color: var(--grau); }
+  .filter-feld {
+    position: absolute;
+    top: calc(100% + 8px); left: 0; z-index: 6;
+    min-width: min(260px, 100%);
+    background: #fff;
+    border: 1px solid var(--linie);
+    border-radius: 10px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.10);
+    padding: 12px 16px 14px;
+  }
+  .filter-feld[hidden] { display: none; }
+  .filter-feld label {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 0;
+    font-size: 0.92rem;
+    cursor: pointer;
+  }
+  .filter-feld input[type=checkbox] {
+    flex: none;
+    width: 17px; height: 17px;
+    accent-color: var(--schwarz);
+    cursor: pointer;
+  }
+  .filter-feld .hinweis { margin-top: 8px; padding-top: 10px; border-top: 1px solid var(--linie); }
+
+  /* Ein Block je Kurstag: darüber das Datum, darunter die Termine dieses
+     Tages. Damit steht ein Datum einmal statt in jeder Zeile. */
+  .taggruppe + .taggruppe { margin-top: 24px; }
+  .tagkopf {
+    display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px;
+    margin-bottom: 8px;
+  }
+  .tagkopf .tagkopf-datum { font-size: 0.82rem; font-weight: 600; }
+  .tagkopf .tag-heute {
+    font-size: 0.64rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--orange);
+    border: 1px solid var(--orange);
+    border-radius: 8px;
+    padding: 1px 7px;
+  }
 
   /* Auch hier die Null: die Zeilen sollen sich der Spalte anpassen und ihren
      Titel kürzen, nicht die Spalte auseinanderdrücken. */
@@ -232,21 +291,16 @@
     font-size: 0.88rem; color: var(--grau);
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
-  .zeile .z-datum { font-size: 0.82rem; color: var(--grau); margin-top: 4px; }
+  .zeile .z-zeit { font-size: 0.82rem; color: var(--grau); margin-top: 4px; }
   .zeile .rechts { flex: none; text-align: right; }
-  .zeile .z-anzahl { font-size: 0.95rem; font-weight: 600; }
-  .zeile .z-anzahl span { font-size: 0.72rem; font-weight: 500; color: var(--grau); }
-
-  .punkt {
-    display: inline-block;
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    margin-bottom: 4px;
-  }
-  .punkt.offen { background: var(--orange); }
-  .punkt.zu { background: #fff; border: 1px solid var(--grau); }
+  .zeile .z-anzahl { font-size: 0.95rem; font-weight: 600; white-space: nowrap; }
+  /* Die erwartete Zahl steht bewusst leiser als die tatsächliche: gezählt
+     wird, was bestellt ist, der Rest ist nur der Massstab dazu. */
+  .zeile .z-anzahl .erwartet { font-weight: 500; color: var(--grau); }
+  .zeile .z-anzahl .einheit { font-size: 0.72rem; font-weight: 500; color: var(--grau); }
 
   .leer-liste { padding: 24px 0; color: var(--grau); font-size: 0.9rem; }
+  .leer-liste button { margin-top: 10px; }
 
   /* ---------- Detail ---------- */
   .detail-leer { color: var(--grau); font-size: 0.92rem; padding: 24px 0; }
@@ -256,20 +310,7 @@
   .detail-kopf .d-firma { color: var(--grau); font-size: 0.95rem; margin-top: 2px; }
   .detail-kopf .d-datum { font-weight: 500; font-size: 0.95rem; margin-top: 10px; }
   .detail-kopf .d-zeit { color: var(--grau); font-size: 0.9rem; }
-
-  .marke {
-    display: inline-block;
-    margin-top: 12px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    padding: 4px 10px;
-    border-radius: 10px;
-    border: 1px solid var(--linie);
-    color: var(--grau);
-  }
-  .marke.offen { border-color: var(--orange); color: var(--orange); }
+  .detail-kopf .d-erwartet { color: var(--grau); font-size: 0.9rem; }
 
   /* Wer wann angelegt und zuletzt geändert hat. Bewusst sehr klein: die
      Angabe wird selten gebraucht, soll aber ohne Umweg über SharePoint
@@ -300,14 +341,13 @@
     min-width: 0;
   }
 
-  /* Die Zahlenreihe füllt so viele Spalten, wie nebeneinander Platz haben:
-     drei auf dem Telefon, sechs auf dem Bildschirm der Réception. Die
-     Trennlinien entstehen aus dem 1-px-Abstand über dem grauen Hintergrund;
-     so bleiben sie bei jeder Spaltenzahl gleich fein, und am Rand entstehen
-     keine doppelten Striche. */
+  /* Die Zahlenreihe steht auf dem Telefon in zwei Reihen zu drei Feldern, ab
+     640 px in einer Reihe zu sechs. Die Trennlinien entstehen aus dem
+     1-px-Abstand über dem grauen Hintergrund; so bleiben sie in beiden
+     Richtungen gleich fein, und am Rand entstehen keine doppelten Striche. */
   .zaehler {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1px;
     background: var(--linie);
     border: 1px solid var(--linie);
@@ -315,12 +355,16 @@
     overflow: hidden;
     margin-top: 24px;
   }
+  @media (min-width: 640px) { .zaehler { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
   .zaehler div {
     padding: 12px 8px;
     text-align: center;
     background: #fff;
   }
   .zaehler b { display: block; font-size: 1.3rem; font-weight: 700; }
+  /* Wie in der Liste: die erwartete Zahl ist nur der Massstab, nicht der
+     Messwert, und tritt deshalb zurück. */
+  .zaehler b .erwartet { font-weight: 500; color: var(--grau); }
   .zaehler span {
     font-size: 0.66rem; font-weight: 600; text-transform: uppercase;
     letter-spacing: 0.14em; color: var(--grau);
@@ -426,16 +470,31 @@
 
     <div class="raster">
 
-      <!-- linke Spalte: Klassenliste -->
+      <!-- linke Spalte: Terminliste -->
       <section aria-labelledby="legende-liste">
-        <div class="legende" id="legende-liste">Klassen</div>
+        <button type="button" class="knopf voll neu-oben" id="btn-neu">Neuer Termin</button>
+
+        <div class="legende" id="legende-liste">Termine</div>
         <input type="search" id="suche" placeholder="Suchen: Titel, Firma oder Code" autocomplete="off">
-        <div class="werkzeuge">
-          <button type="button" class="knopf" id="btn-umschalten">Vergangene anzeigen</button>
-          <button type="button" class="knopf" id="btn-neu">Neue Klasse</button>
-          <button type="button" class="knopf" id="btn-termine">Alle Termine</button>
+
+        <div class="filterbereich" id="filter-bereich">
+          <button type="button" class="knopf leise" id="btn-filter"
+                  aria-expanded="false" aria-controls="filter-feld">Filter</button>
+          <span class="filter-lage" id="filter-lage"></span>
+          <div class="filter-feld" id="filter-feld" hidden>
+            <label for="filter-zukunft">
+              <input type="checkbox" id="filter-zukunft">
+              Zukünftige Termine
+            </label>
+            <label for="filter-vergangen">
+              <input type="checkbox" id="filter-vergangen">
+              Vergangene Termine
+            </label>
+            <div class="hinweis">Die heutigen Termine sind immer sichtbar.</div>
+          </div>
         </div>
-        <div class="liste" id="liste"></div>
+
+        <div id="tage"></div>
         <div class="leer-liste" id="liste-leer" style="display:none"></div>
       </section>
 
@@ -444,7 +503,7 @@
         <div class="legende" id="legende-detail">Details</div>
 
         <div id="detail-leer" class="detail-leer">
-          Links eine Klasse auswählen, um Bestellungen und Gästelink zu sehen.
+          Links einen Termin auswählen, um Bestellungen und Gästelink zu sehen.
         </div>
 
         <div id="detail-ansicht" style="display:none">
@@ -453,7 +512,7 @@
             <div class="d-firma" id="d-firma"></div>
             <div class="d-datum" id="d-datum"></div>
             <div class="d-zeit" id="d-zeit"></div>
-            <span class="marke" id="d-status"></span>
+            <div class="d-erwartet" id="d-erwartet"></div>
             <div class="spur" id="d-spur"></div>
           </div>
 
@@ -482,7 +541,7 @@
           <div class="tabellenrahmen" id="d-tabelle"></div>
 
           <div class="loeschzeile">
-            <button type="button" class="knopf leise" id="btn-loeschen">Klasse löschen</button>
+            <button type="button" class="knopf leise" id="btn-loeschen">Termin löschen</button>
           </div>
         </div>
 
@@ -501,16 +560,16 @@
             <label class="feldlabel" for="f-zeit">Essenszeit</label>
             <input type="time" id="f-zeit">
 
-            <div id="f-statusblock">
-              <label class="feldlabel" for="f-status">Status</label>
-              <select id="f-status">
-                <option value="offen">offen</option>
-                <option value="geschlossen">geschlossen</option>
-              </select>
+            <label class="feldlabel" for="f-erwartet">Erwartete Teilnehmer</label>
+            <input type="number" id="f-erwartet" min="0" max="999" step="1"
+                   inputmode="numeric" autocomplete="off">
+            <div class="feldhinweis">
+              Leer lassen, solange die Anzahl nicht bekannt ist. Die Zahl dient nur
+              als Massstab; sie schränkt die Bestellungen nicht ein.
             </div>
           </div>
           <div class="formularknoepfe">
-            <button type="submit" class="knopf voll" id="btn-speichern">Klasse speichern</button>
+            <button type="submit" class="knopf voll" id="btn-speichern">Termin speichern</button>
             <button type="button" class="textknopf" id="btn-abbrechen">Abbrechen</button>
           </div>
         </form>
@@ -568,22 +627,29 @@ function mockBauen() {
   const klassen = [
     { id: "1", titel: "SORBA EDV AG Lernende 2. Jahr", firma: "SORBA EDV AG",
       datum: tagVerschoben(14), essenszeit: "12:00", code: "K7HMP3RA",
-      status: "offen", bemerkung: "",
+      status: "offen", bemerkung: "", erwartet: 12,
       erstellt: stempel(6, 9), erstelltVon: "Vreni Bühler",
       geaendert: stempel(2, 14), geaendertVon: "Martin Kaufmann" },
     { id: "2", titel: "Baukader Führungsseminar", firma: "Campus Sursee",
       datum: tagVerschoben(3), essenszeit: "11:45", code: "TQ4X9BND",
-      status: "offen", bemerkung: "",
+      status: "offen", bemerkung: "", erwartet: 0,
       erstellt: stempel(4, 11), erstelltVon: "Martin Kaufmann",
       geaendert: stempel(4, 11), geaendertVon: "Martin Kaufmann" },
     { id: "3", titel: "Polierkurs Modul 4", firma: "Implenia Schweiz AG",
       datum: tagVerschoben(0), essenszeit: "12:15", code: "M2VJ8KWS",
-      status: "offen", bemerkung: "",
+      status: "offen", bemerkung: "", erwartet: 18,
       erstellt: stempel(11, 8), erstelltVon: "Vreni Bühler",
       geaendert: stempel(1, 16), geaendertVon: "Vreni Bühler" },
+    /* Zwei Termine am selben Tag, damit im Mock-Modus zu sehen ist, wie sich
+       ein Tagesblock in der Liste mit mehreren Zeilen füllt. */
+    { id: "5", titel: "Kranführerkurs Grundlagen", firma: "Marti AG",
+      datum: tagVerschoben(0), essenszeit: "11:45", code: "H4NRT7XB",
+      status: "offen", bemerkung: "", erwartet: 9,
+      erstellt: stempel(8, 10), erstelltVon: "Martin Kaufmann",
+      geaendert: stempel(8, 10), geaendertVon: "Martin Kaufmann" },
     { id: "4", titel: "Kranführerkurs Abschluss", firma: "Marti AG",
       datum: tagVerschoben(-9), essenszeit: "12:00", code: "R6ZDF4YT",
-      status: "geschlossen", bemerkung: "",
+      status: "geschlossen", bemerkung: "", erwartet: 14,
       erstellt: stempel(20, 10), erstelltVon: "Martin Kaufmann",
       geaendert: stempel(9, 13), geaendertVon: "Vreni Bühler" }
   ];
@@ -608,7 +674,11 @@ function mockBauen() {
     { id: "b9", klasseId: "4", vorname: "Ruedi",  nachname: "Bucher",
       vorspeise: "Suppe", hauptgang: "Menü 1", bemerkung: "" },
     { id: "b10", klasseId: "4", vorname: "Silvia", nachname: "Frei",
-      vorspeise: "Salat", hauptgang: "Menü 1", bemerkung: "vegetarisch" }
+      vorspeise: "Salat", hauptgang: "Menü 1", bemerkung: "vegetarisch" },
+    { id: "b11", klasseId: "5", vorname: "Fabian", nachname: "Arnold",
+      vorspeise: "Suppe", hauptgang: "Menü 2", bemerkung: "" },
+    { id: "b12", klasseId: "5", vorname: "Céline", nachname: "Roth",
+      vorspeise: "Keine", hauptgang: "Menü 1", bemerkung: "" }
   ];
 
   function warten() {
@@ -653,6 +723,7 @@ function mockBauen() {
         code: daten.code || "",
         status: daten.status || "offen",
         bemerkung: "",
+        erwartet: Number(daten.erwartet) || 0,
         erstellt: new Date().toISOString(),
         erstelltVon: "Testperson (Mock-Modus)",
         geaendert: new Date().toISOString(),
@@ -667,6 +738,7 @@ function mockBauen() {
       ["titel", "firma", "datum", "essenszeit", "status"].forEach(f => {
         if (daten[f] !== undefined) k[f] = daten[f];
       });
+      if (daten.erwartet !== undefined) k.erwartet = Number(daten.erwartet) || 0;
       k.geaendert = new Date().toISOString();
       k.geaendertVon = "Testperson (Mock-Modus)";
       return k;
@@ -708,6 +780,10 @@ let anzahlProKlasse = {};  // klasseId -> Anzahl Bestellungen
 let gewaehlteId = null;    // id der ausgewählten Klasse
 let gewaehlteKlasse = null;
 let gewaehlteBestellungen = [];
+/* Der Filter beginnt bewusst eng: gezeigt wird nur, was heute ansteht. Das
+   ist die Frage, die an der Réception fast immer gestellt wird. Wer weiter
+   schauen will, blendet die beiden anderen Zeiträume über «Filter» dazu. */
+let zeigeZukunft = false;
 let zeigeVergangene = false;
 let suchtext = "";
 let bearbeiteId = null;    // id beim Bearbeiten, null beim Neuanlegen
@@ -739,62 +815,142 @@ function fehlerVerbergen() {
 }
 
 
-/* ---------- Klassenliste ---------- */
+/* ---------- Terminliste ---------- */
+
+/* Der heutige Tag ist immer sichtbar, unabhängig vom Filter. Termine ohne
+   Datum ebenfalls: sie liessen sich sonst über keinen Filter mehr finden
+   und wären damit für immer verschwunden. */
+function passtZuZeitraum(k) {
+  const datum = k.datum || "";
+  if (!datum) return true;
+  const heute = Hilfe.heute();
+  if (datum === heute) return true;
+  return datum > heute ? zeigeZukunft : zeigeVergangene;
+}
+
+function passtZuSuche(k) {
+  const suche = suchtext.trim().toLowerCase();
+  if (!suche) return true;
+  return ((k.titel || "") + " " + (k.firma || "") + " " + (k.code || ""))
+    .toLowerCase().indexOf(suche) >= 0;
+}
 
 function sichtbareKlassen() {
+  return alleKlassen.filter(k => passtZuZeitraum(k) && passtZuSuche(k));
+}
+
+/* Termine nach Kurstag zusammenfassen. Heute steht zuoberst, danach die
+   kommenden Tage aufsteigend, danach die vergangenen absteigend. So bleibt
+   der nächstliegende Tag in beide Richtungen oben, statt dass eine lange
+   Vergangenheit den heutigen Tag nach unten schiebt. Tage ohne Datum
+   kommen ganz zum Schluss. */
+function nachTagen(klassen) {
   const heute = Hilfe.heute();
-  const suche = suchtext.trim().toLowerCase();
-  return alleKlassen.filter(k => {
-    const vergangen = (k.datum || "") < heute;
-    if (vergangen !== zeigeVergangene) return false;
-    if (!suche) return true;
-    return (k.titel + " " + k.firma + " " + k.code).toLowerCase().indexOf(suche) >= 0;
+  const tage = {};
+  klassen.forEach(k => {
+    const datum = k.datum || "";
+    (tage[datum] || (tage[datum] = [])).push(k);
   });
+
+  const mitDatum = Object.keys(tage).filter(d => d).sort();
+  const reihenfolge = mitDatum.filter(d => d >= heute)
+    .concat(mitDatum.filter(d => d < heute).reverse());
+  if (tage[""]) reihenfolge.push("");
+
+  return reihenfolge.map(datum => ({
+    datum: datum,
+    klassen: tage[datum].sort((a, b) =>
+      (a.essenszeit || "").localeCompare(b.essenszeit || "")
+      || (a.titel || "").localeCompare(b.titel || "", "de-CH"))
+  }));
 }
 
 function listeZeichnen() {
-  const behaelter = el("liste");
+  const behaelter = el("tage");
   leeren(behaelter);
 
   const treffer = sichtbareKlassen();
   const leerfeld = el("liste-leer");
+  leeren(leerfeld);
 
   if (!treffer.length) {
     leerfeld.style.display = "block";
-    leerfeld.textContent = suchtext.trim()
+    leerfeld.appendChild(neu("div", null, suchtext.trim()
       ? "Keine Klasse gefunden."
-      : (zeigeVergangene ? "Keine vergangenen Klassen vorhanden."
-                         : "Keine aktuellen Klassen vorhanden.");
+      : "Für heute ist kein Termin eingetragen."));
+    /* Wer nichts findet, soll nicht raten müssen, ob es den Termin gar nicht
+       gibt oder ob nur der Filter zu eng steht. Gibt es Treffer ausserhalb
+       des Zeitraums, führt ein Klick direkt dorthin. */
+    const draussen = alleKlassen.filter(k => passtZuSuche(k) && !passtZuZeitraum(k)).length;
+    if (draussen) {
+      const knopf = neu("button", "textknopf", draussen === 1
+        ? "1 Termin liegt ausserhalb des Filters — alle anzeigen"
+        : draussen + " Termine liegen ausserhalb des Filters — alle anzeigen");
+      knopf.type = "button";
+      knopf.addEventListener("click", () => {
+        zeigeZukunft = true;
+        zeigeVergangene = true;
+        filterSpiegeln();
+        listeZeichnen();
+      });
+      leerfeld.appendChild(knopf);
+    }
     return;
   }
   leerfeld.style.display = "none";
 
-  treffer.forEach(k => {
-    const zeile = neu("button", "zeile");
-    zeile.type = "button";
-    if (String(k.id) === String(gewaehlteId)) zeile.classList.add("gewaehlt");
+  nachTagen(treffer).forEach(gruppe => behaelter.appendChild(tagZeichnen(gruppe)));
+}
 
-    const links = neu("div", "links");
-    links.appendChild(neu("div", "z-titel", k.titel || "Ohne Titel"));
-    if (k.firma) links.appendChild(neu("div", "z-firma", k.firma));
-    const zeitText = k.essenszeit ? ", " + k.essenszeit + " Uhr" : "";
-    links.appendChild(neu("div", "z-datum",
-      (Hilfe.datumText(k.datum) || "ohne Datum") + zeitText));
-    zeile.appendChild(links);
+function tagZeichnen(gruppe) {
+  const block = neu("div", "taggruppe");
 
-    const rechts = neu("div", "rechts");
-    const punkt = neu("span", "punkt " + (k.status === "offen" ? "offen" : "zu"));
-    punkt.title = k.status === "offen" ? "offen" : "geschlossen";
-    rechts.appendChild(punkt);
-    const anzahl = neu("div", "z-anzahl");
-    anzahl.appendChild(document.createTextNode(String(anzahlProKlasse[String(k.id)] || 0)));
-    anzahl.appendChild(neu("span", null, " Best."));
-    rechts.appendChild(anzahl);
-    zeile.appendChild(rechts);
+  const kopf = neu("div", "tagkopf");
+  kopf.appendChild(neu("span", "tagkopf-datum",
+    gruppe.datum ? Hilfe.datumText(gruppe.datum) : "Ohne Datum"));
+  if (gruppe.datum && gruppe.datum === Hilfe.heute()) {
+    kopf.appendChild(neu("span", "tag-heute", "heute"));
+  }
+  block.appendChild(kopf);
 
-    zeile.addEventListener("click", () => klasseWaehlen(k.id));
-    behaelter.appendChild(zeile);
-  });
+  const liste = neu("div", "liste");
+  gruppe.klassen.forEach(k => liste.appendChild(zeileZeichnen(k)));
+  block.appendChild(liste);
+
+  return block;
+}
+
+function zeileZeichnen(k) {
+  const zeile = neu("button", "zeile");
+  zeile.type = "button";
+  if (String(k.id) === String(gewaehlteId)) zeile.classList.add("gewaehlt");
+
+  const links = neu("div", "links");
+  links.appendChild(neu("div", "z-titel", k.titel || "Ohne Titel"));
+  if (k.firma) links.appendChild(neu("div", "z-firma", k.firma));
+  /* Der Kurstag steht über der Gruppe, in der Zeile bleibt nur die Uhrzeit. */
+  links.appendChild(neu("div", "z-zeit", k.essenszeit ? k.essenszeit + " Uhr" : "ohne Zeit"));
+  zeile.appendChild(links);
+
+  const rechts = neu("div", "rechts");
+  rechts.appendChild(anzahlZeichnen(anzahlProKlasse[String(k.id)] || 0, k.erwartet));
+  zeile.appendChild(rechts);
+
+  zeile.addEventListener("click", () => klasseWaehlen(k.id));
+  return zeile;
+}
+
+/* «5 / 18 Best.», solange eine erwartete Teilnehmerzahl hinterlegt ist,
+   sonst nur «5 Best.». */
+function anzahlZeichnen(ist, erwartet) {
+  const feld = neu("div", "z-anzahl");
+  feld.appendChild(document.createTextNode(String(ist)));
+  if (erwartet) {
+    feld.appendChild(neu("span", "erwartet", " / " + erwartet));
+    feld.title = ist + " von " + erwartet + " erwarteten Bestellungen";
+  }
+  feld.appendChild(neu("span", "einheit", " Best."));
+  return feld;
 }
 
 async function listeLaden(behalteAuswahl) {
@@ -880,10 +1036,9 @@ function ansichtKopfZeichnen() {
   el("d-datum").textContent = Hilfe.datumText(k.datum) || "ohne Datum";
   el("d-zeit").textContent = k.essenszeit ? "Mittagessen um " + k.essenszeit + " Uhr" : "";
 
-  const marke = el("d-status");
-  const offen = k.status === "offen";
-  marke.textContent = offen ? "Bestellung offen" : "Bestellung geschlossen";
-  marke.className = "marke" + (offen ? " offen" : "");
+  const erwartet = el("d-erwartet");
+  erwartet.textContent = k.erwartet ? "Erwartete Teilnehmer: " + k.erwartet : "";
+  erwartet.style.display = k.erwartet ? "block" : "none";
 
   spurZeichnen(k);
 
@@ -920,12 +1075,21 @@ function spurZeichnen(k) {
 
 function zaehlerZeichnen(liste) {
   const z = Daten.zaehler(liste || []);
+  const erwartet = gewaehlteKlasse && gewaehlteKlasse.erwartet;
   const behaelter = el("d-zaehler");
   leeren(behaelter);
+
   [["Total", z.total], ["Suppe", z.suppe], ["Salat", z.salat],
    ["Keine", z.keine], ["Menü 1", z.menu1], ["Menü 2", z.menu2]].forEach(([name, wert]) => {
     const kasten = neu("div");
-    kasten.appendChild(neu("b", null, String(wert)));
+    const zahl = neu("b", null, String(wert));
+    /* Nur im ersten Feld steht die erwartete Teilnehmerzahl daneben; bei
+       Suppe oder Menü 1 wäre sie kein sinnvoller Massstab. */
+    if (name === "Total" && erwartet) {
+      zahl.appendChild(neu("span", "erwartet", " / " + erwartet));
+      kasten.title = z.total + " von " + erwartet + " erwarteten Bestellungen";
+    }
+    kasten.appendChild(zahl);
     kasten.appendChild(neu("span", null, name));
     behaelter.appendChild(kasten);
   });
@@ -992,12 +1156,11 @@ function formularOeffnen(klasse) {
   el("f-firma").value = klasse ? (klasse.firma || "") : "";
   el("f-datum").value = klasse ? (klasse.datum || "") : Hilfe.heute();
   el("f-zeit").value = klasse ? (klasse.essenszeit || "") : "12:00";
-  el("f-status").value = klasse && klasse.status === "geschlossen" ? "geschlossen" : "offen";
+  el("f-erwartet").value = (klasse && klasse.erwartet) ? String(klasse.erwartet) : "";
 
-  el("f-statusblock").style.display = klasse ? "block" : "none";
-  el("btn-speichern").textContent = klasse ? "Änderungen speichern" : "Klasse speichern";
+  el("btn-speichern").textContent = klasse ? "Änderungen speichern" : "Termin speichern";
   el("btn-speichern").disabled = false;
-  el("legende-detail").textContent = klasse ? "Klasse bearbeiten" : "Neue Klasse";
+  el("legende-detail").textContent = klasse ? "Termin bearbeiten" : "Neuer Termin";
 
   detailUmschalten("formular");
   el("f-titel").focus();
@@ -1028,11 +1191,26 @@ async function formularSpeichern(ereignis) {
     return;
   }
 
+  /* Leer heisst «noch nicht bekannt» und wird als null gespeichert, nicht
+     als 0: eine 0 würde in der Liste als «5 / 0» erscheinen. */
+  const erwartetRoh = el("f-erwartet").value.trim();
+  let erwartet = null;
+  if (erwartetRoh !== "") {
+    erwartet = Number(erwartetRoh);
+    if (!Number.isInteger(erwartet) || erwartet < 0 || erwartet > 999) {
+      fehlerfeld.textContent = "Erwartete Teilnehmer: bitte eine ganze Zahl von 0 bis 999 eingeben.";
+      fehlerfeld.style.display = "block";
+      el("f-erwartet").focus();
+      return;
+    }
+  }
+
   const satz = {
     titel: titel,
     firma: el("f-firma").value.trim(),
     datum: el("f-datum").value,
-    essenszeit: el("f-zeit").value
+    essenszeit: el("f-zeit").value,
+    erwartet: erwartet
   };
 
   const knopf = el("btn-speichern");
@@ -1043,20 +1221,26 @@ async function formularSpeichern(ereignis) {
   try {
     let id;
     if (bearbeiteId) {
-      satz.status = el("f-status").value;
+      /* Status wird beim Ändern bewusst nicht mitgeschickt: die Verwaltung
+         kennt ihn nicht mehr, und was in SharePoint steht, soll stehen
+         bleiben. */
       await Daten.klasseAendern(bearbeiteId, satz);
       id = bearbeiteId;
     } else {
+      /* Beim Anlegen dagegen schon: Flow B liest die Spalte und meldet der
+         Gästeseite «geschlossen», wenn sie leer bleibt. */
       satz.status = "offen";
       satz.code = Hilfe.neuerCode();
       id = await Daten.klasseAnlegen(satz);
     }
 
     gewaehlteId = id ? String(id) : null;
-    // Falls die neue Klasse in der Vergangenheit liegt, den Filter mitziehen,
-    // damit sie in der Liste auch sichtbar ist.
-    if (satz.datum) zeigeVergangene = satz.datum < Hilfe.heute();
-    umschalterBeschriften();
+    /* Liegt der gespeicherte Termin ausserhalb des Filters, wird der
+       passende Zeitraum dazugeschaltet: sonst verschwände er beim Speichern
+       aus der Liste. */
+    if (satz.datum && satz.datum > Hilfe.heute()) zeigeZukunft = true;
+    if (satz.datum && satz.datum < Hilfe.heute()) zeigeVergangene = true;
+    filterSpiegeln();
 
     el("legende-detail").textContent = "Details";
     await listeLaden(true);
@@ -1083,9 +1267,9 @@ async function formularSpeichern(ereignis) {
 
 async function klasseLoeschen() {
   if (!gewaehlteKlasse) return;
-  const name = gewaehlteKlasse.titel || "diese Klasse";
-  const frage = "Klasse «" + name + "» wirklich löschen?\n\n"
-    + "Die bereits erfassten Bestellungen dieser Klasse werden dabei nicht "
+  const name = gewaehlteKlasse.titel || "diesen Termin";
+  const frage = "Termin «" + name + "» wirklich löschen?\n\n"
+    + "Die bereits erfassten Bestellungen dieses Termins werden dabei nicht "
     + "mitgelöscht; sie bleiben in der Liste «Bestellungen» stehen.";
   if (!window.confirm(frage)) return;
 
@@ -1150,11 +1334,25 @@ function blattOeffnen(seite) {
 }
 
 
-/* ---------- Umschalter und Suche ---------- */
+/* ---------- Filter ---------- */
 
-function umschalterBeschriften() {
-  el("btn-umschalten").textContent = zeigeVergangene ? "Aktuelle anzeigen" : "Vergangene anzeigen";
-  el("legende-liste").textContent = zeigeVergangene ? "Vergangene Klassen" : "Aktuelle Klassen";
+/* Bringt Kästchen, Schaltfläche und Kurztext auf den Stand der beiden
+   Zustandswerte. Wird auch aufgerufen, wenn der Filter nicht über das
+   Klappfeld verstellt wurde, etwa nach dem Speichern eines Termins. */
+function filterSpiegeln() {
+  el("filter-zukunft").checked = zeigeZukunft;
+  el("filter-vergangen").checked = zeigeVergangene;
+  el("btn-filter").classList.toggle("aktiv", zeigeZukunft || zeigeVergangene);
+  el("filter-lage").textContent =
+    (zeigeZukunft && zeigeVergangene) ? "Alle Termine"
+    : zeigeZukunft ? "Heute und später"
+    : zeigeVergangene ? "Heute und früher"
+    : "Nur heute";
+}
+
+function filterKlappen(auf) {
+  el("filter-feld").hidden = !auf;
+  el("btn-filter").setAttribute("aria-expanded", auf ? "true" : "false");
 }
 
 
@@ -1165,10 +1363,30 @@ el("suche").addEventListener("input", ev => {
   listeZeichnen();
 });
 
-el("btn-umschalten").addEventListener("click", () => {
-  zeigeVergangene = !zeigeVergangene;
-  umschalterBeschriften();
-  listeZeichnen();
+el("btn-filter").addEventListener("click", () => {
+  filterKlappen(el("filter-feld").hidden);
+});
+
+["filter-zukunft", "filter-vergangen"].forEach(id => {
+  el(id).addEventListener("change", () => {
+    zeigeZukunft = el("filter-zukunft").checked;
+    zeigeVergangene = el("filter-vergangen").checked;
+    filterSpiegeln();
+    listeZeichnen();
+  });
+});
+
+/* Das Klappfeld schliesst sich, sobald daneben geklickt oder Esc gedrückt
+   wird. Der Klick auf die eigene Schaltfläche liegt innerhalb des Bereichs
+   und wird deshalb hier nicht mitgezählt. */
+document.addEventListener("click", ev => {
+  if (el("filter-feld").hidden) return;
+  if (!el("filter-bereich").contains(ev.target)) filterKlappen(false);
+});
+document.addEventListener("keydown", ev => {
+  if (ev.key !== "Escape" || el("filter-feld").hidden) return;
+  filterKlappen(false);
+  el("btn-filter").focus();
 });
 
 el("btn-neu").addEventListener("click", () => {
@@ -1194,9 +1412,6 @@ el("btn-kursblatt-kopieren").addEventListener("click", () => {
 });
 el("btn-kursblatt").addEventListener("click", () => blattOeffnen("kursblatt.html"));
 el("btn-menueblatt").addEventListener("click", () => blattOeffnen("menueblatt.html"));
-el("btn-termine").addEventListener("click", () => {
-  window.open("termine.html" + (istMock ? "?mock=1" : ""), "_blank");
-});
 el("btn-abmelden").addEventListener("click", () => Anmeldung.abmelden());
 el("btn-erneut").addEventListener("click", () => location.reload());
 
@@ -1224,7 +1439,7 @@ async function starten() {
   el("kopf-name").textContent = konto ? (konto.name || konto.adresse || "") : "";
   el("btn-abmelden").style.display = "";
 
-  umschalterBeschriften();
+  filterSpiegeln();
   detailUmschalten("leer");
   ansichtZeigen("app");
   await listeLaden(false);

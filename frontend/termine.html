@@ -20,8 +20,11 @@
     background: #fff;
     color: var(--schwarz);
     line-height: 1.5;
+    /* Ein langer Kurstitel darf die Seite nie seitlich hinausschieben. */
+    overflow-wrap: break-word;
   }
-  .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px 64px; }
+  /* Der seitliche Rand wächst mit der Fensterbreite mit. */
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 clamp(16px, 3vw, 24px) 64px; }
 
   header {
     display: flex;
@@ -31,7 +34,7 @@
     padding: 28px 0 20px;
     border-bottom: 1px solid var(--linie);
   }
-  header .logo { width: 84px; flex: none; line-height: 0; }
+  header .logo { width: clamp(64px, 15vw, 84px); flex: none; line-height: 0; }
   header .logo svg { width: 100%; height: auto; fill: var(--schwarz); }
   header h1 {
     font-size: 0.8rem;
@@ -44,13 +47,21 @@
     margin-left: auto;
     display: flex;
     align-items: center;
-    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px 16px;
+    min-width: 0;
     font-size: 0.85rem;
     color: var(--grau);
     text-align: right;
   }
-  .kopf-name { max-width: 220px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  @media (max-width: 520px) { .kopf-name { max-width: 150px; } }
+  /* Die Obergrenze für den Namen wächst mit der Fensterbreite mit, statt an
+     einer festen Schwelle zu springen. */
+  .kopf-name {
+    max-width: min(220px, 45vw);
+    min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
 
   button.knopf {
     font-size: 0.88rem;
@@ -67,24 +78,28 @@
   button.knopf:disabled { opacity: 0.4; cursor: default; }
 
   .werkzeuge { display: flex; flex-wrap: wrap; gap: 10px; margin: 24px 0 8px; }
+  @media (max-width: 560px) {
+    button.knopf { min-height: 44px; }
+    .werkzeuge button { flex: 1 1 150px; }
+  }
 
   /* Zusammenzug über den ganzen gezeigten Zeitraum */
   .uebersicht {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--linie);
     border: 1px solid var(--linie);
     border-radius: 10px;
     overflow: hidden;
     margin-top: 20px;
   }
-  @media (min-width: 640px) { .uebersicht { grid-template-columns: repeat(4, 1fr); } }
+  @media (min-width: 640px) { .uebersicht { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
   .uebersicht div {
     padding: 12px 8px;
     text-align: center;
-    border-right: 1px solid var(--linie);
-    border-bottom: 1px solid var(--linie);
+    background: #fff;
   }
-  .uebersicht div:last-child { border-right: none; }
   .uebersicht b { display: block; font-size: 1.3rem; font-weight: 700; }
   .uebersicht span {
     font-size: 0.66rem; font-weight: 600; text-transform: uppercase;
@@ -134,6 +149,48 @@
     vertical-align: 1px;
   }
 
+  /* Sechs Spalten sind auf dem Telefon nicht mehr lesbar. Dort wird aus
+     jeder Kurszeile eine Karte: der Kursname als Überschrift, darunter Zeit
+     und Firma, zuunterst die drei Zahlen nebeneinander mit ihrer
+     Spaltenbezeichnung aus data-spalte. Die Reihenfolge stellt order um, die
+     Zeile ist dafür eine Flex-Zeile. Im Markup bleibt alles eine Tabelle.
+     Die Regel gilt bewusst nur für den Bildschirm: gedruckt wird immer die
+     Tabelle, unabhängig von der Papierbreite. */
+  @media screen and (max-width: 640px) {
+    .tabellenrahmen table,
+    .tabellenrahmen tbody { display: block; }
+    .tabellenrahmen thead { display: none; }
+    .tabellenrahmen tr {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 12px;
+      border: 1px solid var(--linie);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-top: -1px;
+    }
+    .tabellenrahmen tr:first-child { border-radius: 10px 10px 0 0; margin-top: 0; }
+    .tabellenrahmen tr:last-child { border-radius: 0 0 10px 10px; }
+    .tabellenrahmen tr:only-child { border-radius: 10px; }
+    .tabellenrahmen td { display: block; flex: 1 1 100%; border: none; padding: 0; }
+    .tabellenrahmen td:empty { display: none; }
+    .tabellenrahmen td::before {
+      content: attr(data-spalte);
+      display: block;
+      font-size: 0.66rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.14em; color: var(--grau);
+    }
+    .tabellenrahmen td.kurs { order: 1; font-size: 1rem; }
+    .tabellenrahmen td.zeit { order: 2; font-size: 0.88rem; }
+    .tabellenrahmen td.firma { order: 3; font-size: 0.88rem; }
+    .tabellenrahmen td.zahl { order: 4; flex: 1 1 0; text-align: left; margin-top: 6px; }
+    /* Kursname, Zeit und Firma sprechen für sich und brauchen keine
+       Beschriftung; nur die drei Zahlen bekommen eine. */
+    .tabellenrahmen td.kurs::before,
+    .tabellenrahmen td.zeit::before,
+    .tabellenrahmen td.firma::before { display: none; }
+  }
+
   .leer { padding: 40px 0; color: var(--grau); font-size: 0.92rem; text-align: center; }
 
   .fusszeile {
@@ -153,7 +210,7 @@
     font-size: 0.9rem;
   }
 
-  .lade { text-align: center; padding: 96px 0; color: var(--grau); font-size: 0.9rem; }
+  .lade { text-align: center; padding: clamp(56px, 14vw, 96px) 0; color: var(--grau); font-size: 0.9rem; }
   .spinner {
     width: 26px; height: 26px;
     border: 2px solid var(--linie);
@@ -164,7 +221,7 @@
   }
   @keyframes dreh { to { transform: rotate(360deg); } }
 
-  .status-karte { text-align: center; padding: 72px 0 0; max-width: 480px; margin: 0 auto; }
+  .status-karte { text-align: center; padding: clamp(48px, 12vw, 72px) 0 0; max-width: 480px; margin: 0 auto; }
   .status-karte .symbol { margin-bottom: 20px; }
   .status-karte .symbol svg {
     width: 44px; height: 44px;
@@ -519,18 +576,26 @@ function tagZeichnen(gruppe) {
     const z = zahlen(k.id);
     const zeile = neu("tr");
 
-    zeile.appendChild(neu("td", "zeit", k.essenszeit ? k.essenszeit + " Uhr" : "—"));
+    /* data-spalte trägt die Spaltenbezeichnung an der Zelle mit. Auf
+       schmalen Bildschirmen wird daraus die Beschriftung der Karte, siehe
+       den Abschnitt zur Tabelle im CSS. */
+    function zelle(knoten, bezeichnung) {
+      knoten.setAttribute("data-spalte", bezeichnung);
+      zeile.appendChild(knoten);
+      return knoten;
+    }
 
-    const kurs = neu("td", "kurs", k.titel || "Ohne Titel");
+    zelle(neu("td", "zeit", k.essenszeit ? k.essenszeit + " Uhr" : "—"), "Zeit");
+
+    const kurs = zelle(neu("td", "kurs", k.titel || "Ohne Titel"), "Kurs");
     if (k.status !== "offen") kurs.appendChild(neu("span", "marke-zu", "geschlossen"));
-    zeile.appendChild(kurs);
 
-    zeile.appendChild(neu("td", "firma", k.firma || ""));
+    zelle(neu("td", "firma", k.firma || ""), "Firma");
     /* Ein Kurs ohne einzige Bestellung fällt farbig auf: dort fehlt für die
        Küche noch alles, und die Réception muss meist nachfassen. */
-    zeile.appendChild(neu("td", z.total ? "zahl" : "zahl leerzahl", String(z.total)));
-    zeile.appendChild(neu("td", "zahl", String(z.menu1)));
-    zeile.appendChild(neu("td", "zahl", String(z.menu2)));
+    zelle(neu("td", z.total ? "zahl" : "zahl leerzahl", String(z.total)), "Best.");
+    zelle(neu("td", "zahl", String(z.menu1)), "Menü 1");
+    zelle(neu("td", "zahl", String(z.menu2)), "Menü 2");
 
     koerper.appendChild(zeile);
   });

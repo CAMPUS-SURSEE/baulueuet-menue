@@ -90,17 +90,51 @@ Der Preis ist ein grösseres `$select` auf jeder Abfrage. Sollte Graph das je ve
 
 ---
 
-## 5c. Warum «Alle Termine» eine eigene Seite ist
+## 5c. Warum «Alle Termine» wieder in die Verwaltung zurückgeholt wurde
 
-Das Restaurant wollte eine Vorschau auf die anstehenden Termine. Die Verwaltung zeigt links eine Klasse pro Zeile, absteigend nach Datum, ohne Zusammenzug pro Tag; für diese Frage ist das die falsche Form.
+Das Restaurant wollte eine Vorschau auf die anstehenden Termine. Weil die Verwaltung links eine Klasse pro Zeile zeigte, absteigend nach Datum und ohne Zusammenzug pro Tag, entstand dafür die eigene Seite `termine.html`. Sie wurde noch am selben Tag wieder aufgegeben, bevor die Réception überhaupt damit gearbeitet hatte.
 
-Eine zusätzliche Ansicht **innerhalb** von `admin.html` hätte eine Umleitungsadresse gespart. Dagegen sprach:
+**Was dagegen sprach, sobald sie in Gebrauch war:**
 
-- Die Seite soll sich **drucken und verlinken** lassen, damit sie in der Küche aushängen kann.
-- `admin.html` ist bereits die längste Datei des Projekts. Der Grundsatz «eine Seite, eine Aufgabe» hält die Dateien lesbar.
-- Die Terminübersicht **schreibt nichts**. Als eigene Seite ist auf einen Blick klar, dass dort nichts kaputtgehen kann.
+- **Zwei Listen für dieselbe Frage.** Die Réception schaute für «Was läuft heute?» in die Verwaltung und für «Was kommt nächste Woche?» in einen zweiten Tab. Beide zeigten dieselben Daten in verschiedener Form, und nur in der einen liess sich etwas anklicken.
+- **Der Umschalter «Vergangene anzeigen» beantwortete die falsche Frage.** Er kannte nur zwei Zustände, entweder alles Kommende oder alles Vergangene. Gefragt war fast immer: der heutige Tag.
+- **Der zusätzliche Eintrag in der App-Registrierung**, ohne den die Seite mit `AADSTS50011` scheiterte.
 
-Der Preis ist ein zusätzlicher Eintrag in der App-Registrierung: `https://menue.campus-sursee.ch/termine.html` muss als Umleitungsadresse hinterlegt sein, sonst scheitert dort die Anmeldung mit `AADSTS50011`.
+**Was stattdessen gebaut wurde.** Die linke Spalte von `admin.html` gruppiert die Termine jetzt selbst nach Kurstag, mit dem Datum als Überschrift über jeder Gruppe. Der Umschalter ist einem **Filter** gewichen: Von Haus aus stehen dort nur die heutigen Termine, zwei Kästchen blenden «Zukünftige Termine» und «Vergangene Termine» dazu. Die heutigen bleiben in jedem Fall sichtbar, und der heutige Tag steht immer zuoberst — danach die kommenden Tage aufsteigend, danach die vergangenen absteigend.
+
+**Was dabei verloren ging:** der Ausdruck der Tagesübersicht fürs Restaurant und der Zusammenzug «Tage / Kurse / Bestellungen / Menü 1 / Menü 2» über den ganzen Zeitraum. Beides war an die eigene Seite gebunden. Wird es wieder gebraucht, ist es in der linken Spalte nicht sinnvoll unterzubringen; dann braucht es die eigene Seite erneut.
+
+**Der Grundsatz «eine Seite, eine Aufgabe» gilt weiterhin.** Er hat hier nur nicht getragen, weil es gar nicht zwei Aufgaben waren: Terminliste und Terminübersicht sind dieselbe Aufgabe in zwei Auflösungen.
+
+---
+
+## 5d. Warum «Bestellung offen» aus der Verwaltung verschwunden ist
+
+Die Liste «Klassen» hat eine Spalte `Status` mit den Werten `offen` und `geschlossen`. Die Verwaltung zeigte sie an zwei Stellen: als orangen Punkt in jeder Listenzeile und als Marke «Bestellung offen» im Kopf der Details. Im Formular liess sie sich umstellen.
+
+Gebraucht wurde das nie. Die 10-Uhr-Regel schliesst die Menüwahl von selbst, und einen Kurs schon vorher dichtzumachen kam in der Praxis nicht vor. Übrig blieben ein Punkt, der in jeder Zeile Platz und Aufmerksamkeit kostete, und ein Wahlfeld, das man beim Bearbeiten jedes Mal überlesen musste.
+
+Seit dem 04.09.2026 sind Punkt, Marke und Wahlfeld entfernt. Die Spalte selbst bleibt:
+
+- **Flow B liest sie weiterhin** und meldet der Gästeseite `offen: false`, wenn dort `geschlossen` steht. Die Gästeseite zeigt dann unverändert «Bestellung geschlossen».
+- **Beim Anlegen** schreibt die Verwaltung deshalb weiterhin `offen` hinein. Bliebe die Spalte leer, hielte Flow B den Termin für geschlossen und niemand könnte bestellen.
+- **Beim Ändern** fasst die Verwaltung die Spalte nicht mehr an. Was in SharePoint steht, bleibt stehen.
+
+Wer einen Termin vorzeitig schliessen will, setzt den Wert direkt in der SharePoint-Liste. Das ist selten genug, dass es keinen eigenen Handgriff in der Oberfläche rechtfertigt.
+
+---
+
+## 5e. Warum die erwartete Teilnehmerzahl nur ein Massstab ist
+
+Die Réception fragte: «Fehlen noch Bestellungen?» Bisher liess sich das nur beantworten, wenn man die Teilnehmerzahl des Kurses im Kopf hatte. Seit dem 04.09.2026 lässt sie sich am Termin hinterlegen, und die Liste zeigt «5 / 18 Best.».
+
+Die Zahl **schränkt nichts ein**. Sie ist keine Obergrenze, kein Kontingent und keine Pflichtangabe:
+
+- Es dürfen mehr Leute bestellen als erwartet. Wer im Kurs kurzfristig dazukommt, soll nicht abgewiesen werden, nur weil eine Zahl nicht nachgeführt wurde.
+- Das Feld darf leer bleiben. Dann zeigt die Verwaltung schlicht keinen Massstab. Eine erzwungene Angabe hätte nur Platzhalterzahlen erzeugt, die niemand pflegt.
+- **Leer und `0` sind nicht dasselbe.** Leer heisst «noch nicht bekannt», `0` hiesse «niemand wird erwartet». Ein geleertes Feld schreibt deshalb `null` in die Spalte, nicht `0`.
+
+Die Alternative wäre gewesen, die Teilnehmenden vorab namentlich zu erfassen. Das ist der Ablauf, den das Papierblatt hatte, und genau den sollte die Webseite ablösen.
 
 ---
 
@@ -167,7 +201,8 @@ Diese Punkte sind bekannt und bewusst in Kauf genommen. Sie gehören auf die Lis
 | 28.08.2026, Vormittag | Gästeseite: Knopf «Auswahl bearbeiten» und Merken der eigenen Bestellung im Browser. Druckblätter `kursblatt.html` und `menueblatt.html` |
 | 28.08.2026, Mittag | **Ablösung von Power Apps.** Neue Verwaltung `admin.html`, Anmeldung an Entra ID, Zugriff auf SharePoint über Microsoft Graph. Flow D wird gegenstandslos |
 | 28.08.2026, Nachmittag | Umstellung auf Bibliotheken vom CDN (MSAL, qrcode-generator), Fusszeilen entfernt, vollständige Dokumentation |
-| 04.09.2026 | Alle fünf Seiten durchgehend auf schmale Bildschirme ausgelegt: überlappende Spalten in der Verwaltung behoben, Tabellen auf dem Telefon als Karten, seitliche Ränder und Schriftgrössen wachsen mit der Fensterbreite |
+| 04.09.2026, Vormittag | Alle Seiten durchgehend auf schmale Bildschirme ausgelegt: überlappende Spalten in der Verwaltung behoben, Tabellen auf dem Telefon als Karten, seitliche Ränder und Schriftgrössen wachsen mit der Fensterbreite. Terminübersicht `termine.html` als eigene Seite |
+| 04.09.2026, Nachmittag | **Umbau der Verwaltung.** `termine.html` wieder entfernt und die linke Spalte von `admin.html` nach Kurstag gruppiert; Umschalter «Vergangene anzeigen» durch einen Filter ersetzt, der von Haus aus nur den heutigen Tag zeigt. «Neuer Termin» ganz nach oben. Status «Bestellung offen» aus der Oberfläche entfernt. Neue Spalte `Teilnehmer` für die erwartete Teilnehmerzahl, in der Liste als «5 / 18 Best.» |
 
 **Beim Umbau gefundene und behobene Fehler**, festgehalten, weil sie sich wiederholen könnten:
 

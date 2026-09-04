@@ -149,14 +149,14 @@ Nützlich dabei:
 
 ### Bestellungen kontrollieren
 
-1. Öffnen Sie die Verwaltung und wählen Sie links die Klasse aus.
+1. Öffnen Sie die Verwaltung und wählen Sie links den Termin aus.
 2. Rechts sehen Sie die Zählerleiste mit sechs Zahlen: «Total», «Suppe», «Salat», «Keine», «Menü 1» und «Menü 2».
-3. Darunter steht die Liste aller Bestellungen mit den Spalten «Name», «Vorspeise», «Hauptgang» und «Bemerkung».
-4. Vergleichen Sie «Total» mit der Anzahl Teilnehmender. Fehlen Bestellungen, erinnern Sie die Kursleitung.
+3. Haben Sie beim Termin eine erwartete Teilnehmerzahl hinterlegt, steht sie beim «Total» gleich daneben, zum Beispiel «5 / 18». Fehlen Bestellungen, erinnern Sie die Kursleitung.
+4. Darunter steht die Liste aller Bestellungen mit den Spalten «Name», «Vorspeise», «Hauptgang» und «Bemerkung».
 
-In der Klassenliste links steht bei jeder Klasse rechts eine Zahl mit «Best.», also die Anzahl bereits eingegangener Bestellungen. So sehen Sie auf einen Blick, wo noch etwas fehlt.
+In der Terminliste links steht bei jedem Termin rechts dieselbe Angabe in Kurzform, zum Beispiel «5 / 18 Best.». So sehen Sie auf einen Blick, wo noch etwas fehlt, ohne jeden Termin einzeln anzuklicken.
 
-Hat noch niemand gewählt, steht dort: «Für diese Klasse liegt noch keine Bestellung vor.»
+Hat noch niemand gewählt, steht rechts: «Für diesen Termin liegt noch keine Bestellung vor.»
 
 ### Menüblatt drucken und der Küche geben
 
@@ -179,30 +179,28 @@ Steht statt der Menükarte der Satz «Die Tagesmenüs sind zurzeit nicht abrufba
 
 ---
 
-## 7. Klasse ändern oder löschen
+## 7. Termin ändern oder löschen
 
 ### Ändern
 
-1. Wählen Sie die Klasse links aus.
-2. Klicken Sie rechts auf «Bearbeiten». Über dem Formular steht jetzt «Klasse bearbeiten».
-3. Sie sehen dieselben Felder wie beim Anlegen, zusätzlich das Feld «Status» mit der Auswahl «offen» oder «geschlossen».
+1. Wählen Sie den Termin links aus.
+2. Klicken Sie rechts auf «Bearbeiten». Über dem Formular steht jetzt «Termin bearbeiten».
+3. Sie sehen dieselben Felder wie beim Anlegen: «Titel», «Firma», «Datum», «Essenszeit» und «Erwartete Teilnehmer».
 4. Klicken Sie auf «Änderungen speichern» oder auf «Abbrechen».
 
-Zum Status: Steht eine Klasse auf «offen», können die Teilnehmenden wählen, und in den Details steht die orange Marke «Bestellung offen». Stellen Sie den Status auf «geschlossen», wenn keine weiteren Bestellungen mehr eingehen sollen, zum Beispiel nachdem Sie das Menüblatt gedruckt haben. Wer den Link danach öffnet, sieht «Bestellung geschlossen» und den Hinweis, sich bei der Réception zu melden.
-
-> Den Status müssen Sie nicht mehr eigens umstellen, nur damit nach 10:00 Uhr Ruhe ist. Das erledigt die 10-Uhr-Regel von selbst. Der Status bleibt aber nützlich, wenn eine Klasse schon **vor** 10:00 Uhr dicht sein soll.
+Am häufigsten werden Sie hier die **erwarteten Teilnehmer** nachtragen oder korrigieren, sobald die Kursleitung die endgültige Zahl meldet. Leeren Sie das Feld, wenn die Zahl doch nicht feststeht; dann verschwindet der Massstab wieder und in der Liste steht nur noch die Anzahl Bestellungen.
 
 Den Zugangscode können Sie nicht ändern. Ein bereits verteilter Link oder QR-Code bleibt also gültig, auch wenn Sie Titel, Firma, Datum oder Essenszeit noch anpassen.
 
 ### Löschen
 
-1. Wählen Sie die Klasse aus und klicken Sie ganz unten auf «Klasse löschen».
-2. Es erscheint eine Rückfrage, zum Beispiel: «Klasse «Polierkurs Modul 4» wirklich löschen?»
+1. Wählen Sie den Termin aus und klicken Sie ganz unten auf «Termin löschen».
+2. Es erscheint eine Rückfrage, zum Beispiel: «Termin «Polierkurs Modul 4» wirklich löschen?»
 3. Bestätigen Sie mit «OK» oder brechen Sie mit «Abbrechen» ab.
 
-**Was passiert mit den Bestellungen?** Sie werden nicht mitgelöscht. Die bereits erfassten Bestellungen dieser Klasse bleiben in der Liste «Bestellungen» stehen. In der Verwaltung sehen Sie sie danach aber nicht mehr, weil die zugehörige Klasse fehlt. Drucken Sie das Menüblatt darum immer aus, bevor Sie eine Klasse löschen.
+**Was passiert mit den Bestellungen?** Sie werden nicht mitgelöscht. Die bereits erfassten Bestellungen dieses Termins bleiben in der Liste «Bestellungen» stehen. In der Verwaltung sehen Sie sie danach aber nicht mehr, weil der zugehörige Termin fehlt. Drucken Sie das Menüblatt darum immer aus, bevor Sie einen Termin löschen.
 
-Im Alltag müssen Sie gar nichts löschen. Vergangene Klassen verschwinden von selbst aus der Liste «Aktuelle Klassen», und die Daten werden nach 30 Tagen automatisch entfernt.
+Im Alltag müssen Sie gar nichts löschen. Vergangene Termine verschwinden von selbst aus der Ansicht, sobald der Filter wieder auf «Nur heute» steht, und die Daten werden nach 30 Tagen automatisch entfernt.
 
 ---
 
@@ -223,7 +221,7 @@ Nach dem Absenden erscheint eine Bestätigung: «Danke, Anna!», darunter «Dein
 Drei Punkte, die am Empfang immer wieder gefragt werden:
 
 - **Die Wahl ist nur am Tag des Mittagessens möglich.** Öffnet jemand den Link vorher, erscheint «Menüwahl noch nicht möglich» mit dem Satz, an welchem Tag das Mittagessen stattfindet, und der Bitte, den Link an diesem Tag nochmals zu öffnen. Das ist kein Fehler und Sie müssen nichts unternehmen.
-- **Die Wahl lässt sich bis 10:00 Uhr ändern.** Auf der Bestätigungsseite gibt es den Knopf «Auswahl bearbeiten». Damit kommt man zurück ins Formular, wo bereits alles ausgefüllt ist. Der Knopf unten heisst dann «Änderung speichern». Das funktioniert auf demselben Handy und solange die Klasse auf «offen» steht.
+- **Die Wahl lässt sich bis 10:00 Uhr ändern.** Auf der Bestätigungsseite gibt es den Knopf «Auswahl bearbeiten». Damit kommt man zurück ins Formular, wo bereits alles ausgefüllt ist. Der Knopf unten heisst dann «Änderung speichern». Das funktioniert auf demselben Handy und solange die 10-Uhr-Grenze nicht überschritten ist.
 - **Ab 10:00 Uhr ist die Wahl zu.** Dann verschwindet der Knopf «Auswahl bearbeiten». An seiner Stelle steht:
 
   > **Änderungen nicht mehr möglich**
@@ -242,7 +240,7 @@ Drei Punkte, die am Empfang immer wieder gefragt werden:
 ## 9. Häufige Fragen
 
 **Ein Teilnehmer hat den Link zu früh geöffnet und sieht «Menüwahl noch nicht möglich».**
-Alles in Ordnung. Die Menüwahl öffnet erst am Tag des Mittagessens. Er soll denselben Link an diesem Tag nochmals öffnen, am besten am Morgen. Prüfen Sie im Zweifel in der Verwaltung, ob beim «Datum» der Klasse wirklich der richtige Tag steht.
+Alles in Ordnung. Die Menüwahl öffnet erst am Tag des Mittagessens. Er soll denselben Link an diesem Tag nochmals öffnen, am besten am Morgen. Prüfen Sie im Zweifel in der Verwaltung, ob beim «Datum» des Termins wirklich der richtige Tag steht.
 
 **Jemand hat sich vertippt, zum Beispiel beim Namen oder beim Menü.**
 Vor 10:00 Uhr: Er soll auf demselben Handy den Link nochmals öffnen, auf «Auswahl bearbeiten» klicken, korrigieren und auf «Änderung speichern» klicken. Klappt das nicht mehr, zum Beispiel weil das Handy gewechselt hat oder weil es bereits nach 10:00 Uhr ist, korrigieren Sie es von Hand auf dem ausgedruckten Menüblatt und melden es der Küche.
@@ -250,35 +248,35 @@ Vor 10:00 Uhr: Er soll auf demselben Handy den Link nochmals öffnen, auf «Ausw
 **Jemand meldet sich um 10:30 Uhr und hat noch gar nicht bestellt.**
 Das ist der vorgesehene Weg, nicht eine Störung. Fragen Sie nach Vorname, Nachname, Vorspeise, Hauptgang und allfälligen Allergien und schreiben Sie es von Hand auf das ausgedruckte Menüblatt. Melden Sie es der Küche, besonders wenn eine Allergie dabei ist. In der Verwaltung lässt sich eine Bestellung nicht nacherfassen; das Papier ist hier der schnellere und verlässlichere Weg.
 
-**Kann ich die 10-Uhr-Grenze für eine einzelne Klasse verschieben?**
+**Kann ich die 10-Uhr-Grenze für einen einzelnen Termin verschieben?**
 Nein. Sie gilt für alle Kurse gleich. Soll die Zeit grundsätzlich eine andere sein, ist das eine Änderung an der Webseite; melden Sie den Wunsch den ICT-Services.
 
 **Ich möchte, dass die Kursleitung das Blatt selbst ausdruckt.**
 Schicken Sie ihr den Kursblatt-Link, siehe Abschnitt 4, Weg A. Sie braucht dafür kein Konto und keine Anmeldung.
 
-**Eine Klasse taucht in der Liste nicht auf.**
+**Ein Termin taucht in der Liste nicht auf.**
 Drei Gründe kommen infrage:
-1. Das Kursdatum liegt in der Vergangenheit. Klicken Sie links auf «Vergangene anzeigen». Der Knopf heisst danach «Aktuelle anzeigen» und die Überschrift wechselt auf «Vergangene Klassen». Mit demselben Knopf kommen Sie zurück.
-2. Im Suchfeld «Suchen: Titel, Firma oder Code» steht noch ein Text von vorhin. Leeren Sie das Feld.
-3. Die Klasse wurde nie gespeichert. Legen Sie sie neu an.
+1. Das Kursdatum ist nicht der heutige Tag. Klicken Sie links auf «Filter» und setzen Sie das Häkchen bei «Zukünftige Termine» oder bei «Vergangene Termine», je nachdem, wo Sie suchen. Beide zusammen zeigen alles.
+2. Im Suchfeld «Suchen: Titel, Firma oder Code» steht noch ein Text von vorhin. Leeren Sie das Feld. Findet die Suche etwas ausserhalb des Filters, sagt die Seite es Ihnen und bietet mit einem Klick an, alle Termine anzuzeigen.
+3. Der Termin wurde nie gespeichert. Legen Sie ihn neu an.
 
 **Wie drucke ich als PDF statt auf Papier?**
 Klicken Sie wie gewohnt auf «Kursblatt drucken» oder «Menüblatt drucken». Wählen Sie im Druckdialog beim Drucker den Eintrag «Microsoft Print to PDF» und klicken Sie auf «Drucken». Danach geben Sie Dateiname und Ordner an. So können Sie das Menüblatt auch per E-Mail verschicken.
 
 **Wie lange bleiben die Daten gespeichert?**
-30 Tage. Danach werden Klassen und Bestellungen automatisch gelöscht. Was Sie länger aufbewahren wollen, drucken Sie aus oder speichern Sie als PDF.
+30 Tage. Danach werden Termine und Bestellungen automatisch gelöscht. Was Sie länger aufbewahren wollen, drucken Sie aus oder speichern Sie als PDF.
 
 **Wer bekommt Zugriff auf die Verwaltung?**
 Zugriff erhalten die Mitarbeitenden der Réception, freigeschaltet durch die ICT-Services. Braucht jemand Neues Zugriff oder verlässt jemand den Empfang, melden Sie das den ICT-Services. Die Teilnehmenden brauchen keinen Zugang und keine Anmeldung, für sie genügt der Gästelink.
 
-**Muss ich für jeden Kurstag eine eigene Klasse anlegen?**
-Ja. Eine Klasse gilt für genau einen Essenstag.
+**Muss ich für jeden Kurstag einen eigenen Termin anlegen?**
+Ja. Ein Termin gilt für genau einen Essenstag.
 
 **Kann ich das Kursblatt schon eine Woche vorher drucken?**
 Ja. Der QR-Code funktioniert unabhängig vom Datum. Nur wählen können die Teilnehmenden erst am Kurstag, und dann bis 10:00 Uhr.
 
 **Wie viele Kurse essen nächste Woche bei uns?**
-Klicken Sie in der Verwaltung auf «Alle Termine», siehe Abschnitt 5. Dort steht jeder Tag mit seinen Kursen und den bisherigen Bestellungen, und die Liste lässt sich für das Restaurant ausdrucken.
+Klicken Sie in der Verwaltung auf «Filter» und setzen Sie das Häkchen bei «Zukünftige Termine», siehe Abschnitt 5. Die Liste links zeigt danach jeden kommenden Kurstag mit seinen Kursen und den bisherigen Bestellungen.
 
 **Kann jemand ohne Link zufällig bestellen?**
 Praktisch nicht. Der Zugangscode hat acht Zeichen und ist zufällig. Ohne den passenden Link erscheint der Hinweis «Ungültiger Link».
@@ -289,7 +287,7 @@ Praktisch nicht. Der Zugangscode hat acht Zeichen und ist zufällig. Ohne den pa
 
 Probieren Sie zuerst diese vier Punkte, in dieser Reihenfolge:
 
-1. **Seite neu laden.** Taste F5 drücken. Das behebt die meisten kurzen Aussetzer, zum Beispiel wenn eine Klasse nicht erscheint oder eine Meldung stehen bleibt.
+1. **Seite neu laden.** Taste F5 drücken. Das behebt die meisten kurzen Aussetzer, zum Beispiel wenn ein Termin nicht erscheint oder eine Meldung stehen bleibt.
 2. **Richtiges Konto prüfen.** Steht oben rechts Ihr Name? Wenn dort ein fremder Name steht oder «Anmeldung nicht möglich» erscheint, klicken Sie auf «Abmelden», laden die Seite neu und melden sich mit Ihrem Geschäftskonto an.
 3. **Internetverbindung prüfen.** Meldungen wie «Verbindungsfehler» deuten meist darauf hin. Öffnen Sie zur Kontrolle eine andere Webseite.
 4. **Nochmals versuchen.** Wo der Knopf «Erneut versuchen» oder «Nochmals versuchen» erscheint, klicken Sie ihn einmal an.
@@ -298,11 +296,11 @@ Melden Sie sich bei den ICT-Services, wenn:
 
 - die Anmeldung auch nach dem Neuladen scheitert oder eine Meldung über fehlende Berechtigung erscheint,
 - Bestellungen fehlen, die nachweislich abgeschickt wurden,
-- eine Klasse sich nicht speichern, ändern oder löschen lässt,
+- ein Termin sich nicht speichern, ändern oder löschen lässt,
 - der QR-Code auf dem Kursblatt nicht erzeugt wird,
 - die Menütexte auf dem Menüblatt mehrere Tage hintereinander fehlen.
 
-Halten Sie dabei bereit: den Namen der Klasse, den Zugangscode, das Kursdatum und den genauen Wortlaut der Fehlermeldung. Ein Bildschirmfoto hilft zusätzlich.
+Halten Sie dabei bereit: den Namen des Termins, den Zugangscode, das Kursdatum und den genauen Wortlaut der Fehlermeldung. Ein Bildschirmfoto hilft zusätzlich.
 
 Ist der Kurs bereits am Essen und das Menüblatt fehlt, greifen Sie auf das bekannte Papierblatt zurück und melden den Fall danach.
 

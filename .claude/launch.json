@@ -6,12 +6,6 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "8123", "--directory", "frontend"],
       "port": 8123
-    },
-    {
-      "name": "menue-frontend-pruefung",
-      "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "8124", "--directory", "frontend"],
-      "port": 8124
     }
   ]
 }

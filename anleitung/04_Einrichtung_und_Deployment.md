@@ -23,11 +23,22 @@ Dieses Dokument beschreibt, wie das System eingerichtet wird und wie eine Änder
 | Baustein | Zustand | Wer |
 |---|---|---|
 | SharePoint-Listen «Klassen» und «Bestellungen» | vorhanden | ICT |
+| Spalte `Teilnehmer` in der Liste «Klassen» | **vor der Veröffentlichung anzulegen**, siehe unten | ICT |
 | Power Automate Flows B, C und Aufräum-Flow | vorhanden und in Betrieb | ICT |
 | Cloudflare-Pages-Projekt auf `menue.campus-sursee.ch` | vorhanden | ICT |
 | App-Registrierung in Entra ID | angelegt, Client-ID eingetragen | ICT |
 | Benutzerzuweisung der Réception | **noch zu prüfen** | ICT |
 | Erste Veröffentlichung der neuen Seiten | **noch offen** | ICT |
+
+> **Vor dem Veröffentlichen der Fassung vom 04.09.2026: Spalte `Teilnehmer` anlegen.**
+> In der SharePoint-Liste «Klassen» eine Spalte vom Typ **Zahl** mit dem internen
+> Namen `Teilnehmer` erstellen, ohne Vorgabewert und nicht erforderlich. Sie nimmt
+> die erwartete Teilnehmerzahl eines Termins auf.
+>
+> Fehlt die Spalte, **liest** die Verwaltung weiter (`graph.js` fällt auf den Abruf
+> ohne Feldauswahl zurück und zeigt keinen Massstab), **speichern** lässt sich ein
+> Termin dann aber nicht mehr: Graph weist das unbekannte Feld ab. Die Spalte ist
+> deshalb anzulegen, bevor die neue Fassung live geht, nicht danach.
 
 ---
 
@@ -53,24 +64,21 @@ Die Registrierung besteht bereits unter dem Namen **«Menuewahl BAULUUT Admin»*
 
 ```
 https://menue.campus-sursee.ch/admin
-https://menue.campus-sursee.ch/termine
 https://menue.campus-sursee.ch/menueblatt
 https://menue.campus-sursee.ch/kursblatt
 https://menue.campus-sursee.ch/admin.html
-https://menue.campus-sursee.ch/termine.html
 https://menue.campus-sursee.ch/menueblatt.html
 https://menue.campus-sursee.ch/kursblatt.html
 http://localhost:8123/admin.html
-http://localhost:8123/termine.html
 http://localhost:8123/menueblatt.html
 http://localhost:8123/kursblatt.html
 ```
 
-> **Wegen Cloudflare Pages nötig: die vier Adressen ohne `.html`.** Cloudflare Pages beantwortet `/admin.html` mit einer Umleitung auf `/admin`. Die Seite meldet sich immer auf der Adresse an, auf der sie tatsächlich läuft, also auf der Fassung ohne Endung. Fehlen diese vier Einträge, scheitert die Anmeldung mit `AADSTS50011`.
+> **Wegen Cloudflare Pages nötig: die drei Adressen ohne `.html`.** Cloudflare Pages beantwortet `/admin.html` mit einer Umleitung auf `/admin`. Die Seite meldet sich immer auf der Adresse an, auf der sie tatsächlich läuft, also auf der Fassung ohne Endung. Fehlen diese drei Einträge, scheitert die Anmeldung mit `AADSTS50011`.
 >
 > **Die Adressen mit `.html` bleiben trotzdem stehen.** Sie kosten nichts und decken den lokalen Betrieb sowie den Fall ab, dass die Seiten je wieder auf einem Hoster ohne diese Umleitung liegen.
 >
-> **Seit dem 04.09.2026 neu: `termine`.** Auch diese Adresse muss ergänzt werden, sonst scheitert die Terminübersicht mit `AADSTS50011`.
+> **`termine` ist weggefallen.** Die Seite «Alle Termine» gibt es seit dem 04.09.2026 nicht mehr; ihr Inhalt steht jetzt in der linken Spalte von `admin.html`. Ein bereits eingetragener `termine`-Eintrag stört nicht und darf bei Gelegenheit entfernt werden.
 >
 > **`kursblatt` bleibt in der Liste**, obwohl das Kursblatt seit dem 04.09.2026 im Normalfall ohne Anmeldung lädt. Auf seiner Fehlerkarte gibt es den Knopf «Mit Konto anmelden» als Rückfall, wenn Flow B nicht antwortet; ohne den Eintrag scheitert dieser Weg.
 
@@ -161,13 +169,15 @@ Seit der Anbindung an Git ist dieses Repository der massgebende Stand: Was in `f
 - [ ] Cloudflare Pages mit dem Git-Repository verbunden, erster Deploy aus `main` ist «Success»
 - [ ] `https://menue.campus-sursee.ch/admin.html` öffnet sich, landet auf `/admin` und die Anmeldung gelingt
       *Dieser eine Schritt belegt auf einmal, dass Umleitungsadresse, Graph-Berechtigung und Benutzerzuweisung stimmen.*
-- [ ] Testklasse angelegt, Zugangscode wurde automatisch erzeugt
-- [ ] In den Details der Testklasse steht die kleine Zeile «Erstellt … von …» mit dem eigenen Namen
-- [ ] Gästelink kopiert, Gästeseite zeigt die Klasse und die Tagesmenüs
+- [ ] Spalte `Teilnehmer` in der Liste «Klassen» vorhanden (Zahl, darf leer sein)
+- [ ] Testtermin angelegt, Zugangscode wurde automatisch erzeugt
+- [ ] Beim Testtermin «Erwartete Teilnehmer» gesetzt; die Liste links zeigt «0 / *n* Best.», danach das Feld wieder geleert und gespeichert
+- [ ] In den Details des Testtermins steht die kleine Zeile «Erstellt … von …» mit dem eigenen Namen
+- [ ] Gästelink kopiert, Gästeseite zeigt den Kurs und die Tagesmenüs
 - [ ] Eine Testbestellung abgegeben, sie erscheint in der Verwaltung
 - [ ] **Kursblatt-Link in einem privaten Fenster geöffnet**, ohne Anmeldung: Das Blatt erscheint samt QR-Code
-- [ ] `termine.html` öffnet sich, die Testklasse steht unter ihrem Datum
-- [ ] Kursblatt gedruckt, **QR-Code mit einer echten Handykamera gescannt** und der Link führt zur richtigen Klasse
+- [ ] in `admin.html` steht der Testtermin unter seinem Kurstag; «Filter» blendet zukünftige und vergangene Termine ein
+- [ ] Kursblatt gedruckt, **QR-Code mit einer echten Handykamera gescannt** und der Link führt zum richtigen Kurs
 - [ ] Menüblatt gedruckt, Namen, Vorspeisen, Hauptgänge und Bemerkungen stimmen
 - [ ] Ein Konto **ohne** Zuweisung ausprobiert, die Anmeldung wird abgelehnt
 - [ ] Réception eingewiesen, `01_Anleitung_Reception.md` abgegeben
@@ -181,7 +191,7 @@ Die Seiten laden zwei Bibliotheken von `cdn.jsdelivr.net`, festgenagelt auf eine
 
 | Bibliothek | Version | Eingebunden in |
 |---|---|---|
-| `@azure/msal-browser` | 4.30.0 | `admin.html`, `termine.html`, `menueblatt.html`, `kursblatt.html` |
+| `@azure/msal-browser` | 4.30.0 | `admin.html`, `menueblatt.html`, `kursblatt.html` |
 | `qrcode-generator` | 1.4.4 | `kursblatt.html` |
 
 Vorgehen beim Anheben:
@@ -201,7 +211,7 @@ Vorgehen beim Anheben:
 
 Falls die Webseite je vollständig neu aufgesetzt werden muss:
 
-1. **SharePoint:** Listen «Klassen» und «Bestellungen» mit den Spalten aus `03_Technische_Dokumentation.md`, Abschnitt 4. Die internen Feldnamen müssen genau stimmen, sonst greift `graph.js` ins Leere. Neue Listen-IDs in `konfig.js` eintragen.
+1. **SharePoint:** Listen «Klassen» und «Bestellungen» mit den Spalten aus `03_Technische_Dokumentation.md`, Abschnitt 4, einschliesslich `Teilnehmer`. Die internen Feldnamen müssen genau stimmen, sonst greift `graph.js` ins Leere. Neue Listen-IDs in `konfig.js` eintragen.
 2. **Power Automate:** Flow B und Flow C neu bauen, Aufbau und Lunchgate-Anbindung siehe `03_Technische_Dokumentation.md`, Abschnitt 7. Neue Aufruf-Adressen in `konfig.js` und im Kopf von `index.html` eintragen. Den Aufräum-Flow nicht vergessen.
 3. **Entra ID:** App-Registrierung nach Abschnitt 2 dieses Dokuments.
 4. **Cloudflare Pages:** neues Projekt aus dem Git-Repository anlegen, Framework-Vorlage «None», Build command leer lassen. Der ausgelieferte Ordner kommt aus `wrangler.toml`; der Projektname muss dem Feld `name` darin entsprechen. Anschliessend unter **Custom domains** die Domäne `menue.campus-sursee.ch` verbinden.

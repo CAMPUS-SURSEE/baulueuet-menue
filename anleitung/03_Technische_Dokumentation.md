@@ -131,7 +131,7 @@ Das ist bewusst so gewählt: Es braucht keine neue Spalte, keine Migration, und 
 
 | Interner Feldname | Typ | Verwendung |
 |---|---|---|
-| `Title` | Text | technisch nötig, inhaltlich ohne Bedeutung |
+| `Title` | Text | technisch nötig, inhaltlich ohne Bedeutung. `admin.html` schreibt beim Nacherfassen «Nachname Vorname» hinein, damit der Eintrag auch in der SharePoint-Listenansicht lesbar ist; beim Ändern wird die Spalte nicht angefasst |
 | `KlasseID` | Zahl | Verweis auf die Klasse. **Die einzige Zuordnung, die zählt** |
 | `KlasseCode` | Text | Kopie des Codes, nur zur Nachvollziehbarkeit |
 | `Vorname`, `Nachname` | Text | |
@@ -141,6 +141,8 @@ Das ist bewusst so gewählt: Es braucht keine neue Spalte, keine Migration, und 
 | `Created` | | automatisch von SharePoint |
 
 > **Wichtig:** Die Liste «Bestellungen» hat **keine eigene Datumsspalte**. Der Bezug zum Kurstag entsteht ausschliesslich über `KlasseID`. Wer eine Klasse löscht, kappt diesen Bezug: Die Bestellungen bleiben als verwaiste Einträge stehen, bis der Aufräum-Flow sie nach 30 Tagen entfernt.
+
+> **Wer eine Bestellung angefasst hat (seit 04.09.2026).** Seit die Réception Bestellungen in `admin.html` ändern, nacherfassen und löschen kann, zählt die Herkunft eines Eintrags. Gelesen werden dieselben Eigenschaften wie bei den Klassen, `createdBy` und `lastModifiedBy` des Listenelements, also wieder **ohne eigene Spalten**. Bei einer Bestellung über die Gästeseite steht dort der Name des Flow-Kontos, bei einer Korrektur der Réception der Name der angemeldeten Person. `admin.html` zeigt das als kleine graue Zeile über dem Bestellformular.
 
 ---
 
@@ -182,6 +184,9 @@ await Graph.klasseAnlegen({titel, firma, datum, essenszeit, code, status})
 await Graph.klasseAendern(id, {...})
 await Graph.klasseLoeschen(id)
 await Graph.bestellungen(klasseId)          // ohne Argument: alle
+await Graph.bestellungAnlegen({klasseId, klasseCode, vorname, nachname,
+                               vorspeise, hauptgang, bemerkung})
+await Graph.bestellungAendern(id, {...})   // Réception, ohne Frist
 await Graph.bestellungLoeschen(id)
 Graph.zaehler(liste)                        // {total, suppe, salat, keine, menu1, menu2}
 await Graph.klasseOeffentlich(code)         // Klasse über Flow B, ohne Anmeldung, oder null
@@ -282,6 +287,13 @@ Umgesetzt ist das in `index.html`:
 
 > **Diese Prüfung läuft im Browser und ist keine Sperre im Sinne der Sicherheit.**
 > Flow C nimmt eine Bestellung weiterhin an, wenn jemand ihn von Hand aufruft. Für den Zweck genügt das: Es geht darum, den Ablauf für die Küche verlässlich zu machen, nicht darum, Missbrauch abzuwehren, und wer den Code kennt, könnte ohnehin bestellen (siehe `05_Entscheide_und_Verlauf.md`, Abschnitt 2). Soll die Frist hart gelten, gehört dieselbe Bedingung in **Flow C**: vor dem Anlegen des Listeneintrags prüfen, ob `utcNow()` in Ortszeit vor 10:00 Uhr des Kurstages liegt, und sonst mit HTTP 403 antworten. Die Gästeseite zeigt bei 403 bereits die Karte «Bestellung geschlossen»; es wäre also kein weiterer Eingriff in die Webseite nötig.
+
+**Die Verwaltung ist von der Frist ausgenommen.** `admin.html` kennt seit dem 04.09.2026 ein
+eigenes Formular für Bestellungen: ändern, nacherfassen, löschen, jederzeit und ohne Prüfung der
+Uhrzeit. Das ist der Zweck der Frist und kein Versehen — sie soll den Ablauf für die Küche
+verlässlich machen, nicht die Réception aussperren. Geschrieben wird direkt über Graph, nicht über
+Flow C; eine harte Frist in Flow C (siehe Kasten oben) würde die Verwaltung deshalb auch nicht
+treffen.
 
 **Die Uhrzeit steht an zwei Stellen.** `KONFIG.annahmeschluss` in `konfig.js` für die Admin-Seiten und `ANNAHMESCHLUSS` im Kopf von `index.html` für die Gästeseite. Das ist bewusst doppelt: `index.html` bindet `konfig.js` nicht ein, weil die Gästeseite ohne Anmeldung auskommt und deshalb keine der Admin-Dateien lädt. Wird die Zeit geändert, muss sie an **beiden** Stellen geändert werden. Das Kursblatt beschriftet sich über `Hilfe.annahmeschlussText()` von selbst.
 

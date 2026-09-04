@@ -111,6 +111,11 @@ neu bestellen noch die eigene Wahl ändern; beides läuft dann über die
 Réception. Die Uhrzeit steht in `frontend/konfig.js` (`annahmeschluss`) und
 nochmals im Kopf von `frontend/index.html`.
 
+Für die Réception gilt die Frist nicht: In `admin.html` lässt sich jede
+Bestellung jederzeit ändern, nacherfassen und löschen. Wer eine Bestellung
+erfasst und wer sie zuletzt geändert hat, führt SharePoint von selbst mit und
+die Verwaltung zeigt es an.
+
 ---
 
 ## In drei Sätzen, wie es funktioniert

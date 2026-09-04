@@ -22,7 +22,7 @@ Es gibt vier Seiten. Die erste brauchen Sie täglich, die anderen öffnen sich a
 | Kursblatt zum Aushängen | `https://menue.campus-sursee.ch/kursblatt.html?klasse=CODE` | Réception zum Drucken, **darf auch der Kursleitung geschickt werden** |
 | Menüblatt für die Küche | `https://menue.campus-sursee.ch/menueblatt.html?klasse=CODE` | Réception, zum Drucken |
 
-**Die 10-Uhr-Regel.** Am Kurstag können die Teilnehmenden bis 10:00 Uhr wählen und ihre Wahl beliebig oft ändern. Ab 10:00 Uhr ist Schluss: Wer dann etwas ändern oder nachträglich bestellen will, wird auf der Seite an die Réception verwiesen. Sie tragen den Fall danach von Hand auf dem ausgedruckten Menüblatt nach und melden ihn der Küche. Das ist derselbe Ablauf wie früher mit dem Papierblatt.
+**Die 10-Uhr-Regel.** Am Kurstag können die Teilnehmenden bis 10:00 Uhr wählen und ihre Wahl beliebig oft ändern. Ab 10:00 Uhr ist Schluss: Wer dann etwas ändern oder nachträglich bestellen will, wird auf der Seite an die Réception verwiesen. **Für Sie gilt diese Grenze nicht.** In der Verwaltung können Sie jede Bestellung jederzeit ändern, nacherfassen oder löschen, auch nach 10:00 Uhr, siehe Abschnitt 6. Drucken Sie das Menüblatt danach neu aus oder melden Sie die Änderung der Küche.
 
 ---
 
@@ -158,6 +158,35 @@ In der Terminliste links steht bei jedem Termin rechts dieselbe Angabe in Kurzfo
 
 Hat noch niemand gewählt, steht rechts: «Für diesen Termin liegt noch keine Bestellung vor.»
 
+### Eine Bestellung ändern
+
+Hat sich jemand vertippt, das falsche Menü gewählt oder eine Allergie vergessen, korrigieren Sie das selbst:
+
+1. Termin links auswählen.
+2. In der Bestellungsliste rechts auf **«Ändern»** am Ende der betreffenden Zeile klicken. Auf dem Telefon steht der Knopf unten in der Karte.
+3. Vorname, Nachname, Vorspeise, Hauptgang und Bemerkung stehen bereits ausgefüllt da. Ändern Sie, was zu ändern ist.
+4. **«Änderungen speichern»** klicken.
+
+Die Zählerleiste und die Anzahl in der Terminliste rechnen sich sofort neu. Über dem Formular steht in kleiner grauer Schrift, wer die Bestellung erfasst hat und wer sie zuletzt geändert hat; so ist später erkennbar, was von den Teilnehmenden kam und was Sie korrigiert haben.
+
+**Diese Änderung gilt jederzeit**, auch nach 10:00 Uhr. Die 10-Uhr-Grenze betrifft nur die Teilnehmenden auf ihrem Handy, nicht die Verwaltung.
+
+### Eine Bestellung nacherfassen
+
+Meldet sich jemand, der gar nicht bestellt hat, tragen Sie die Bestellung selbst ein:
+
+1. Termin links auswählen.
+2. Rechts über der Bestellungsliste auf **«Bestellung erfassen»** klicken.
+3. Vorname und Nachname eingeben, beides ist Pflicht. Vorspeise und Hauptgang wählen; ohne Ihr Zutun stehen dort «Keine Vorspeise» und «BAULÜÜT-Menü 1».
+4. Allergien und Unverträglichkeiten ins Feld «Bemerkung» schreiben. Sie erscheinen auf dem Menüblatt farbig hervorgehoben.
+5. **«Bestellung speichern»** klicken.
+
+Die Bestellung steht danach in der Liste und auf dem Menüblatt, genau wie eine über das Handy abgegebene. Haben Sie das Menüblatt schon gedruckt, drucken Sie es neu oder melden Sie den Nachtrag der Küche.
+
+### Eine Bestellung löschen
+
+Hat jemand doppelt bestellt oder isst doch nicht mit, öffnen Sie die Bestellung über «Ändern» und klicken Sie zuunterst auf **«Bestellung löschen»**. Es folgt eine Rückfrage. Danach ist der Eintrag weg, auch vom Menüblatt. Rückgängig machen lässt sich das nicht; erfassen Sie die Bestellung im Zweifel lieber neu.
+
 ### Menüblatt drucken und der Küche geben
 
 1. Klicken Sie auf «Menüblatt drucken». Es öffnet sich ein neuer Tab mit dem Blatt «Menüauswahl Restaurant BAULÜÜT».
@@ -233,7 +262,7 @@ Drei Punkte, die am Empfang immer wieder gefragt werden:
   > Die Menüwahl ist nur bis 10:00 Uhr möglich.
   > Bitte melde dich bei der Réception, sie nimmt deine Bestellung entgegen.
 
-  Beides ist so gewollt und kein Fehler. Melden sich Teilnehmende deswegen bei Ihnen, nehmen Sie die Bestellung oder die Änderung entgegen und tragen sie von Hand auf dem ausgedruckten Menüblatt nach.
+  Beides ist so gewollt und kein Fehler. Melden sich Teilnehmende deswegen bei Ihnen, nehmen Sie die Bestellung oder die Änderung entgegen und tragen sie in der Verwaltung nach, siehe Abschnitt 6. Für Sie ist die Bestellung jederzeit änderbar.
 
 ---
 
@@ -243,10 +272,10 @@ Drei Punkte, die am Empfang immer wieder gefragt werden:
 Alles in Ordnung. Die Menüwahl öffnet erst am Tag des Mittagessens. Er soll denselben Link an diesem Tag nochmals öffnen, am besten am Morgen. Prüfen Sie im Zweifel in der Verwaltung, ob beim «Datum» des Termins wirklich der richtige Tag steht.
 
 **Jemand hat sich vertippt, zum Beispiel beim Namen oder beim Menü.**
-Vor 10:00 Uhr: Er soll auf demselben Handy den Link nochmals öffnen, auf «Auswahl bearbeiten» klicken, korrigieren und auf «Änderung speichern» klicken. Klappt das nicht mehr, zum Beispiel weil das Handy gewechselt hat oder weil es bereits nach 10:00 Uhr ist, korrigieren Sie es von Hand auf dem ausgedruckten Menüblatt und melden es der Küche.
+Vor 10:00 Uhr: Er soll auf demselben Handy den Link nochmals öffnen, auf «Auswahl bearbeiten» klicken, korrigieren und auf «Änderung speichern» klicken. Klappt das nicht mehr, zum Beispiel weil das Handy gewechselt hat oder weil es bereits nach 10:00 Uhr ist, korrigieren Sie es selbst in der Verwaltung: Termin auswählen, in der Bestellungsliste auf «Ändern» klicken, richtigstellen, speichern. Siehe Abschnitt 6. War das Menüblatt schon gedruckt, drucken Sie es neu oder melden die Änderung der Küche.
 
 **Jemand meldet sich um 10:30 Uhr und hat noch gar nicht bestellt.**
-Das ist der vorgesehene Weg, nicht eine Störung. Fragen Sie nach Vorname, Nachname, Vorspeise, Hauptgang und allfälligen Allergien und schreiben Sie es von Hand auf das ausgedruckte Menüblatt. Melden Sie es der Küche, besonders wenn eine Allergie dabei ist. In der Verwaltung lässt sich eine Bestellung nicht nacherfassen; das Papier ist hier der schnellere und verlässlichere Weg.
+Das ist der vorgesehene Weg, nicht eine Störung. Fragen Sie nach Vorname, Nachname, Vorspeise, Hauptgang und allfälligen Allergien und erfassen Sie die Bestellung in der Verwaltung über «Bestellung erfassen», siehe Abschnitt 6. Melden Sie es der Küche, besonders wenn eine Allergie dabei ist; haben Sie das Menüblatt bereits gedruckt, drucken Sie es neu.
 
 **Kann ich die 10-Uhr-Grenze für einen einzelnen Termin verschieben?**
 Nein. Sie gilt für alle Kurse gleich. Soll die Zeit grundsätzlich eine andere sein, ist das eine Änderung an der Webseite; melden Sie den Wunsch den ICT-Services.

@@ -38,7 +38,7 @@ Danach im Browser öffnen:
 - `http://localhost:8123/kursblatt.html?mock=1`
 - `http://localhost:8123/menueblatt.html?mock=1`
 
-`?mock=1` arbeitet mit erfundenen Daten, ohne Anmeldung und ohne Netzwerk. In der Verwaltung funktionieren dabei auch Anlegen, Bearbeiten und Löschen, allerdings nur im Arbeitsspeicher.
+`?mock=1` arbeitet mit erfundenen Daten, ohne Anmeldung und ohne Netzwerk. In der Verwaltung funktionieren dabei auch Anlegen, Bearbeiten und Löschen, für Termine wie für Bestellungen, allerdings nur im Arbeitsspeicher. Wer `Daten.bestellungAnlegen`, `bestellungAendern` oder `bestellungLoeschen` ändert, muss die Attrappe in `mockBauen()` mitziehen; sonst läuft der Mock-Modus auseinander mit dem, was gegen SharePoint passiert.
 
 ---
 
@@ -53,6 +53,8 @@ Danach im Browser öffnen:
 - **Rasterspalten brauchen `minmax(0, ...)` und `min-width: 0`.** Ein Feld in einem CSS-Raster wird von sich aus nie schmaler als sein längster nicht umbrechbarer Inhalt, auch dann nicht, wenn die Spalte auf eine feste Breite gesetzt ist. In der Verwaltung hat das eine Klassenzeile mit langem Titel über die Detailspalte hinausgeschoben, sodass sich die beiden Spalten verdeckt haben. Wer in `admin.html` am Raster `.raster` oder an der Liste `.liste` etwas ändert, muss die Null in `minmax(0, ...)` und das `min-width: 0` stehen lassen. Ein Kürzen mit `text-overflow: ellipsis` allein genügt nicht: es greift erst, wenn das Feld überhaupt schmaler werden darf.
 - **Eine neue Spalte in `FELDER_KLASSE` muss in SharePoint existieren, bevor die Fassung live geht.** Beim *Lesen* ist das harmlos: Graph beantwortet ein unbekanntes Feld in `$select` mit HTTP 400, und `alleElemente` in `graph.js` wiederholt die Abfrage ohne Feldauswahl. Beim *Schreiben* gibt es diesen Rückfall nicht, das Speichern schlägt fehl. Gilt derzeit für `Teilnehmer` (erwartete Teilnehmeranzahl, Zahl, darf leer sein).
 - **In der Terminliste ist der heutige Tag immer sichtbar.** `passtZuZeitraum()` in `admin.html` lässt den heutigen Tag und Termine **ohne** Datum unabhängig vom Filter durch. `nachTagen()` sortiert danach alle Tage in **einer** Richtung, absteigend; eine Sonderbehandlung für den heutigen Tag gab es schon einmal und hat die Liste unlesbar gemacht, siehe `05_Entscheide_und_Verlauf.md`, Abschnitt 5c. Die zweite Ausnahme ist wichtig: Ein Termin ohne Datum liesse sich sonst über keinen Filter mehr finden und wäre für immer verschwunden.
+- **Das Bestellformular in `admin.html` kennt bewusst keine Frist.** Die 10-Uhr-Grenze gehört der Gästeseite; die Réception muss jederzeit korrigieren und nacherfassen können, das ist der ganze Sinn der Sache. Wer dort eine Prüfung der Uhrzeit einbaut, nimmt dem Empfang genau den Handgriff weg, für den die Frist ihn vorsieht. Siehe `05_Entscheide_und_Verlauf.md`, Abschnitt 5f.
+- **Auswahlwerte aus SharePoint nie ungeprüft in ein `<select>` setzen.** Passt der Wert zu keiner Option, steht das Feld leer da und ein Speichern überschreibt die Angabe stillschweigend. `auswahlSetzen()` in `admin.html` nimmt einen unbekannten Wert deshalb als zusätzliche Option auf.
 - **`kursblatt.html` darf nicht von selbst zur Anmeldung umleiten.** Die Seite ist öffentlich, damit ihr Link an die Kursleitung gehen kann. `Auth.anmeldungSicherstellen()` wird dort nur auf Knopfdruck aufgerufen. Wer das ändert, macht den Link für Externe unbrauchbar.
 
 Ausführlich steht das in `03_Technische_Dokumentation.md`, Abschnitt 10.

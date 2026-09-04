@@ -12,6 +12,7 @@
     --schwarz: #111111;
     --grau: #767676;
     --linie: #ebebeb;
+    --rot: #c0392b;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { -webkit-text-size-adjust: 100%; }
@@ -278,6 +279,10 @@
   }
   .zeile:first-child { margin-top: 0; border-radius: 10px 10px 0 0; }
   .zeile:last-child { border-radius: 0 0 10px 10px; }
+  /* Ein Kurstag mit nur einem Termin: die Zeile steht allein und ist damit
+     zugleich erste und letzte. Ohne diese Regel gewinnt :last-child und die
+     Zeile bekäme oben eckige Ecken, obwohl darüber keine weitere steht. */
+  .zeile:only-child { border-radius: 10px; }
   .zeile.gewaehlt { border-color: var(--schwarz); z-index: 1; }
   .zeile:focus-visible { outline: 2px solid var(--schwarz); outline-offset: -2px; z-index: 2; }
   .zeile .links { min-width: 0; flex: 1 1 auto; }
@@ -371,7 +376,17 @@
 
   .knopfreihe { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
 
+  /* Über der Bestellungstabelle steht ihre Bezeichnung und rechts daneben
+     der Handgriff, mit dem die Réception eine Bestellung nachträgt. */
+  .tabellenkopf {
+    display: flex; align-items: center; flex-wrap: wrap;
+    justify-content: space-between; gap: 10px;
+    margin-top: 32px;
+  }
+  .tabellenkopf .legende { margin-bottom: 0; }
+
   .tabellenrahmen { margin-top: 28px; overflow-x: auto; }
+  .tabellenkopf + .tabellenrahmen { margin-top: 14px; }
   table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
   th {
     text-align: left;
@@ -385,6 +400,21 @@
   td:last-child, th:last-child { padding-right: 0; }
   td.allergie { color: var(--orange); font-weight: 700; }
   .keine-bestellungen { color: var(--grau); font-size: 0.9rem; padding: 20px 0; }
+
+  /* Die letzte Spalte trägt je Zeile den Knopf «Ändern». Sie hat keine
+     Überschrift, die man lesen müsste; für die Sprachausgabe steht der Text
+     trotzdem da, nur unsichtbar. */
+  th.aktionsfeld, td.aktionsfeld { text-align: right; white-space: nowrap; }
+  td.aktionsfeld .knopf { padding: 5px 12px; font-size: 0.78rem; }
+  .unsichtbar {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
 
   /* Auf dem Telefon ist eine vierspaltige Tabelle nicht mehr lesbar. Dort
      wird aus jeder Zeile eine Karte: der Name als Überschrift, darunter die
@@ -418,9 +448,26 @@
     }
     .tabellenrahmen td.namensfeld { font-size: 1rem; font-weight: 600; }
     .tabellenrahmen td.namensfeld::before { display: none; }
+    /* In der Karte steht der Knopf unter den Angaben, über die volle Breite,
+       damit er sich mit dem Finger sicher treffen lässt. */
+    .tabellenrahmen td.aktionsfeld::before { display: none; }
+    .tabellenrahmen td.aktionsfeld { margin-top: 14px; text-align: left; }
+    .tabellenrahmen td.aktionsfeld .knopf { width: 100%; min-height: 40px; }
   }
 
   .loeschzeile { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--linie); }
+
+  /* Das Bestellformular liegt an derselben Stelle wie die Terminansicht.
+     Damit klar bleibt, zu welchem Termin die Bestellung gehört, steht dessen
+     Bezeichnung darüber. */
+  .formularkontext {
+    font-size: 0.9rem;
+    color: var(--grau);
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--linie);
+    margin-bottom: 4px;
+  }
+  .formularkontext b { color: var(--schwarz); font-weight: 600; }
 
   .formularfeld { max-width: 460px; }
   .formularknoepfe { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 36px; }
@@ -434,6 +481,60 @@
     button.knopf.voll { width: 100%; }
     .knopfreihe button { flex: 1 1 150px; }
     .formularknoepfe { justify-content: center; }
+  }
+
+  /* ---------- Bestätigungsfenster ----------
+     Ersetzt den Dialog des Browsers. Das <dialog>-Element bringt die
+     Abdunklung, die Tastaturfalle und das Schliessen mit Esc von Haus aus
+     mit; hier wird nur noch das Aussehen an die übrige Seite angeglichen. */
+  dialog.frage {
+    width: min(420px, calc(100vw - 32px));
+    max-height: calc(100vh - 32px);
+    /* Der Grundstil der Seite setzt für alle Elemente margin: 0; das
+       <dialog> braucht das «auto» zurück, sonst klebt es in der Ecke. */
+    margin: auto;
+    padding: 0;
+    border: none;
+    border-radius: 14px;
+    background: #fff;
+    color: var(--schwarz);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+  }
+  dialog.frage::backdrop { background: rgba(17, 17, 17, 0.42); }
+  /* Ein kurzes Einblenden nimmt dem Fenster die Härte. Wer Bewegung
+     abgestellt hat, bekommt es ohne. */
+  @media (prefers-reduced-motion: no-preference) {
+    dialog.frage[open] { animation: frage-auf 0.16s ease-out; }
+    dialog.frage[open]::backdrop { animation: blende-auf 0.16s ease-out; }
+  }
+  @keyframes frage-auf {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  }
+  @keyframes blende-auf { from { opacity: 0; } }
+
+  .frage-inhalt { padding: 26px 26px 20px; }
+  .frage-titel { font-size: 1.05rem; font-weight: 600; line-height: 1.35; }
+  .frage-text { margin-top: 10px; font-size: 0.9rem; color: var(--grau); }
+  .frage-knoepfe {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 26px;
+  }
+  /* Beide Schaltflächen gleich hoch, damit sie nebeneinander ruhig wirken. */
+  .frage-knoepfe button.knopf {
+    padding: 11px 20px;
+    font-size: 0.88rem;
+    min-height: 0;
+  }
+  button.knopf.gefahr { background: var(--rot); }
+
+  /* Auf dem Telefon stehen die Schaltflächen untereinander, die
+     bestätigende oben und über die volle Breite. */
+  @media (max-width: 560px) {
+    .frage-inhalt { padding: 22px 20px 18px; }
+    .frage-knoepfe { flex-direction: column-reverse; gap: 8px; }
+    .frage-knoepfe button.knopf { width: 100%; min-height: 44px; }
   }
 </style>
 </head>
@@ -536,6 +637,11 @@
             <button type="button" class="knopf" id="btn-bearbeiten">Bearbeiten</button>
           </div>
 
+          <div class="tabellenkopf">
+            <div class="legende">Bestellungen</div>
+            <button type="button" class="knopf leise" id="btn-bestellung-neu">Bestellung erfassen</button>
+          </div>
+
           <div class="tabellenrahmen" id="d-tabelle"></div>
 
           <div class="loeschzeile">
@@ -571,12 +677,67 @@
             <button type="button" class="textknopf" id="btn-abbrechen">Abbrechen</button>
           </div>
         </form>
+
+        <!-- Bestellung erfassen oder berichtigen. Dasselbe Formular für
+             beides; beim Berichtigen kommt die Zeile zum Löschen dazu. -->
+        <form id="bestellung-formular" style="display:none" novalidate>
+          <div id="bestellung-fehler" class="fehlerfeld"></div>
+          <div class="formularkontext" id="b-kontext"></div>
+          <div class="spur" id="b-spur"></div>
+          <div class="formularfeld">
+            <label class="feldlabel" for="b-vorname">Vorname *</label>
+            <input type="text" id="b-vorname" maxlength="80" autocomplete="off">
+
+            <label class="feldlabel" for="b-nachname">Nachname *</label>
+            <input type="text" id="b-nachname" maxlength="80" autocomplete="off">
+
+            <label class="feldlabel" for="b-vorspeise">Vorspeise</label>
+            <select id="b-vorspeise">
+              <option value="Suppe">Suppe</option>
+              <option value="Salat">Salat</option>
+              <option value="Keine">Keine Vorspeise</option>
+            </select>
+
+            <label class="feldlabel" for="b-hauptgang">Hauptgang</label>
+            <select id="b-hauptgang">
+              <option value="Menü 1">BAULÜÜT-Menü 1</option>
+              <option value="Menü 2">BAULÜÜT-Menü 2</option>
+            </select>
+
+            <label class="feldlabel" for="b-bemerkung">Bemerkung</label>
+            <input type="text" id="b-bemerkung" maxlength="200" autocomplete="off">
+            <div class="feldhinweis">
+              Allergien und Unverträglichkeiten. Erscheint auf dem Menüblatt
+              für die Küche hervorgehoben.
+            </div>
+          </div>
+          <div class="formularknoepfe">
+            <button type="submit" class="knopf voll" id="btn-bestellung-speichern">Bestellung speichern</button>
+            <button type="button" class="textknopf" id="btn-bestellung-abbrechen">Abbrechen</button>
+          </div>
+          <div class="loeschzeile" id="bestellung-loeschzeile">
+            <button type="button" class="knopf leise" id="btn-bestellung-loeschen">Bestellung löschen</button>
+          </div>
+        </form>
       </section>
 
     </div>
   </div>
 
 </div>
+
+<!-- Bestätigungsfenster: Inhalt und Beschriftungen setzt frageStellen(). -->
+<dialog id="frage-fenster" class="frage"
+        aria-labelledby="frage-titel" aria-describedby="frage-text">
+  <div class="frage-inhalt">
+    <h2 class="frage-titel" id="frage-titel"></h2>
+    <p class="frage-text" id="frage-text"></p>
+    <div class="frage-knoepfe">
+      <button type="button" class="knopf leise" id="frage-nein">Abbrechen</button>
+      <button type="button" class="knopf voll" id="frage-ja">OK</button>
+    </div>
+  </div>
+</dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@4.30.0/lib/msal-browser.min.js"
         integrity="sha384-RGxxfG5yRS8DLU7ZJ8OoLhbV/BsJFHyPuMVHrTLbpj3t5Z15LnviJmaznKY/a7LZ"
@@ -679,6 +840,19 @@ function mockBauen() {
       vorspeise: "Keine", hauptgang: "Menü 1", bemerkung: "" }
   ];
 
+  /* Auch Bestellungen tragen eine Spur: wer sie erfasst hat und wer sie
+     zuletzt angefasst hat. Im Mock-Modus stammen sie alle von der
+     Gästeseite, damit sich anschauen lässt, wie sich der Eintrag nach einer
+     Korrektur an der Réception verändert. */
+  bestellungen.forEach((b, i) => {
+    b.erstellt = stempel(1, 7 + (i % 4));
+    b.erstelltVon = "Menüwahl Gästeseite";
+    b.geaendert = b.erstellt;
+    b.geaendertVon = "Menüwahl Gästeseite";
+  });
+
+  let naechsteBestellungId = 100;
+
   function warten() {
     return new Promise(r => setTimeout(r, 220));
   }
@@ -755,6 +929,43 @@ function mockBauen() {
         .sort((a, b) => (a.nachname || "").localeCompare(b.nachname || "", "de-CH")
                      || (a.vorname || "").localeCompare(b.vorname || "", "de-CH"));
     },
+    bestellungAnlegen: async function (daten) {
+      await warten();
+      const id = "n" + (naechsteBestellungId++);
+      bestellungen.push({
+        id: id,
+        klasseId: String(daten.klasseId),
+        klasseCode: daten.klasseCode || "",
+        vorname: daten.vorname || "",
+        nachname: daten.nachname || "",
+        vorspeise: daten.vorspeise || "",
+        hauptgang: daten.hauptgang || "",
+        bemerkung: daten.bemerkung || "",
+        erstellt: new Date().toISOString(),
+        erstelltVon: "Testperson (Mock-Modus)",
+        geaendert: new Date().toISOString(),
+        geaendertVon: "Testperson (Mock-Modus)"
+      });
+      return id;
+    },
+    bestellungAendern: async function (id, daten) {
+      await warten();
+      const b = bestellungen.find(x => String(x.id) === String(id));
+      if (!b) throw new Error("Bestellung nicht gefunden (Mock).");
+      ["vorname", "nachname", "vorspeise", "hauptgang", "bemerkung"].forEach(f => {
+        if (daten[f] !== undefined) b[f] = daten[f];
+      });
+      b.geaendert = new Date().toISOString();
+      b.geaendertVon = "Testperson (Mock-Modus)";
+      return b;
+    },
+    bestellungLoeschen: async function (id) {
+      await warten();
+      const i = bestellungen.findIndex(x => String(x.id) === String(id));
+      if (i < 0) throw new Error("Bestellung nicht gefunden (Mock).");
+      bestellungen.splice(i, 1);
+      return null;
+    },
     zaehler: Graph.zaehler
   };
 
@@ -784,7 +995,11 @@ let gewaehlteBestellungen = [];
 let zeigeZukunft = false;
 let zeigeVergangene = false;
 let suchtext = "";
-let bearbeiteId = null;    // id beim Bearbeiten, null beim Neuanlegen
+let bearbeiteId = null;    // id der Klasse beim Bearbeiten, null beim Neuanlegen
+/* Dasselbe für die Bestellungen: id beim Berichtigen, null beim Nachtragen.
+   Die Réception muss eine Bestellung jederzeit richtigstellen können, auch
+   nach dem Annahmeschluss; die Frist gilt nur auf der Gästeseite. */
+let bearbeiteBestellungId = null;
 let kopiertTimer = null;
 
 
@@ -980,6 +1195,7 @@ function detailUmschalten(welche) {
   el("detail-leer").style.display = welche === "leer" ? "block" : "none";
   el("detail-ansicht").style.display = welche === "ansicht" ? "block" : "none";
   el("detail-formular").style.display = welche === "formular" ? "block" : "none";
+  el("bestellung-formular").style.display = welche === "bestellung" ? "block" : "none";
 }
 
 function detailLeerZeigen() {
@@ -1113,6 +1329,11 @@ function bestellungenZeichnen(liste) {
   spalten.forEach(t => {
     kopfzeile.appendChild(neu("th", null, t));
   });
+  /* Die Spalte mit dem Knopf trägt keine sichtbare Überschrift: der Knopf
+     beschriftet sich selbst. Für die Sprachausgabe steht sie trotzdem da. */
+  const kopfAktion = neu("th", "aktionsfeld");
+  kopfAktion.appendChild(neu("span", "unsichtbar", "Ändern"));
+  kopfzeile.appendChild(kopfAktion);
   kopf.appendChild(kopfzeile);
   tabelle.appendChild(kopf);
 
@@ -1135,6 +1356,20 @@ function bestellungenZeichnen(liste) {
       zelle.setAttribute("data-spalte", spalten[i]);
       zeile.appendChild(zelle);
     });
+
+    /* Jede Zeile führt in dasselbe Formular, mit dem die Réception eine
+       Bestellung auch nachträgt. Der Knopf steht in einer eigenen Zelle und
+       nicht auf der ganzen Zeile, damit sich die Angaben weiterhin markieren
+       und kopieren lassen. */
+    const aktion = neu("td", "aktionsfeld");
+    const knopf = neu("button", "knopf leise", "Ändern");
+    knopf.type = "button";
+    knopf.setAttribute("aria-label",
+      "Bestellung von " + (((b.vorname || "") + " " + (b.nachname || "")).trim() || "dieser Person") + " ändern");
+    knopf.addEventListener("click", () => bestellungFormularOeffnen(b));
+    aktion.appendChild(knopf);
+    zeile.appendChild(aktion);
+
     koerper.appendChild(zeile);
   });
   tabelle.appendChild(koerper);
@@ -1146,6 +1381,7 @@ function bestellungenZeichnen(liste) {
 
 function formularOeffnen(klasse) {
   bearbeiteId = klasse ? String(klasse.id) : null;
+  bearbeiteBestellungId = null;
   el("formular-fehler").style.display = "none";
 
   el("f-titel").value = klasse ? (klasse.titel || "") : "";
@@ -1259,15 +1495,296 @@ async function formularSpeichern(ereignis) {
 }
 
 
+/* ---------- Bestätigungsfenster ---------- */
+
+/* Ersatz für window.confirm: gleiche Verwendung, nur mit await davor.
+   Gibt true zurück, wenn bestätigt wurde, sonst false (Abbrechen, Esc,
+   Klick daneben). «gefahr» färbt die bestätigende Schaltfläche rot. */
+function frageStellen(angaben) {
+  const fenster = el("frage-fenster");
+  const jaKnopf = el("frage-ja");
+  const neinKnopf = el("frage-nein");
+
+  el("frage-titel").textContent = angaben.titel;
+  el("frage-text").textContent = angaben.text || "";
+  el("frage-text").style.display = angaben.text ? "" : "none";
+  jaKnopf.textContent = angaben.bestaetigen || "OK";
+  neinKnopf.textContent = angaben.abbrechen || "Abbrechen";
+  jaKnopf.classList.toggle("gefahr", angaben.gefahr === true);
+
+  return new Promise(resolve => {
+    let beantwortet = false;
+
+    /* Die erste Antwort zählt; danach wird aufgeräumt, damit ein zweites
+       Fenster nicht auf alte Zuhörer trifft. */
+    function antworten(ja) {
+      if (beantwortet) return;
+      beantwortet = true;
+      jaKnopf.removeEventListener("click", jaGeklickt);
+      neinKnopf.removeEventListener("click", neinGeklickt);
+      fenster.removeEventListener("click", danebenGeklickt);
+      fenster.removeEventListener("cancel", abgebrochen);
+      fenster.removeEventListener("close", abgebrochen);
+      fenster.removeEventListener("toggle", zugeklappt);
+      if (fenster.open) fenster.close();
+      resolve(ja);
+    }
+
+    function jaGeklickt() { antworten(true); }
+    function neinGeklickt() { antworten(false); }
+
+    /* Ein Klick auf die Abdunklung zählt wie Abbrechen. Der Klick landet
+       auf dem <dialog> selbst, weil der Inhalt darin liegt. */
+    function danebenGeklickt(ereignis) {
+      if (ereignis.target === fenster) antworten(false);
+    }
+
+    /* Esc schliesst das Fenster ohne Zutun des Skripts. Welches Ereignis
+       der Browser dabei meldet, ist von Fassung zu Fassung verschieden
+       (cancel, close, toggle); deshalb wird auf alle drei gehört. */
+    function abgebrochen() { antworten(false); }
+    function zugeklappt(ereignis) {
+      if (ereignis.newState === "closed") antworten(false);
+    }
+
+    jaKnopf.addEventListener("click", jaGeklickt);
+    neinKnopf.addEventListener("click", neinGeklickt);
+    fenster.addEventListener("click", danebenGeklickt);
+    fenster.addEventListener("cancel", abgebrochen);
+    fenster.addEventListener("close", abgebrochen);
+    fenster.addEventListener("toggle", zugeklappt);
+
+    fenster.showModal();
+    /* Der Blick liegt zuerst auf «Abbrechen»: ein Druck auf die
+       Leertaste löscht dann nichts aus Versehen. */
+    neinKnopf.focus();
+  });
+}
+
+
+/* ---------- Bestellungen erfassen und berichtigen ---------- */
+
+/* Die Menüwahl der Gästeseite schliesst am Kurstag um den Annahmeschluss.
+   Davor wie danach muss die Réception eingreifen können: jemand hat sich im
+   Namen vertippt, das falsche Menü angetippt, eine Allergie nachgemeldet
+   oder gar nicht erst bestellt. Dieses Formular kennt deshalb bewusst keine
+   Frist. Was hier gespeichert wird, steht sofort auf dem Menüblatt für die
+   Küche.
+
+   Wer eine Bestellung angelegt und wer sie zuletzt geändert hat, führt
+   SharePoint von selbst mit; die Spur über dem Formular zeigt es an. Eine
+   Korrektur der Réception bleibt damit von der Bestellung der teilnehmenden
+   Person unterscheidbar. */
+
+/* Steht in SharePoint ein Wert, den die Auswahlliste nicht kennt (etwa aus
+   einer früheren Fassung oder von Hand in der Listenansicht eingetragen),
+   wird er als zusätzlicher Eintrag aufgenommen. Sonst stünde das Feld leer
+   da, und ein Speichern würde die bestehende Angabe stillschweigend
+   überschreiben. */
+function auswahlSetzen(feld, wert, ersatz) {
+  Array.from(feld.querySelectorAll("option[data-zusatz]")).forEach(o => o.remove());
+  const gesucht = (wert || "").trim();
+  if (gesucht && !Array.from(feld.options).some(o => o.value === gesucht)) {
+    const zusatz = neu("option", null, gesucht);
+    zusatz.value = gesucht;
+    zusatz.setAttribute("data-zusatz", "1");
+    feld.appendChild(zusatz);
+  }
+  feld.value = gesucht || ersatz;
+}
+
+function bestellungFormularOeffnen(bestellung) {
+  if (!gewaehlteKlasse) return;
+  bearbeiteBestellungId = bestellung ? String(bestellung.id) : null;
+
+  el("bestellung-fehler").style.display = "none";
+  fehlerVerbergen();
+
+  el("b-vorname").value   = bestellung ? (bestellung.vorname || "") : "";
+  el("b-nachname").value  = bestellung ? (bestellung.nachname || "") : "";
+  el("b-bemerkung").value = bestellung ? (bestellung.bemerkung || "") : "";
+  auswahlSetzen(el("b-vorspeise"), bestellung && bestellung.vorspeise, "Keine");
+  auswahlSetzen(el("b-hauptgang"), bestellung && bestellung.hauptgang, "Menü 1");
+
+  /* An dieser Stelle stand eben noch der Termin. Damit klar bleibt, wohin
+     die Bestellung gehört, steht er über dem Formular nochmals. */
+  const kontext = el("b-kontext");
+  leeren(kontext);
+  kontext.appendChild(document.createTextNode("Termin "));
+  kontext.appendChild(neu("b", null, gewaehlteKlasse.titel || "Ohne Titel"));
+  const wann = Hilfe.datumText(gewaehlteKlasse.datum);
+  if (wann) kontext.appendChild(document.createTextNode(", " + wann));
+
+  bestellungSpurZeichnen(bestellung);
+
+  el("btn-bestellung-speichern").textContent =
+    bestellung ? "Änderungen speichern" : "Bestellung speichern";
+  el("btn-bestellung-speichern").disabled = false;
+  el("btn-bestellung-loeschen").disabled = false;
+  /* Löschen gibt es nur dort, wo etwas zu löschen ist. */
+  el("bestellung-loeschzeile").style.display = bestellung ? "block" : "none";
+  el("legende-detail").textContent = bestellung ? "Bestellung ändern" : "Bestellung erfassen";
+
+  detailUmschalten("bestellung");
+  detailInSichtBringen();
+  el("b-vorname").focus();
+}
+
+/* Wie beim Termin: wer erfasst hat und wer zuletzt geändert hat. Bei einer
+   Bestellung von der Gästeseite steht dort der Name des Flows, bei einer
+   Korrektur der Name der Person an der Réception. Beim Nachtragen gibt es
+   noch nichts zu zeigen, dann bleibt die Zeile weg. */
+function bestellungSpurZeichnen(bestellung) {
+  const feld = el("b-spur");
+  leeren(feld);
+
+  const teile = [];
+  if (bestellung && bestellung.erstellt) {
+    teile.push("Erfasst " + Hilfe.zeitstempelKurz(bestellung.erstellt)
+      + (bestellung.erstelltVon ? " von " + bestellung.erstelltVon : ""));
+  }
+  const geaendert = bestellung && bestellung.geaendert && bestellung.erstellt
+    && Math.abs(new Date(bestellung.geaendert) - new Date(bestellung.erstellt)) > 60000;
+  if (geaendert) {
+    teile.push("zuletzt geändert " + Hilfe.zeitstempelKurz(bestellung.geaendert)
+      + (bestellung.geaendertVon ? " von " + bestellung.geaendertVon : ""));
+  }
+  feld.textContent = teile.join(" · ");
+  feld.style.display = teile.length ? "block" : "none";
+}
+
+function bestellungFormularSchliessen() {
+  bearbeiteBestellungId = null;
+  formularSchliessen();
+}
+
+/* Nach jeder Änderung: die Bestellungen des gewählten Termins neu holen und
+   Zählerreihe, Tabelle und die Zahl in der Terminliste nachziehen. Geholt
+   wird bewusst neu und nicht im Speicher nachgeführt, damit dabei auch
+   sichtbar wird, was in der Zwischenzeit über die Gästeseite dazugekommen
+   ist. */
+async function bestellungenNeuLaden() {
+  if (!gewaehlteId) return;
+  const id = gewaehlteId;
+  bestellungenZeichnen(null);
+  try {
+    const liste = await Daten.bestellungen(id);
+    // Zwischenzeitlich könnte ein anderer Termin gewählt worden sein.
+    if (String(gewaehlteId) !== String(id)) return;
+    gewaehlteBestellungen = liste;
+    anzahlProKlasse[id] = liste.length;
+    zaehlerZeichnen(liste);
+    bestellungenZeichnen(liste);
+    listeZeichnen();
+  } catch (e) {
+    fehlerZeigen(e);
+    bestellungenZeichnen(gewaehlteBestellungen);
+  }
+}
+
+async function bestellungSpeichern(ereignis) {
+  ereignis.preventDefault();
+  if (!gewaehlteKlasse) return;
+
+  const fehlerfeld = el("bestellung-fehler");
+  fehlerfeld.style.display = "none";
+  fehlerVerbergen();
+
+  const vorname = el("b-vorname").value.trim();
+  const nachname = el("b-nachname").value.trim();
+  if (!vorname || !nachname) {
+    fehlerfeld.textContent = "Bitte Vorname und Nachname eingeben.";
+    fehlerfeld.style.display = "block";
+    (vorname ? el("b-nachname") : el("b-vorname")).focus();
+    return;
+  }
+
+  const satz = {
+    vorname: vorname,
+    nachname: nachname,
+    vorspeise: el("b-vorspeise").value,
+    hauptgang: el("b-hauptgang").value,
+    bemerkung: el("b-bemerkung").value.trim()
+  };
+
+  const knopf = el("btn-bestellung-speichern");
+  const beschriftung = knopf.textContent;
+  knopf.disabled = true;
+  knopf.textContent = "Wird gespeichert...";
+
+  try {
+    if (bearbeiteBestellungId) {
+      /* Die Zuordnung zum Termin wird beim Ändern nicht mitgeschickt: eine
+         Bestellung wechselt den Kurs nicht, und was in SharePoint steht,
+         soll stehen bleiben. */
+      await Daten.bestellungAendern(bearbeiteBestellungId, satz);
+    } else {
+      /* KlasseID ist die einzige Zuordnung, die zählt; der Code kommt nur
+         zur Nachvollziehbarkeit dazu, genau wie bei Flow C. */
+      satz.klasseId = gewaehlteKlasse.id;
+      satz.klasseCode = gewaehlteKlasse.code || "";
+      await Daten.bestellungAnlegen(satz);
+    }
+    bearbeiteBestellungId = null;
+    el("legende-detail").textContent = "Details";
+    detailUmschalten("ansicht");
+    await bestellungenNeuLaden();
+  } catch (e) {
+    fehlerfeld.textContent = (e && e.message) ? e.message : String(e);
+    fehlerfeld.style.display = "block";
+    // Nur im Fehlerfall bleibt das Formular offen und braucht die alte
+    // Beschriftung zurück; nach dem Speichern ist es längst geschlossen.
+    knopf.textContent = beschriftung;
+  } finally {
+    knopf.disabled = false;
+  }
+}
+
+async function bestellungEntfernen() {
+  if (!bearbeiteBestellungId) return;
+  const name = (el("b-vorname").value.trim() + " " + el("b-nachname").value.trim()).trim();
+  const gutgeheissen = await frageStellen({
+    titel: "Bestellung von " + (name || "dieser Person") + " löschen?",
+    text: "Sie verschwindet damit auch vom Menüblatt für die Küche.",
+    bestaetigen: "Löschen",
+    gefahr: true
+  });
+  if (!gutgeheissen) return;
+
+  const fehlerfeld = el("bestellung-fehler");
+  fehlerfeld.style.display = "none";
+  fehlerVerbergen();
+
+  const knopf = el("btn-bestellung-loeschen");
+  knopf.disabled = true;
+  try {
+    await Daten.bestellungLoeschen(bearbeiteBestellungId);
+    bearbeiteBestellungId = null;
+    el("legende-detail").textContent = "Details";
+    detailUmschalten("ansicht");
+    await bestellungenNeuLaden();
+  } catch (e) {
+    fehlerfeld.textContent = (e && e.message) ? e.message : String(e);
+    fehlerfeld.style.display = "block";
+  } finally {
+    knopf.disabled = false;
+  }
+}
+
+
 /* ---------- Löschen ---------- */
 
 async function klasseLoeschen() {
   if (!gewaehlteKlasse) return;
   const name = gewaehlteKlasse.titel || "diesen Termin";
-  const frage = "Termin «" + name + "» wirklich löschen?\n\n"
-    + "Die bereits erfassten Bestellungen dieses Termins werden dabei nicht "
-    + "mitgelöscht; sie bleiben in der Liste «Bestellungen» stehen.";
-  if (!window.confirm(frage)) return;
+  const gutgeheissen = await frageStellen({
+    titel: "Termin «" + name + "» löschen?",
+    text: "Die bereits erfassten Bestellungen dieses Termins werden dabei nicht "
+        + "mitgelöscht; sie bleiben in der Liste «Bestellungen» stehen.",
+    bestaetigen: "Löschen",
+    gefahr: true
+  });
+  if (!gutgeheissen) return;
 
   fehlerVerbergen();
   const knopf = el("btn-loeschen");
@@ -1398,6 +1915,10 @@ el("btn-bearbeiten").addEventListener("click", () => {
 });
 
 el("btn-abbrechen").addEventListener("click", formularSchliessen);
+el("btn-bestellung-neu").addEventListener("click", () => bestellungFormularOeffnen(null));
+el("btn-bestellung-abbrechen").addEventListener("click", bestellungFormularSchliessen);
+el("bestellung-formular").addEventListener("submit", bestellungSpeichern);
+el("btn-bestellung-loeschen").addEventListener("click", bestellungEntfernen);
 el("detail-formular").addEventListener("submit", formularSpeichern);
 el("btn-loeschen").addEventListener("click", klasseLoeschen);
 el("btn-kopieren").addEventListener("click", () => {

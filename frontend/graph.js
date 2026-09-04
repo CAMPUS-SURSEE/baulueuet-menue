@@ -318,7 +318,15 @@ const Graph = (function () {
         vorspeise: wert(b.Vorspeise),
         hauptgang: wert(b.Hauptgang),
         bemerkung: b.Bemerkung || "",
-        erstellt:  b.erstellt
+        /* Wie bei den Klassen führt SharePoint mit, wer den Eintrag angelegt
+           und wer ihn zuletzt angefasst hat. Seit die Réception Bestellungen
+           nachträglich korrigieren kann, zählt das: sonst wäre nicht mehr
+           erkennbar, ob eine Angabe von der teilnehmenden Person stammt oder
+           an der Réception geändert wurde. */
+        erstellt:      b.erstellt,
+        erstelltVon:   b.erstelltVon || "",
+        geaendert:     b.geaendert,
+        geaendertVon:  b.geaendertVon || ""
       }))
       .sort((a, b) => (a.nachname || "").localeCompare(b.nachname || "", "de-CH")
                    || (a.vorname  || "").localeCompare(b.vorname  || "", "de-CH"));
@@ -329,6 +337,53 @@ const Graph = (function () {
     if (v === null || v === undefined) return "";
     if (typeof v === "object") return v.Value || v.value || "";
     return String(v);
+  }
+
+  /* Umgekehrter Weg: aus den Feldern der Verwaltung wird ein Satz für die
+     Liste. Wie bei den Klassen wird nur geschrieben, was auch übergeben
+     wurde; alles andere bleibt in SharePoint unangetastet. */
+  function felderAusBestellung(daten) {
+    const felder = {};
+    if (daten.klasseId   !== undefined) felder.KlasseID   = Number(daten.klasseId);
+    if (daten.klasseCode !== undefined) felder.KlasseCode = daten.klasseCode;
+    if (daten.vorname    !== undefined) felder.Vorname    = daten.vorname;
+    if (daten.nachname   !== undefined) felder.Nachname   = daten.nachname;
+    if (daten.vorspeise  !== undefined) felder.Vorspeise  = daten.vorspeise;
+    if (daten.hauptgang  !== undefined) felder.Hauptgang  = daten.hauptgang;
+    if (daten.bemerkung  !== undefined) felder.Bemerkung  = daten.bemerkung;
+    return felder;
+  }
+
+  /* Eine Bestellung, welche die Réception selbst erfasst: jemand hat den
+     Annahmeschluss verpasst oder meldet sich erst am Schalter. Der Weg der
+     Gästeseite über Flow C bleibt davon unberührt.
+
+     `Title` ist in SharePoint die Pflichtspalte jeder Liste und inhaltlich
+     ohne Bedeutung. Damit ein von Hand erfasster Eintrag in der
+     SharePoint-Listenansicht trotzdem lesbar ist, steht dort der Name. Beim
+     Ändern wird die Spalte bewusst nicht angefasst: was Flow C dort
+     hineingeschrieben hat, soll stehen bleiben. */
+  async function bestellungAnlegen(daten) {
+    const felder = felderAusBestellung(daten);
+    felder.Title = ((daten.nachname || "") + " " + (daten.vorname || "")).trim()
+      || "Bestellung";
+    const antwort = await anfrage(LISTE_BESTELLUNGEN + "/items", {
+      method: "POST",
+      body: { fields: felder }
+    });
+    return antwort ? antwort.id : null;
+  }
+
+  /* Korrektur einer bestehenden Bestellung durch die Réception, etwa wenn
+     sich jemand im Namen vertippt oder das falsche Menü angetippt hat.
+     Bewusst ohne Frist: die Menüwahl der Gästeseite schliesst um
+     KONFIG.annahmeschluss, die Réception soll danach weiterhin eingreifen
+     können. */
+  async function bestellungAendern(id, daten) {
+    return anfrage(LISTE_BESTELLUNGEN + "/items/" + id + "/fields", {
+      method: "PATCH",
+      body: felderAusBestellung(daten)
+    });
   }
 
   async function bestellungLoeschen(id) {
@@ -413,6 +468,8 @@ const Graph = (function () {
     klasseAendern: klasseAendern,
     klasseLoeschen: klasseLoeschen,
     bestellungen: bestellungen,
+    bestellungAnlegen: bestellungAnlegen,
+    bestellungAendern: bestellungAendern,
     bestellungLoeschen: bestellungLoeschen,
     zaehler: zaehler,
     klasseOeffentlich: klasseOeffentlich,

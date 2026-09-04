@@ -140,6 +140,38 @@ Die Alternative wäre gewesen, die Teilnehmenden vorab namentlich zu erfassen. D
 
 ---
 
+## 5f. Warum die Réception Bestellungen ändern darf und die Teilnehmenden nicht
+
+Die 10-Uhr-Frist auf der Gästeseite bleibt, wie sie ist: Ab 10:00 Uhr kann niemand mehr selbst
+bestellen oder die eigene Wahl ändern. Sie hat einen einzigen Zweck, nämlich der Küche eine Zahl zu
+geben, auf die sie sich verlassen kann.
+
+Bis zum 04.09.2026 traf diese Frist allerdings auch die Réception. Wer sich vertippt hatte, wer das
+falsche Menü angetippt hatte oder wer eine Allergie nachmeldete, wurde an den Empfang verwiesen —
+und dort blieb nur, den Fall von Hand auf das ausgedruckte Menüblatt zu schreiben. Damit standen
+die Angaben an zwei Orten: die richtigen auf Papier, die falschen im System. Das Menüblatt liess
+sich danach nicht mehr neu drucken, ohne die Korrekturen zu verlieren.
+
+Seit dem 04.09.2026 kann die Réception jede Bestellung **jederzeit** ändern, nacherfassen und
+löschen, in `admin.html` und ohne Prüfung der Uhrzeit. Überlegungen dazu:
+
+- **Die Frist gilt der Planbarkeit, nicht der Abwehr.** Wer am Schalter steht, ist ohnehin schon
+  eine Ausnahme; ihn zusätzlich auf Papier zu verweisen, hilft niemandem.
+- **Eine einzige Wahrheit.** Was auf dem Menüblatt steht, kommt wieder vollständig aus der Liste.
+  Das Blatt lässt sich nach einer Korrektur neu drucken.
+- **Nachvollziehbar, ohne neue Spalten.** Wie bei den Klassen (siehe Abschnitt 5b) zeigt die
+  Verwaltung `createdBy` und `lastModifiedBy` des Listenelements. Eine Korrektur der Réception
+  bleibt damit von der ursprünglichen Bestellung unterscheidbar, ohne dass jemand ein Feld pflegen
+  müsste.
+- **Kein zweiter Weg für die Gäste.** Geschrieben wird direkt über Graph, also nur mit Anmeldung.
+  Flow C bleibt unverändert; die Gästeseite bekommt dadurch keine neuen Möglichkeiten.
+
+Verworfen wurde, die Frist pro Termin verschiebbar zu machen. Das hätte für jeden Kurs eine
+Entscheidung verlangt, die niemand treffen will, und die Küche hätte sich auf keine Zeit mehr
+verlassen können. Die Ausnahme gehört an den Schalter, nicht in die Konfiguration.
+
+---
+
 ## 6. Warum zuerst alles selbst gebaut und dann auf Bibliotheken umgestellt wurde
 
 Die erste Fassung enthielt einen selbst geschriebenen QR-Encoder (rund 380 Zeilen) und einen selbst geschriebenen OAuth-Ablauf mit PKCE (rund 230 Zeilen). Der Gedanke dahinter: keine Abhängigkeit von fremden Servern, eine sehr enge Content Security Policy, nichts, was zusätzlich ausgeliefert werden muss.
@@ -191,6 +223,7 @@ Diese Punkte sind bekannt und bewusst in Kauf genommen. Sie gehören auf die Lis
 | Abhängigkeit von `cdn.jsdelivr.net` | Bei Ausfall keine Anmeldung und kein QR-Code | Bibliotheken lokal mit ausliefern |
 | Veröffentlichung von Hand per Datei-Upload | Kein Verlauf, kein Rückschritt auf eine frühere Fassung | Git-Anbindung an Cloudflare Pages |
 | Verwaiste Bestellungen nach dem Löschen einer Klasse | Bleiben bis zu 30 Tage in der Liste | Aufräum-Flow um verwaiste Einträge erweitern |
+| Eine gelöschte Bestellung ist endgültig weg | Kein Papierkorb, kein Rückgängig in der Verwaltung | SharePoint-Papierkorb der Site nutzen, oder das Löschen durch ein Kennzeichen ersetzen |
 
 ---
 
@@ -205,6 +238,8 @@ Diese Punkte sind bekannt und bewusst in Kauf genommen. Sie gehören auf die Lis
 | 28.08.2026, Nachmittag | Umstellung auf Bibliotheken vom CDN (MSAL, qrcode-generator), Fusszeilen entfernt, vollständige Dokumentation |
 | 04.09.2026, Vormittag | Alle Seiten durchgehend auf schmale Bildschirme ausgelegt: überlappende Spalten in der Verwaltung behoben, Tabellen auf dem Telefon als Karten, seitliche Ränder und Schriftgrössen wachsen mit der Fensterbreite. Terminübersicht `termine.html` als eigene Seite |
 | 04.09.2026, Nachmittag | **Umbau der Verwaltung.** `termine.html` wieder entfernt und die linke Spalte von `admin.html` nach Kurstag gruppiert, durchgehend absteigend sortiert; Umschalter «Vergangene anzeigen» durch einen Filter ersetzt, der von Haus aus nur den heutigen Tag zeigt. «Neuer Termin» ganz nach oben. Status «Bestellung offen» aus der Oberfläche entfernt. Neue Spalte `Teilnehmer` für die erwartete Teilnehmeranzahl, in der Liste als «5 / 18 Best.» |
+
+| 04.09.2026, Nachmittag | **Bestellungen in der Verwaltung bearbeitbar.** Die Réception kann jede Bestellung jederzeit ändern, nacherfassen und löschen, auch nach dem Annahmeschluss. Neu in `graph.js`: `bestellungAnlegen` und `bestellungAendern`; `bestellungLoeschen` war vorhanden, aber unbenutzt. Der bisherige Weg über das handschriftlich ergänzte Menüblatt entfällt |
 
 **Beim Umbau gefundene und behobene Fehler**, festgehalten, weil sie sich wiederholen könnten:
 

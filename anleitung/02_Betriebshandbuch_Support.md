@@ -279,7 +279,7 @@ dann steht der Status der Klasse auf «geschlossen». Behebung: in `admin.html` 
 
 **Ursache:** Beides ist so gedacht und **kein Fehler**. Seit dem 04.09.2026 endet die Menüwahl am Kurstag um 10:00 Uhr. Symptom A trifft, wer bis dahin nichts bestellt hat, Symptom B, wer bestellt hat und nachträglich ändern will. Die bereits abgegebene Bestellung bleibt in beiden Fällen unangetastet.
 
-**Behebung:** Keine im System. Die Réception nimmt die Bestellung oder die Änderung entgegen und trägt sie von Hand auf dem ausgedruckten Menüblatt nach. Eine Nacherfassung in der Verwaltung ist nicht vorgesehen.
+**Behebung:** Die Réception nimmt die Bestellung oder die Änderung entgegen und trägt sie in der Verwaltung nach: Termin auswählen, dann «Bestellung erfassen» beziehungsweise in der Bestellungsliste auf «Ändern». Die Frist gilt dort nicht, siehe `01_Anleitung_Reception.md`, Abschnitt 6. War das Menüblatt bereits gedruckt, wird es neu gedruckt oder die Änderung der Küche gemeldet.
 
 **Wenn die Meldung zur falschen Zeit erscheint**
 

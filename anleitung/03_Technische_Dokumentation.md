@@ -69,7 +69,7 @@ Gäste und Kursleitung                Réception (Microsoft-365-Konto)
 
 ## 3. Dateien und ihre Aufgabe
 
-Alles im Ordner `frontend\` ist genau das, was auf Netlify liegt.
+Alles im Ordner `frontend\` ist genau das, was bei Cloudflare Pages liegt.
 
 | Datei | Aufgabe | Anmeldung nötig |
 |---|---|---|
@@ -81,13 +81,15 @@ Alles im Ordner `frontend\` ist genau das, was auf Netlify liegt.
 | `konfig.js` | sämtliche Kennungen und Adressen an einer Stelle | |
 | `auth.js` | Anmeldung an Entra ID, dünner Aufsatz auf MSAL | |
 | `graph.js` | Zugriff auf die SharePoint-Listen, dazu Datums- und Codehilfen | |
-| `_headers` | Sicherheitsheader und Content Security Policy für Netlify | |
+| `_headers` | Sicherheitsheader und Content Security Policy für Cloudflare Pages | |
 
 Jede Seite trägt ihr HTML, CSS und JavaScript in einer einzigen Datei. Geteilt werden nur die drei `.js`-Module. Das ist Absicht: Die Seiten sollen sich einzeln öffnen, verstehen und ändern lassen.
 
 **Gestaltung:** Weiss, minimal, vier CSS-Variablen (`--orange #E8722A`, `--schwarz #111111`, `--grau #767676`, `--linie #ebebeb`), Systemschriften, Radien von 10px. Das Logo ist ein Inline-SVG, es wird nichts nachgeladen.
 
-**Veröffentlichen:** Netlify, angebunden an das Git-Repository. Ein Push auf `main` veröffentlicht automatisch. Was Netlify dabei tut, steht in `netlify.toml` im Wurzelverzeichnis: Ordner `frontend` ausliefern, nichts bauen, nichts nachbearbeiten. Siehe `04_Einrichtung_und_Deployment.md`, Abschnitt 4.
+**Veröffentlichen:** Cloudflare Pages, angebunden an das Git-Repository. Ein Push auf `main` veröffentlicht automatisch. Welcher Ordner ausgeliefert wird, steht in `wrangler.toml` im Wurzelverzeichnis (`pages_build_output_dir = "frontend"`); gebaut wird nichts, das Feld «Build command» in der Cloudflare-Oberfläche bleibt leer. Siehe `04_Einrichtung_und_Deployment.md`, Abschnitt 4.
+
+**Adressen ohne `.html`:** Cloudflare Pages beantwortet `/admin.html` mit einer Umleitung (308) auf `/admin` und hängt die Abfragezeichenfolge unverändert an. Bestehende Links und QR-Codes funktionieren deshalb weiter. Folge für die Anmeldung: `auth.js` benutzt als Umleitungsadresse `location.origin + location.pathname`, also die Adresse **ohne** Endung. Genau diese muss in der App-Registrierung stehen, siehe `04_Einrichtung_und_Deployment.md`, Abschnitt 2.2.
 
 ---
 
@@ -300,7 +302,7 @@ curl -sL <URL> | openssl dgst -sha384 -binary | openssl base64 -A
 
 ## 9. Sicherheitsheader und Content Security Policy
 
-Die Datei `_headers` wird von Netlify ausgewertet und setzt für alle Seiten:
+Die Datei `_headers` wird von Cloudflare Pages ausgewertet und setzt für alle Seiten. Sie muss dazu im ausgelieferten Ordner liegen, also in `frontend\`:
 
 - `X-Content-Type-Options: nosniff`
 - `X-Frame-Options: DENY` und `frame-ancestors 'none'`, die Seiten lassen sich nicht in fremde Seiten einbetten

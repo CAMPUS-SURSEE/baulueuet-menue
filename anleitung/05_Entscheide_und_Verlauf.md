@@ -139,6 +139,8 @@ Der alte QR-Encoder liegt nicht mehr im Quellcode. Der Testordner `qr-test` im A
 
 **Keine Fusszeile auf den Seiten.** Auf Wunsch entfernt, damit die Blätter im Druck ruhiger wirken.
 
+**Hosting bei Cloudflare Pages statt bei Netlify.** Am 04.09.2026 gewechselt. An der Webseite selbst ändert das nichts: Beide Anbieter liefern den Ordner `frontend` unverändert aus und werten `frontend\_headers` gleich aus. Aus `netlify.toml` wurde `wrangler.toml`. Ein einziger Unterschied ist zu beachten: Cloudflare Pages leitet `/admin.html` auf `/admin` um. Die Seiten melden sich damit auf der Adresse ohne Endung an, weshalb in Entra ID beide Schreibweisen als Umleitungsadresse hinterlegt sind.
+
 ---
 
 ## 8. Bekannte Schwächen
@@ -151,7 +153,7 @@ Diese Punkte sind bekannt und bewusst in Kauf genommen. Sie gehören auf die Lis
 | Aufteilung der Vorspeisenzeile am Wort « oder » | Schreibt die Küche die Zeile anders, landet alles im Feld Suppe | Lunchgate-Felder sauberer trennen, oder in SharePoint pflegen |
 | Zugriff auf die Verwaltung wird von Hand zugewiesen | Bei Personalwechsel leicht vergessen | Entra ID P1 und Gruppenzuweisung |
 | Abhängigkeit von `cdn.jsdelivr.net` | Bei Ausfall keine Anmeldung und kein QR-Code | Bibliotheken lokal mit ausliefern |
-| Veröffentlichung von Hand per Drag & Drop | Kein Verlauf, kein Rückschritt auf eine frühere Fassung | Git-Anbindung an Netlify |
+| Veröffentlichung von Hand per Datei-Upload | Kein Verlauf, kein Rückschritt auf eine frühere Fassung | Git-Anbindung an Cloudflare Pages |
 | Verwaiste Bestellungen nach dem Löschen einer Klasse | Bleiben bis zu 30 Tage in der Liste | Aufräum-Flow um verwaiste Einträge erweitern |
 
 ---

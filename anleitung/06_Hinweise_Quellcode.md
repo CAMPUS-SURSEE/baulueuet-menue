@@ -2,7 +2,7 @@
 
 **Stand:** 04.09.2026
 
-Der Ordner `frontend` enthält **genau das, was auf Netlify ausgeliefert wird**. Es gibt keinen Bauprozess, keine Abhängigkeiten zum Installieren und keinen Zwischenschritt: Was hier liegt, ist die laufende Webseite.
+Der Ordner `frontend` enthält **genau das, was bei Cloudflare Pages ausgeliefert wird**. Es gibt keinen Bauprozess, keine Abhängigkeiten zum Installieren und keinen Zwischenschritt: Was hier liegt, ist die laufende Webseite.
 
 ---
 
@@ -18,7 +18,7 @@ Der Ordner `frontend` enthält **genau das, was auf Netlify ausgeliefert wird**.
 | `frontend\konfig.js` | alle Kennungen und Adressen an einer Stelle. **Hier zuerst schauen** |
 | `frontend\auth.js` | Anmeldung an Entra ID, dünner Aufsatz auf MSAL |
 | `frontend\graph.js` | Zugriff auf die SharePoint-Listen, dazu Datums- und Codehilfen |
-| `frontend\_headers` | Sicherheitsheader und Content Security Policy für Netlify |
+| `frontend\_headers` | Sicherheitsheader und Content Security Policy für Cloudflare Pages |
 | `code\serve.ps1` | kleiner Server zum lokalen Testen |
 
 Jede Seite trägt ihr HTML, CSS und JavaScript in einer einzigen Datei. Geteilt werden nur die drei `.js`-Module.
@@ -60,6 +60,6 @@ Ausführlich steht das in `03_Technische_Dokumentation.md`, Abschnitt 10.
 
 ## Verhältnis zum laufenden Betrieb
 
-Dieses Repository ist der **massgebende Stand**, nicht eine Kopie davon. Netlify hängt daran und liefert nach jedem Push auf `main` aus, was in `frontend` liegt. Es gibt kein zweites Arbeitsverzeichnis, aus dem nachträglich zurückgespielt werden müsste; das frühere `C:\Claude\menuwahl-bauluut\` ist damit gegenstandslos.
+Dieses Repository ist der **massgebende Stand**, nicht eine Kopie davon. Cloudflare Pages hängt daran und liefert nach jedem Push auf `main` aus, was in `frontend` liegt. Es gibt kein zweites Arbeitsverzeichnis, aus dem nachträglich zurückgespielt werden müsste; das frühere `C:\Claude\menuwahl-bauluut\` ist damit gegenstandslos.
 
-Gesteuert wird die Auslieferung durch `netlify.toml` im Wurzelverzeichnis. Der Ablauf Schritt für Schritt steht in `04_Einrichtung_und_Deployment.md`, Abschnitt 4.
+Gesteuert wird die Auslieferung durch `wrangler.toml` im Wurzelverzeichnis. Der Ablauf Schritt für Schritt steht in `04_Einrichtung_und_Deployment.md`, Abschnitt 4.

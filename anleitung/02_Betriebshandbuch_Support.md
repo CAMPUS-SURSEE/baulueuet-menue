@@ -43,12 +43,12 @@ Kursteilnehmende wählen ihr Mittagsmenü über eine Webseite statt auf Papier. 
 
 | Bestandteil | Was es ist | Wo |
 |---|---|---|
-| Webseite | statische Seiten, kein Server, keine Datenbank | Netlify, `https://menue.campus-sursee.ch` |
-| `index.html` | Gästeseite, ohne Anmeldung | Netlify |
-| `admin.html` | Verwaltung der Klassen, mit Anmeldung | Netlify |
-| `termine.html` | alle Kurstermine nach Datum, mit Anmeldung. Liest nur | Netlify |
-| `kursblatt.html` | Aushang mit QR-Code, **ohne** Anmeldung, lädt über Flow B | Netlify |
-| `menueblatt.html` | Bestellübersicht für die Küche, mit Anmeldung | Netlify |
+| Webseite | statische Seiten, kein Server, keine Datenbank | Cloudflare Pages, `https://menue.campus-sursee.ch` |
+| `index.html` | Gästeseite, ohne Anmeldung | Cloudflare Pages |
+| `admin.html` | Verwaltung der Klassen, mit Anmeldung | Cloudflare Pages |
+| `termine.html` | alle Kurstermine nach Datum, mit Anmeldung. Liest nur | Cloudflare Pages |
+| `kursblatt.html` | Aushang mit QR-Code, **ohne** Anmeldung, lädt über Flow B | Cloudflare Pages |
+| `menueblatt.html` | Bestellübersicht für die Küche, mit Anmeldung | Cloudflare Pages |
 | Liste «Klassen» | ein Eintrag pro Kurs, mit 8-stelligem Code | SharePoint-Site «Reception» (`hot-reze`) |
 | Liste «Bestellungen» | ein Eintrag pro Person | SharePoint-Site «Reception» |
 | Flow B «API Klasse laden» | GET, liefert Klassendaten und die Tagesmenüs von Lunchgate | Power Automate |
@@ -71,7 +71,7 @@ Alle IDs, Adressen und Flow-Aufrufadressen stehen an einem Ort: `frontend\konfig
 |---|---|
 | Klassen anlegen, Codes verteilen, Blätter drucken | Réception |
 | Menütexte inhaltlich (Lunchgate) | Restaurant BAULÜÜT / Küche |
-| Webseite veröffentlichen (Netlify) | ICT-Services |
+| Webseite veröffentlichen (Cloudflare Pages) | ICT-Services |
 | Flows, Verbindungen, Aufräum-Flow | ICT-Services, Konto `powerplatform@campus-sursee.ch` |
 | Entra-App-Registrierung, Benutzerzuweisung | ICT-Services / IT-Administration |
 | SharePoint-Berechtigungen der Site «Reception» | Besitzende der Site «Reception» |
@@ -114,7 +114,7 @@ Wichtig zum Verständnis der Meldungen: Auf `kursblatt.html` und `menueblatt.htm
 
 | Code | Ursache | Prüfschritt | Behebung |
 |---|---|---|---|
-| `AADSTS50011` | Die Umleitungsadresse ist in der App-Registrierung nicht hinterlegt oder weicht ab. Auch `http` gegen `https`, ein zusätzlicher Schrägstrich oder eine abweichende Domäne zählen als Abweichung. | In Entra ID unter **App-Registrierungen → Menuewahl BAULUUT Admin → Authentifizierung** die Liste der SPA-Umleitungsadressen mit der Adresse in der Browserzeile vergleichen (ohne den Teil ab `?`). | Fehlende Adresse ergänzen. Nötig sind `https://menue.campus-sursee.ch/admin.html`, `.../termine.html`, `.../menueblatt.html` und `.../kursblatt.html` (für dessen Rückfallweg), für lokale Tests zusätzlich die `http://localhost:8123/…`-Varianten. Abfragezeichenfolgen wie `?klasse=CODE` gehören **nicht** dazu; die Seiten schneiden sie für die Anmeldung ab und stellen sie danach selbst wieder her. Speichern nicht vergessen. |
+| `AADSTS50011` | Die Umleitungsadresse ist in der App-Registrierung nicht hinterlegt oder weicht ab. Auch `http` gegen `https`, ein zusätzlicher Schrägstrich oder eine abweichende Domäne zählen als Abweichung. | In Entra ID unter **App-Registrierungen → Menuewahl BAULUUT Admin → Authentifizierung** die Liste der SPA-Umleitungsadressen mit der Adresse in der Browserzeile vergleichen (ohne den Teil ab `?`). | Fehlende Adresse ergänzen. Nötig sind `https://menue.campus-sursee.ch/admin`, `.../termine`, `.../menueblatt` und `.../kursblatt` (für dessen Rückfallweg) — **ohne `.html`**, weil Cloudflare Pages `/admin.html` auf `/admin` umleitet und die Seite sich auf der Adresse anmeldet, auf der sie tatsächlich läuft. Die Schreibweisen mit `.html` bleiben zusätzlich stehen, für lokale Tests dazu die `http://localhost:8123/…`-Varianten. Abfragezeichenfolgen wie `?klasse=CODE` gehören **nicht** dazu; die Seiten schneiden sie für die Anmeldung ab und stellen sie danach selbst wieder her. Speichern nicht vergessen. |
 | `AADSTS9002326` | Die Plattform der App-Registrierung steht auf «Web» statt auf «Single-Page-Anwendung». Nur bei SPA erlaubt Microsoft den Tokentausch direkt aus dem Browser. | Gleiche Seite **Authentifizierung**: Unter welcher Plattformüberschrift stehen die drei Adressen? | Die Adressen unter der Plattform **Single-Page-Anwendung (SPA)** eintragen und die Plattform «Web» entfernen. |
 | `AADSTS50105` | Die Person ist der Unternehmensanwendung nicht zugewiesen. Das ist der beabsichtigte Zustand für alle ausserhalb der Réception. | In Entra ID unter **Unternehmensanwendungen → Menuewahl BAULUUT Admin → Benutzer und Gruppen** nachsehen, ob das Konto aufgeführt ist. | Wenn die Person Zugriff haben soll: zuweisen, siehe Abschnitt 5.1. Wenn nicht: kein Fehler, so ist es gedacht. |
 
@@ -122,7 +122,7 @@ Wichtig zum Verständnis der Meldungen: Auf `kursblatt.html` und `menueblatt.htm
 
 > In konfig.js ist keine Client-ID eingetragen. Bitte die App-Registrierung anlegen, siehe ANLEITUNG_ANMELDUNG.md.
 
-dann ist die Datei `konfig.js` auf Netlify unvollständig oder wurde durch eine ältere Fassung überschrieben. Behebung: `konfig.js` aus `frontend\` prüfen, die Client-ID muss gesetzt sein, und den Ordner neu veröffentlichen (Abschnitt 5.4).
+dann ist die Datei `konfig.js` bei Cloudflare Pages unvollständig oder wurde durch eine ältere Fassung überschrieben. Behebung: `konfig.js` aus `frontend\` prüfen, die Client-ID muss gesetzt sein, und den Ordner neu veröffentlichen (Abschnitt 5.4).
 
 ### 3.2 Anmeldebibliothek und CDN
 
@@ -300,7 +300,7 @@ dann steht der Status der Klasse auf «geschlossen». Behebung: in `admin.html` 
 
 1. `https://menue.campus-sursee.ch/kursblatt.html?klasse=CODE` in einem **privaten Fenster** öffnen, also ohne bestehende Microsoft-Sitzung. Das Blatt muss ohne Anmeldung erscheinen.
 2. Netzwerkanalyse öffnen (Abschnitt 4.3). Erwartet wird **ein** GET an den Power-Automate-Host und **kein** Aufruf an `login.microsoftonline.com`.
-3. Bei Netlify unter **Deploys** prüfen, ob der neueste Stand veröffentlicht ist.
+3. In Cloudflare unter **Workers & Pages, `baulueuet-menue`, Deployments** prüfen, ob der neueste Stand veröffentlicht ist.
 
 **Behebung:** Aktuellen Stand veröffentlichen, siehe Abschnitt 5.4.
 
@@ -397,7 +397,7 @@ Falls der Verdacht besteht, dass am Generator selbst etwas kaputt ist: Der Ordne
 
 Wird eine dieser Adressen je geändert, etwa weil ein Flow neu erstellt wurde, muss sie hier ebenfalls nachgeführt werden.
 
-**Andere Ursache mit gleichem Bild:** Eine der Dateien `konfig.js`, `auth.js` oder `graph.js` fehlt auf Netlify, weil beim Veröffentlichen nur einzelne Dateien statt des ganzen Ordners `frontend` gezogen wurden. In der Netzwerkanalyse steht dann ein 404 auf die fehlende Datei. Behebung: den vollständigen Ordner neu veröffentlichen.
+**Andere Ursache mit gleichem Bild:** Eine der Dateien `konfig.js`, `auth.js` oder `graph.js` fehlt bei Cloudflare Pages, weil beim Veröffentlichen nur einzelne Dateien statt des ganzen Ordners `frontend` hochgeladen wurden. In der Netzwerkanalyse steht dann ein 404 auf die fehlende Datei. Behebung: den vollständigen Ordner neu veröffentlichen.
 
 ### 3.11 Bestellungen erscheinen nicht in der Verwaltung
 
@@ -554,17 +554,17 @@ Anlass für eine Anhebung ist eine Sicherheitsmeldung zur Bibliothek oder ein ko
 
 ### 5.4 Änderung an der Webseite veröffentlichen
 
-Netlify ist an das Git-Repository angebunden. Ein Push auf `main` veröffentlicht automatisch, ein eigener Schritt bei Netlify entfällt.
+Cloudflare Pages ist an das Git-Repository angebunden. Ein Push auf `main` veröffentlicht automatisch, ein eigener Schritt in Cloudflare entfällt.
 
 1. Änderung in `frontend\` vornehmen.
 2. Lokal prüfen: `code\serve.ps1` starten, `http://localhost:8123/` öffnen. Für Seiten mit Anmeldung müssen die `localhost:8123`-Umleitungsadressen in der App-Registrierung eingetragen sein, siehe `04_Einrichtung_und_Deployment.md`, Abschnitt 2.2.
 3. Committen und auf `main` pushen.
-4. Bei Netlify unter **Deploys** verfolgen, bis der Deploy als «Published» markiert ist. Das dauert üblicherweise weniger als eine Minute.
+4. In Cloudflare unter **Workers & Pages, `baulueuet-menue`, Deployments** verfolgen, bis der Deploy als «Success» markiert ist. Das dauert üblicherweise weniger als eine Minute.
 5. Gegenprüfen: `admin.html` öffnen, eine Klasse auswählen, Kursblatt und Menüblatt aufrufen und einen Gästelink testen. Beim Prüfen den Browsercache umgehen (Strg und F5).
 
-Eine fehlerhafte Veröffentlichung lässt sich in Netlify über den Deploy-Verlauf sofort auf einen früheren Stand zurücksetzen («Publish deploy» beim gewünschten älteren Eintrag). Das ist der schnellste Ausweg, wenn nach einer Änderung nichts mehr geht; der Fehler im Repository ist danach in Ruhe zu bereinigen, sonst holt der nächste Push den kaputten Stand zurück.
+Eine fehlerhafte Veröffentlichung lässt sich in Cloudflare Pages über die Liste **Deployments** sofort auf einen früheren Stand zurücksetzen (beim gewünschten älteren Eintrag im Menü der drei Punkte «Rollback to this deployment»). Das ist der schnellste Ausweg, wenn nach einer Änderung nichts mehr geht; der Fehler im Repository ist danach in Ruhe zu bereinigen, sonst holt der nächste Push den kaputten Stand zurück.
 
-**Wenn ein Deploy gar nicht erst startet:** prüfen, ob `netlify.toml` im Wurzelverzeichnis noch vorhanden und gültig ist. Fehlt darin `publish = "frontend"`, veröffentlicht Netlify das Wurzelverzeichnis statt der Webseite; die Site zeigt dann eine Dateiliste oder einen 404.
+**Wenn ein Deploy gar nicht erst startet:** prüfen, ob `wrangler.toml` im Wurzelverzeichnis noch vorhanden und gültig ist. Fehlt darin `pages_build_output_dir = "frontend"`, veröffentlicht Cloudflare das Wurzelverzeichnis statt der Webseite; die Site zeigt dann eine Dateiliste oder einen 404. Bricht der Build mit einer Meldung zum Projektnamen ab, stimmt `name` in dieser Datei nicht mit dem Projektnamen in Cloudflare überein.
 
 ### 5.5 Neue Klasse anlegen (Réception, zur Auskunft)
 
@@ -599,7 +599,7 @@ In dieser Reihenfolge vorgehen:
 
 1. **Eingrenzen mit `?mock=1`.** Trennt Anzeigeproblem von Datenproblem, siehe 4.1.
 2. **Zweites Konto und zweites Gerät.** Tritt der Fehler nur bei einer Person auf, ist es Berechtigung oder Browserprofil, nicht das System.
-3. **Netlify-Deploy zurücksetzen.** Trat der Fehler nach einer Veröffentlichung auf, im Deploy-Verlauf auf den letzten funktionierenden Stand zurückgehen. Das ist der schnellste Weg zurück in den Betrieb.
+3. **Deploy in Cloudflare Pages zurücksetzen.** Trat der Fehler nach einer Veröffentlichung auf, im Deploy-Verlauf auf den letzten funktionierenden Stand zurückgehen. Das ist der schnellste Weg zurück in den Betrieb.
 4. **Notbetrieb sicherstellen.** Die Küche braucht die Bestellungen, nicht die Webseite. Solange SharePoint erreichbar ist, lassen sich die Bestellungen einer Klasse direkt aus der Liste «Bestellungen» filtern (Spalte `KlasseCode`) und ausdrucken. Fällt alles aus, ist das Papierblatt als Rückfallebene weiterhin möglich.
 5. **Ticket eröffnen** mit den Angaben aus 7.2.
 
@@ -623,4 +623,4 @@ In dieser Reihenfolge vorgehen:
 | Flows, Verbindungen, Lunchgate-Anbindung | ICT-Services, Konto `powerplatform@campus-sursee.ch` |
 | Webseite, Veröffentlichung, CSP, Bibliotheken | ICT-Services |
 | Inhalt der Tagesmenüs | Restaurant BAULÜÜT |
-| Störung bei Netlify, jsDelivr oder Lunchgate | fremder Dienst, Statusseite des Anbieters prüfen und abwarten |
+| Störung bei Cloudflare Pages, jsDelivr oder Lunchgate | fremder Dienst, Statusseite des Anbieters prüfen und abwarten |

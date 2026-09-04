@@ -24,7 +24,7 @@ Dieses Dokument beschreibt, wie das System eingerichtet wird und wie eine Änder
 |---|---|---|
 | SharePoint-Listen «Klassen» und «Bestellungen» | vorhanden | ICT |
 | Power Automate Flows B, C und Aufräum-Flow | vorhanden und in Betrieb | ICT |
-| Netlify-Site auf `menue.campus-sursee.ch` | vorhanden | ICT |
+| Cloudflare-Pages-Projekt auf `menue.campus-sursee.ch` | vorhanden | ICT |
 | App-Registrierung in Entra ID | angelegt, Client-ID eingetragen | ICT |
 | Benutzerzuweisung der Réception | **noch zu prüfen** | ICT |
 | Erste Veröffentlichung der neuen Seiten | **noch offen** | ICT |
@@ -42,7 +42,7 @@ Die Registrierung besteht bereits unter dem Namen **«Menuewahl BAULUUT Admin»*
 3. Ausfüllen:
    - **Name:** `Menuewahl BAULUUT Admin`
    - **Unterstützte Kontotypen:** nur Konten in diesem Organisationsverzeichnis, einzelner Mandant
-   - **Umleitungs-URI:** Plattform **Single-Page-Anwendung (SPA)**, Wert `https://menue.campus-sursee.ch/admin.html`
+   - **Umleitungs-URI:** Plattform **Single-Page-Anwendung (SPA)**, Wert `https://menue.campus-sursee.ch/admin` (ohne `.html`, Begründung in Abschnitt 2.2)
 4. Registrieren.
 
 > Die Plattform muss **SPA** sein, nicht «Web». Nur bei SPA erlaubt Microsoft den Tokentausch direkt aus dem Browser. Bei falscher Einstellung erscheint nach der Anmeldung `AADSTS9002326`.
@@ -52,6 +52,10 @@ Die Registrierung besteht bereits unter dem Namen **«Menuewahl BAULUUT Admin»*
 **Verwalten, Authentifizierung**, unter der Plattform *Single-Page-Anwendung* müssen diese Adressen stehen:
 
 ```
+https://menue.campus-sursee.ch/admin
+https://menue.campus-sursee.ch/termine
+https://menue.campus-sursee.ch/menueblatt
+https://menue.campus-sursee.ch/kursblatt
 https://menue.campus-sursee.ch/admin.html
 https://menue.campus-sursee.ch/termine.html
 https://menue.campus-sursee.ch/menueblatt.html
@@ -62,11 +66,15 @@ http://localhost:8123/menueblatt.html
 http://localhost:8123/kursblatt.html
 ```
 
-> **Seit dem 04.09.2026 neu: `termine.html`.** Diese Adresse muss ergänzt werden, sonst scheitert die Terminübersicht mit `AADSTS50011`. Das ist der einzige Schritt in Entra ID, den die Änderung vom 04.09.2026 verlangt.
+> **Wegen Cloudflare Pages nötig: die vier Adressen ohne `.html`.** Cloudflare Pages beantwortet `/admin.html` mit einer Umleitung auf `/admin`. Die Seite meldet sich immer auf der Adresse an, auf der sie tatsächlich läuft, also auf der Fassung ohne Endung. Fehlen diese vier Einträge, scheitert die Anmeldung mit `AADSTS50011`.
 >
-> **`kursblatt.html` bleibt in der Liste**, obwohl das Kursblatt seit dem 04.09.2026 im Normalfall ohne Anmeldung lädt. Auf seiner Fehlerkarte gibt es den Knopf «Mit Konto anmelden» als Rückfall, wenn Flow B nicht antwortet; ohne den Eintrag scheitert dieser Weg.
+> **Die Adressen mit `.html` bleiben trotzdem stehen.** Sie kosten nichts und decken den lokalen Betrieb sowie den Fall ab, dass die Seiten je wieder auf einem Hoster ohne diese Umleitung liegen.
+>
+> **Seit dem 04.09.2026 neu: `termine`.** Auch diese Adresse muss ergänzt werden, sonst scheitert die Terminübersicht mit `AADSTS50011`.
+>
+> **`kursblatt` bleibt in der Liste**, obwohl das Kursblatt seit dem 04.09.2026 im Normalfall ohne Anmeldung lädt. Auf seiner Fehlerkarte gibt es den Knopf «Mit Konto anmelden» als Rückfall, wenn Flow B nicht antwortet; ohne den Eintrag scheitert dieser Weg.
 
-Die `localhost`-Adressen dienen dem lokalen Testen und können weggelassen werden, wenn nie lokal getestet wird.
+Die `localhost`-Adressen dienen dem lokalen Testen und können weggelassen werden, wenn nie lokal getestet wird. Sie tragen weiterhin `.html`, weil `code\serve.ps1` die Dateien direkt ausliefert und nicht umleitet.
 
 Jede Seite meldet sich auf ihrer eigenen Adresse an, daher die getrennten Einträge. Abfragezeichenfolgen wie `?klasse=CODE` gehören **nicht** dazu; MSAL merkt sich die vollständige Adresse selbst und kehrt am Ende dorthin zurück.
 
@@ -116,24 +124,33 @@ Wer nicht zugewiesen ist, erhält bei der Anmeldung `AADSTS50105`.
 
 ## 4. Eine Änderung veröffentlichen
 
-Netlify ist an das Git-Repository `CAMPUS-SURSEE/baulueuet-menue` angebunden und veröffentlicht bei jedem Push auf `main` automatisch.
+Cloudflare Pages ist an das Git-Repository `CAMPUS-SURSEE/baulueuet-menue` angebunden und veröffentlicht bei jedem Push auf `main` automatisch.
 
 1. Änderung lokal machen und mit `?mock=1` prüfen, siehe `03_Technische_Dokumentation.md`, Abschnitt 11.
 2. Committen und auf `main` pushen.
-3. Bei Netlify unter **Deploys** verfolgen, bis der Eintrag «Published» heisst.
+3. In Cloudflare unter **Workers & Pages, `baulueuet-menue`, Deployments** verfolgen, bis der Eintrag «Success» heisst.
 4. Danach die Seite mit geleertem Zwischenspeicher aufrufen und kurz gegenprüfen.
 
-Was Netlify dabei tut, steht in `netlify.toml` im Wurzelverzeichnis:
+Der ausgelieferte Ordner steht in `wrangler.toml` im Wurzelverzeichnis:
 
 | Einstellung | Wert | Warum |
 |---|---|---|
-| `publish` | `frontend` | nur dieser Ordner geht ins Netz, `anleitung`, `code` und `Vorlagen` bleiben aussen vor |
-| `command` | leer | es gibt keinen Bauprozess |
-| `skip_processing` | `true` | Netlify soll nichts nachträglich optimieren, damit die Prüfsummen der Bibliotheken stimmen |
+| `pages_build_output_dir` | `frontend` | nur dieser Ordner geht ins Netz, `anleitung`, `code` und `Vorlagen` bleiben aussen vor |
+| `name` | `baulueuet-menue` | muss gleich lauten wie das Projekt in Cloudflare Pages, sonst bricht der Build ab |
+| `compatibility_date` | Datum | von Cloudflare in dieser Datei erwartet, ohne Wirkung, solange es keine Pages Functions gibt |
 
-Diese Datei hat Vorrang vor den Einstellungen in der Netlify-Oberfläche. Wird sie geändert, gilt die Änderung ab dem nächsten Deploy.
+Diese Datei hat Vorrang vor den entsprechenden Feldern in der Cloudflare-Oberfläche; dort sind sie nur noch lesbar. Wird sie geändert, gilt die Änderung ab dem nächsten Deploy.
 
-> **Ohne Git veröffentlichen** geht weiterhin: Reiter **Deploys**, den Ordner `frontend` per Drag & Drop auf das Feld ziehen. Dabei muss immer der **ganze Ordner** gezogen werden, nicht einzelne Dateien; Netlify ersetzt den Inhalt vollständig. Dieser Weg umgeht das Repository und sollte die Ausnahme bleiben, weil der veröffentlichte Stand danach nicht mehr dem Repository entspricht.
+Zwei Felder stehen weiterhin nur in der Oberfläche, unter **Settings, Build**:
+
+| Feld | Wert |
+|---|---|
+| Build command | leer |
+| Root directory | leer, also `/` |
+
+> **Nichts nachbearbeiten lassen.** Die Seiten binden zwei Bibliotheken mit fester Version und Prüfsumme (`integrity="sha384-..."`) ein. Cloudflare Pages liefert die Dateien unverändert aus; wichtig ist nur, dass für die Domäne **Rocket Loader** und ähnliche Skriptoptimierungen ausgeschaltet bleiben, sonst verweigert der Browser das Laden.
+
+> **Ohne Git veröffentlichen** geht weiterhin: im Projekt **Create deployment, Upload assets**, dort den Ordner `frontend` hochladen. Dabei muss immer der **ganze Ordner** hochgeladen werden, nicht einzelne Dateien; Cloudflare ersetzt den Inhalt vollständig. Dieser Weg umgeht das Repository und sollte die Ausnahme bleiben, weil der veröffentlichte Stand danach nicht mehr dem Repository entspricht.
 
 Seit der Anbindung an Git ist dieses Repository der massgebende Stand: Was in `frontend\` liegt, ist das, was im Netz steht. Ein separates Arbeitsverzeichnis, aus dem nachträglich zurückgespielt werden müsste, gibt es nicht mehr.
 
@@ -141,8 +158,8 @@ Seit der Anbindung an Git ist dieses Repository der massgebende Stand: Was in `f
 
 ## 5. Erstinbetriebnahme, Prüfliste
 
-- [ ] Netlify mit dem Git-Repository verbunden, erster Deploy aus `main` ist «Published»
-- [ ] `https://menue.campus-sursee.ch/admin.html` öffnet sich und die Anmeldung gelingt
+- [ ] Cloudflare Pages mit dem Git-Repository verbunden, erster Deploy aus `main` ist «Success»
+- [ ] `https://menue.campus-sursee.ch/admin.html` öffnet sich, landet auf `/admin` und die Anmeldung gelingt
       *Dieser eine Schritt belegt auf einmal, dass Umleitungsadresse, Graph-Berechtigung und Benutzerzuweisung stimmen.*
 - [ ] Testklasse angelegt, Zugangscode wurde automatisch erzeugt
 - [ ] In den Details der Testklasse steht die kleine Zeile «Erstellt … von …» mit dem eigenen Namen
@@ -187,7 +204,7 @@ Falls die Webseite je vollständig neu aufgesetzt werden muss:
 1. **SharePoint:** Listen «Klassen» und «Bestellungen» mit den Spalten aus `03_Technische_Dokumentation.md`, Abschnitt 4. Die internen Feldnamen müssen genau stimmen, sonst greift `graph.js` ins Leere. Neue Listen-IDs in `konfig.js` eintragen.
 2. **Power Automate:** Flow B und Flow C neu bauen, Aufbau und Lunchgate-Anbindung siehe `03_Technische_Dokumentation.md`, Abschnitt 7. Neue Aufruf-Adressen in `konfig.js` und im Kopf von `index.html` eintragen. Den Aufräum-Flow nicht vergessen.
 3. **Entra ID:** App-Registrierung nach Abschnitt 2 dieses Dokuments.
-4. **Netlify:** neue Site aus dem Git-Repository anlegen. Build-Einstellungen kommen aus `netlify.toml` und müssen in der Oberfläche nicht erfasst werden. Anschliessend Domäne `menue.campus-sursee.ch` verbinden.
+4. **Cloudflare Pages:** neues Projekt aus dem Git-Repository anlegen, Framework-Vorlage «None», Build command leer lassen. Der ausgelieferte Ordner kommt aus `wrangler.toml`; der Projektname muss dem Feld `name` darin entsprechen. Anschliessend unter **Custom domains** die Domäne `menue.campus-sursee.ch` verbinden.
 5. Prüfliste aus Abschnitt 5 abarbeiten.
 
 Der vollständige Quellcode liegt in `frontend\`. Er enthält keine Abhängigkeit zu einem Bauprozess: Was dort liegt, ist genau das, was ausgeliefert wird.

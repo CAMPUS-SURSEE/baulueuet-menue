@@ -24,7 +24,7 @@ Kursteilnehmende am Campus Sursee wählen ihr Mittagsmenü über eine Webseite s
 ```
 baulueuet-menue/
 ├── README.md                         dieses Dokument
-├── netlify.toml                      Hosting-Einstellungen für Netlify
+├── wrangler.toml                     Hosting-Einstellungen für Cloudflare Pages
 ├── frontend/                         die Webseite, genau so wie sie gehostet wird
 │   ├── index.html                    Gästeseite, Menüwahl
 │   ├── admin.html                    Verwaltung der Klassen
@@ -34,7 +34,7 @@ baulueuet-menue/
 │   ├── konfig.js                     alle Kennungen und Adressen an einer Stelle
 │   ├── auth.js                       Anmeldung an Entra ID
 │   ├── graph.js                      Zugriff auf die SharePoint-Listen
-│   ├── _headers                      Sicherheitsheader und CSP (Netlify)
+│   ├── _headers                      Sicherheitsheader und CSP (Cloudflare Pages)
 │   └── .nojekyll                     damit GitHub Pages `_headers` nicht wegfiltert
 ├── code/
 │   └── serve.ps1                     kleiner Server zum lokalen Testen
@@ -56,26 +56,26 @@ Alle Pfadangaben in den Dokumenten sind ab diesem Wurzelverzeichnis zu lesen.
 
 ## Veröffentlichen
 
-Gehostet wird bei **Netlify**, angebunden an dieses Git-Repository: Ein Push auf
-`main` veröffentlicht automatisch. Die Einstellungen dafür stehen in
-[`netlify.toml`](netlify.toml) und nicht in der Netlify-Oberfläche.
+Gehostet wird bei **Cloudflare Pages**, angebunden an dieses Git-Repository:
+Ein Push auf `main` veröffentlicht automatisch. Der ausgelieferte Ordner steht
+in [`wrangler.toml`](wrangler.toml) und nicht in der Cloudflare-Oberfläche.
 
 | Einstellung | Wert | Bedeutung |
 |---|---|---|
-| `publish` | `frontend` | nur dieser Ordner geht ins Netz; `anleitung`, `code` und `Vorlagen` bleiben aussen vor |
-| `command` | leer | es gibt keinen Bauprozess |
-| `skip_processing` | `true` | Netlify optimiert nichts nach, ausgeliefert wird genau der Stand aus dem Repository |
+| `pages_build_output_dir` | `frontend` | nur dieser Ordner geht ins Netz; `anleitung`, `code` und `Vorlagen` bleiben aussen vor |
+| `name` | `baulueuet-menue` | muss gleich lauten wie das Projekt in Cloudflare Pages |
+| Build command (Oberfläche) | leer | es gibt keinen Bauprozess |
 
 Sicherheitsheader und Content Security Policy stehen bewusst **nicht** in
-`netlify.toml`, sondern in [`frontend/_headers`](frontend/_headers), samt
+`wrangler.toml`, sondern in [`frontend/_headers`](frontend/_headers), samt
 Begründung zu jeder einzelnen Regel. Bitte nur dort nachführen: Zwei Fassungen
 derselben Richtlinie führen zu Fehlern, die kaum zu finden sind, weil der
 Browser blockierte Aufrufe stillschweigend verwirft.
 
 Der Ablauf Schritt für Schritt steht in
 [`anleitung/04_Einrichtung_und_Deployment.md`](anleitung/04_Einrichtung_und_Deployment.md),
-Abschnitt 4. Dort ist auch der Weg ohne Git beschrieben, das Ablegen des Ordners
-`frontend` per Drag & Drop, der die Ausnahme bleiben soll.
+Abschnitt 4. Dort ist auch der Weg ohne Git beschrieben, das Hochladen des
+Ordners `frontend` von Hand, der die Ausnahme bleiben soll.
 
 Lokal anschauen, ohne etwas zu veröffentlichen:
 
@@ -83,7 +83,7 @@ Lokal anschauen, ohne etwas zu veröffentlichen:
 powershell -ExecutionPolicy Bypass -File code\serve.ps1
 ```
 
-Die Datei `frontend/.nojekyll` hat für Netlify keine Bedeutung. Sie bleibt
+Die Datei `frontend/.nojekyll` hat für Cloudflare Pages keine Bedeutung. Sie bleibt
 liegen, damit der Ordner notfalls auch als Quelle für GitHub Pages taugt; ohne
 sie würde Pages `_headers` wegen des Unterstrichs ignorieren.
 
@@ -99,6 +99,13 @@ sie würde Pages `_headers` wegen des Unterstrichs ignorieren.
 | `https://menue.campus-sursee.ch/termine.html` | alle Kurstermine nach Datum, Vorschau fürs Restaurant | ja |
 | `https://menue.campus-sursee.ch/menueblatt.html?klasse=CODE` | Bestellübersicht für die Küche | ja |
 
+Cloudflare Pages leitet Adressen mit `.html` auf die Fassung ohne Endung um:
+Aus `/admin.html` wird `/admin`, aus `/kursblatt.html?klasse=CODE` wird
+`/kursblatt?klasse=CODE`. Die Abfragezeichenfolge bleibt erhalten, alle
+bestehenden Links und QR-Codes funktionieren weiterhin. Wichtig ist nur, dass
+in der Entra-ID-App-Registrierung **beide** Schreibweisen als Umleitungsadresse
+stehen, siehe `anleitung/04_Einrichtung_und_Deployment.md`, Abschnitt 2.2.
+
 Jede Seite kennt `?mock=1`. Damit zeigt sie Testdaten ohne Anmeldung, praktisch zum Anschauen und Erklären.
 
 Die Menüwahl ist am Kurstag **bis 10:00 Uhr** offen. Danach lässt sich weder
@@ -110,7 +117,7 @@ nochmals im Kopf von `frontend/index.html`.
 
 ## In drei Sätzen, wie es funktioniert
 
-Die Webseite liegt bei Netlify und ist reines HTML, es gibt keinen eigenen Server. Die Daten stehen in zwei SharePoint-Listen auf der Site «Reception»; die Verwaltung greift nach Anmeldung mit dem Microsoft-365-Konto direkt darauf zu, Gästeseite und Kursblatt über zwei Power-Automate-Flows, weil Kursteilnehmende und Kursleitung kein Konto haben. Die Tagesmenüs kommen von Lunchgate, abgeholt von einem dieser Flows.
+Die Webseite liegt bei Cloudflare Pages und ist reines HTML, es gibt keinen eigenen Server. Die Daten stehen in zwei SharePoint-Listen auf der Site «Reception»; die Verwaltung greift nach Anmeldung mit dem Microsoft-365-Konto direkt darauf zu, Gästeseite und Kursblatt über zwei Power-Automate-Flows, weil Kursteilnehmende und Kursleitung kein Konto haben. Die Tagesmenüs kommen von Lunchgate, abgeholt von einem dieser Flows.
 
 ---
 
@@ -120,7 +127,7 @@ Die Webseite liegt bei Netlify und ist reines HTML, es gibt keinen eigenen Serve
 |---|---|
 | Power Automate Flows | powerplatform@campus-sursee.ch |
 | SharePoint-Site «Reception» | ICT-Services |
-| Netlify, Domäne `menue.campus-sursee.ch` | ICT-Services |
+| Cloudflare Pages, Domäne `menue.campus-sursee.ch` | ICT-Services |
 | Entra ID App-Registrierung und Benutzerzuweisung | ICT-Services |
 | Menüinhalte | Restaurant BAULÜÜT über Lunchgate |
 

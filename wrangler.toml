@@ -1,0 +1,36 @@
+# Cloudflare-Pages-Konfiguration für die Menüwahl Restaurant BAULÜÜT
+#
+# Ausgeliefert wird der Ordner `frontend`, und zwar unverändert. Die Webseite
+# ist reines HTML, es gibt keinen Bauprozess, keine Abhängigkeiten und keinen
+# Zwischenschritt: Was in `frontend` liegt, ist genau das, was im Netz steht.
+# Das Feld «Build command» bleibt in der Cloudflare-Oberfläche deshalb leer.
+#
+# WICHTIG: Sicherheitsheader und Content Security Policy stehen NICHT hier,
+# sondern in `frontend/_headers`. Cloudflare Pages wertet diese Datei aus,
+# weil sie im ausgelieferten Ordner liegt. Bitte ausschliesslich dort
+# nachführen. Zwei Fassungen derselben Richtlinie führen zu Fehlern, die sich
+# kaum finden lassen, weil der Browser blockierte Aufrufe stillschweigend
+# verwirft. Die Erläuterung zu jeder einzelnen Regel steht als Kommentar in
+# jener Datei.
+#
+# ACHTUNG: `name` muss genau gleich lauten wie das Projekt in Cloudflare
+# Pages. Stimmt es nicht überein, bricht der Build mit einer Meldung zum
+# Projektnamen ab. Wird das Projekt anders benannt, ist der Wert hier
+# nachzuziehen.
+
+name = "baulueuet-menue"
+
+# Der Ordner, der ins Netz geht. `anleitung`, `code` und `Vorlagen` bleiben
+# damit aussen vor. Dieser Wert hat Vorrang vor dem Feld «Build output
+# directory» in der Oberfläche; dort ist er nur noch lesbar.
+pages_build_output_dir = "frontend"
+
+# Nur für Pages Functions von Bedeutung, die es hier nicht gibt. Der Eintrag
+# steht trotzdem, weil Cloudflare ihn in dieser Datei erwartet.
+compatibility_date = "2026-09-04"
+
+# Vorschau-Deploys aus Pull Requests und aus anderen Zweigen laufen mit
+# denselben Einstellungen. Sie erhalten eine eigene Adresse bei pages.dev.
+# Damit dort die Anmeldung funktioniert, müsste die jeweilige Adresse in der
+# Entra-ID-App-Registrierung als Umleitungsadresse eingetragen sein; ohne
+# diesen Eintrag lassen sich Vorschauen nur mit `?mock=1` anschauen.

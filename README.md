@@ -2,7 +2,7 @@
 
 Kursteilnehmende am Campus Sursee wählen ihr Mittagsmenü über eine Webseite statt auf einem Papierblatt. Die Réception legt pro Kurs eine Klasse an und gibt den Teilnehmenden einen Link oder ein Blatt mit QR-Code. Die Küche erhält die gesammelten Bestellungen ausgedruckt.
 
-**Stand dieser Ablage:** 28.08.2026
+**Stand dieser Ablage:** 04.09.2026
 
 ---
 
@@ -28,7 +28,8 @@ baulueuet-menue/
 ├── frontend/                         die Webseite, genau so wie sie gehostet wird
 │   ├── index.html                    Gästeseite, Menüwahl
 │   ├── admin.html                    Verwaltung der Klassen
-│   ├── kursblatt.html                Aushang mit QR-Code
+│   ├── termine.html                  alle Kurstermine nach Datum, Vorschau fürs Restaurant
+│   ├── kursblatt.html                Aushang mit QR-Code, ohne Anmeldung
 │   ├── menueblatt.html               Bestellübersicht für die Küche
 │   ├── konfig.js                     alle Kennungen und Adressen an einer Stelle
 │   ├── auth.js                       Anmeldung an Entra ID
@@ -88,22 +89,28 @@ sie würde Pages `_headers` wegen des Unterstrichs ignorieren.
 
 ---
 
-## Die vier Seiten
+## Die fünf Seiten
 
 | Adresse | Wofür | Anmeldung |
 |---|---|---|
 | `https://menue.campus-sursee.ch/?klasse=CODE` | Gäste wählen ihr Menü | nein |
+| `https://menue.campus-sursee.ch/kursblatt.html?klasse=CODE` | Aushang mit QR-Code, darf der Kursleitung geschickt werden | nein |
 | `https://menue.campus-sursee.ch/admin.html` | Verwaltung der Klassen | ja |
-| `https://menue.campus-sursee.ch/kursblatt.html?klasse=CODE` | Aushang mit QR-Code | ja |
+| `https://menue.campus-sursee.ch/termine.html` | alle Kurstermine nach Datum, Vorschau fürs Restaurant | ja |
 | `https://menue.campus-sursee.ch/menueblatt.html?klasse=CODE` | Bestellübersicht für die Küche | ja |
 
 Jede Seite kennt `?mock=1`. Damit zeigt sie Testdaten ohne Anmeldung, praktisch zum Anschauen und Erklären.
+
+Die Menüwahl ist am Kurstag **bis 10:00 Uhr** offen. Danach lässt sich weder
+neu bestellen noch die eigene Wahl ändern; beides läuft dann über die
+Réception. Die Uhrzeit steht in `frontend/konfig.js` (`annahmeschluss`) und
+nochmals im Kopf von `frontend/index.html`.
 
 ---
 
 ## In drei Sätzen, wie es funktioniert
 
-Die Webseite liegt bei Netlify und ist reines HTML, es gibt keinen eigenen Server. Die Daten stehen in zwei SharePoint-Listen auf der Site «Reception»; die Verwaltung greift nach Anmeldung mit dem Microsoft-365-Konto direkt darauf zu, die Gästeseite über zwei Power-Automate-Flows, weil Kursteilnehmende kein Konto haben. Die Tagesmenüs kommen von Lunchgate, abgeholt von einem dieser Flows.
+Die Webseite liegt bei Netlify und ist reines HTML, es gibt keinen eigenen Server. Die Daten stehen in zwei SharePoint-Listen auf der Site «Reception»; die Verwaltung greift nach Anmeldung mit dem Microsoft-365-Konto direkt darauf zu, Gästeseite und Kursblatt über zwei Power-Automate-Flows, weil Kursteilnehmende und Kursleitung kein Konto haben. Die Tagesmenüs kommen von Lunchgate, abgeholt von einem dieser Flows.
 
 ---
 

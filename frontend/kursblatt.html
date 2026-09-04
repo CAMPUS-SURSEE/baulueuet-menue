@@ -111,6 +111,7 @@
     color: var(--schwarz);
     cursor: pointer;
   }
+  .status-karte button + button { margin-left: 10px; }
 
   .lade { text-align: center; padding: 72px 0; color: var(--grau); font-size: 0.9rem; }
   .spinner {
@@ -165,6 +166,7 @@
     <h2 id="fehler-titel">Fehler</h2>
     <p id="fehler-text"></p>
     <button type="button" id="btn-retry" style="display:none">Nochmals versuchen</button>
+    <button type="button" id="btn-anmelden" style="display:none">Mit Konto anmelden</button>
   </div>
 
   <!-- Kursblatt -->
@@ -183,7 +185,7 @@
 
     <div class="anleitung">
       <p>Scannen Sie den QR-Code mit der Handykamera und wählen Sie Ihr Menü. Die Wahl ist nur am Tag des Mittagessens möglich.</p>
-      <p class="frist">Bitte wählen Sie bis 10:00 Uhr. Danke!</p>
+      <p class="frist" id="frist-text"></p>
     </div>
 
     <button type="button" class="drucken nicht-drucken" id="btn-drucken">Kursblatt drucken</button>
@@ -223,17 +225,43 @@ function zeige(ansicht) {
   });
 }
 
-function zeigeFehler(titel, text, retry) {
+function zeigeFehler(titel, text, retry, anmelden) {
   el("fehler-titel").textContent = titel;
   el("fehler-text").textContent = text;
   el("btn-retry").style.display = retry ? "" : "none";
+  el("btn-anmelden").style.display = anmelden ? "" : "none";
   zeige("fehler");
 }
 
-async function ladeKlasse() {
+/* Aus einem Klassensatz die Anzeigewerte des Blattes machen. Beide Wege,
+   der anonyme über Flow B und der angemeldete über Graph, liefern dieselbe
+   Form. */
+function blattdaten(klasse) {
+  return {
+    ok:         true,
+    klasse:     klasse.titel,
+    firma:      klasse.firma,
+    datum:      klasse.datum,
+    datumText:  Hilfe.datumText(klasse.datum),
+    essenszeit: klasse.essenszeit
+  };
+}
+
+/* Das Kursblatt ist bewusst ohne Anmeldung erreichbar, damit die Réception
+   seinen Link auch der Kursleitung schicken kann. Es lädt deshalb anonym
+   über Flow B, dieselbe Quelle wie die Gästeseite. Preisgegeben wird nur,
+   was auf dem Aushang ohnehin steht, und nur an jemanden, der den
+   achtstelligen Code bereits kennt.
+
+   Der Weg über Microsoft Graph bleibt als Rückfall bestehen, falls Flow B
+   einmal nicht antwortet. Er wird aber nie von selbst eingeschlagen: eine
+   unerwartete Weiterleitung zur Microsoft-Anmeldung wäre für eine
+   Kursleitung ohne Konto nicht zu verstehen. Stattdessen erscheint ein
+   Knopf, den nur die Réception benutzt. */
+async function ladeKlasse(mitKonto) {
   zeige("laden");
   if (!mock && !code) {
-    zeigeFehler("Ungültiger Link", "Dieser Link ist unvollständig. Bitte rufen Sie die Seite mit dem Klassencode auf, zum Beispiel kursblatt.html?klasse=ABC123.", false);
+    zeigeFehler("Ungültiger Link", "Dieser Link ist unvollständig. Bitte rufen Sie die Seite mit dem Klassencode auf, zum Beispiel kursblatt.html?klasse=ABC123.", false, false);
     return;
   }
   try {
@@ -241,26 +269,27 @@ async function ladeKlasse() {
     if (mock) {
       await new Promise(r => setTimeout(r, 300));
       daten = MOCK_DATEN;
-    } else {
+    } else if (mitKonto) {
       await Auth.anmeldungSicherstellen();
-      // Über Graph statt über Flow B: Kursblätter werden im Voraus gedruckt,
-      // deshalb müssen die Daten für jedes Kursdatum stimmen, nicht nur für heute.
       const klasse = await Graph.klasseNachCode(code);
       if (!klasse) {
-        zeigeFehler("Ungültiger Link", "Diese Klasse wurde nicht gefunden. Bitte prüfen Sie den Klassencode.", false);
+        zeigeFehler("Ungültiger Link", "Diese Klasse wurde nicht gefunden. Bitte prüfen Sie den Klassencode.", false, false);
         return;
       }
-      daten = {
-        ok:         true,
-        klasse:     klasse.titel,
-        firma:      klasse.firma,
-        datum:      klasse.datum,
-        datumText:  Hilfe.datumText(klasse.datum),
-        essenszeit: klasse.essenszeit
-      };
+      daten = blattdaten(klasse);
+    } else {
+      const klasse = await Graph.klasseOeffentlich(code);
+      if (!klasse) {
+        zeigeFehler("Kursblatt nicht abrufbar",
+          "Zu diesem Klassencode wurde nichts gefunden. Bitte prüfen Sie den Link. "
+          + "Mitarbeitende der Réception können es mit ihrem Geschäftskonto nochmals versuchen.",
+          true, true);
+        return;
+      }
+      daten = blattdaten(klasse);
     }
     if (!daten.ok) {
-      zeigeFehler("Ungültiger Link", "Diese Klasse wurde nicht gefunden. Bitte prüfen Sie den Klassencode.", false);
+      zeigeFehler("Ungültiger Link", "Diese Klasse wurde nicht gefunden. Bitte prüfen Sie den Klassencode.", false, false);
       return;
     }
 
@@ -288,20 +317,25 @@ async function ladeKlasse() {
     link.textContent = ziel;
     link.href = ziel;
 
+    el("frist-text").textContent =
+      "Bitte wählen Sie bis " + Hilfe.annahmeschlussText() + " Uhr. "
+      + "Danach sind Änderungen nur noch über die Réception möglich.";
+
     document.title = "Menüwahl " + (daten.klasse || "");
     zeige("blatt");
   } catch (e) {
     zeigeFehler("Verbindungsfehler",
       (e && e.message) ? e.message
         : "Die Klassendaten konnten nicht geladen werden. Bitte prüfen Sie die Internetverbindung.",
-      true);
+      true, !mitKonto);
   }
 }
 
-el("btn-retry").addEventListener("click", ladeKlasse);
+el("btn-retry").addEventListener("click", () => ladeKlasse(false));
+el("btn-anmelden").addEventListener("click", () => ladeKlasse(true));
 el("btn-drucken").addEventListener("click", () => window.print());
 
-ladeKlasse();
+ladeKlasse(false);
 </script>
 </body>
 </html>

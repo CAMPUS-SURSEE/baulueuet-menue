@@ -21,6 +21,15 @@ const KONFIG = {
   /* ---- Gästeseite ---- */
   gastBasis: "https://menue.campus-sursee.ch/",
 
+  /* ---- Annahmeschluss ----
+     Volle Stunde in Ortszeit, bis zu der die Teilnehmenden am Kurstag wählen
+     und ihre Wahl ändern dürfen. Danach übernimmt die Réception.
+     ACHTUNG: `index.html` lädt konfig.js nicht, weil die Gästeseite ohne
+     Anmeldung auskommt und deshalb keine der Admin-Dateien einbindet. Dort
+     steht derselbe Wert nochmals als Konstante ANNAHMESCHLUSS im Kopf des
+     Skripts. Wird er hier geändert, ist er dort mitzuziehen. */
+  annahmeschluss: 10,
+
   /* ---- Power Automate Flow B «API Klasse laden» ----
      Wird weiterhin gebraucht, weil dort die Lunchgate-Anbindung sitzt
      (Tagesmenüs). Der Flow ist bewusst anonym, damit die Gästeseite ohne

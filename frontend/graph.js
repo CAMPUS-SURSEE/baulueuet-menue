@@ -58,6 +58,21 @@ const Hilfe = (function () {
     return t.length === 3 ? t[2] + "." + t[1] + "." + t[0] : jjjjMmTt;
   }
 
+  /* Voller Zeitstempel aus SharePoint -> «28.08.2026, 14:23».
+     Für die Nachvollziehbarkeit in der Verwaltung: dort zählt neben dem Tag
+     auch die Uhrzeit. Gerechnet wird in der lokalen Zeitzone, weil Graph die
+     Werte in UTC liefert. */
+  function zeitstempelKurz(wert) {
+    if (!wert) return "";
+    const d = new Date(wert);
+    if (isNaN(d.getTime())) return "";
+    return String(d.getDate()).padStart(2, "0") + "."
+      + String(d.getMonth() + 1).padStart(2, "0") + "."
+      + d.getFullYear() + ", "
+      + String(d.getHours()).padStart(2, "0") + ":"
+      + String(d.getMinutes()).padStart(2, "0");
+  }
+
   /* 8 Zeichen, ohne 0/O/1/I, damit der Code auf Papier eindeutig lesbar ist.
      Gleiches Alphabet wie bisher in der Power App. */
   function neuerCode() {
@@ -73,14 +88,39 @@ const Hilfe = (function () {
     return KONFIG.gastBasis + "?klasse=" + encodeURIComponent(code || "");
   }
 
+  /* Das Kursblatt ist ohne Anmeldung erreichbar, damit die Réception den Link
+     auch der Kursleitung schicken kann. Deshalb gibt es ihn hier genauso
+     fertig zusammengesetzt wie den Gästelink. */
+  function kursblattLink(code) {
+    return KONFIG.gastBasis + "kursblatt.html?klasse=" + encodeURIComponent(code || "");
+  }
+
+  /* Annahmeschluss: am Kurstag bis KONFIG.annahmeschluss (Stunde, lokal).
+     Danach ist die Menüwahl geschlossen und Änderungen laufen über die
+     Réception. Die Zeit steht in konfig.js, damit sie sich an einer Stelle
+     ändern lässt. `index.html` kennt konfig.js nicht und trägt denselben Wert
+     nochmals; wird er hier geändert, ist er dort mitzuziehen. */
+  function annahmeschlussStunde() {
+    const wert = (typeof KONFIG !== "undefined" && KONFIG.annahmeschluss);
+    return (typeof wert === "number") ? wert : 10;
+  }
+
+  function annahmeschlussText() {
+    return String(annahmeschlussStunde()).padStart(2, "0") + ":00";
+  }
+
   return {
     datumAusSp: datumAusSp,
     datumFuerSp: datumFuerSp,
     datumText: datumText,
     datumKurz: datumKurz,
+    zeitstempelKurz: zeitstempelKurz,
     heute: heute,
     neuerCode: neuerCode,
-    gastLink: gastLink
+    gastLink: gastLink,
+    kursblattLink: kursblattLink,
+    annahmeschlussStunde: annahmeschlussStunde,
+    annahmeschlussText: annahmeschlussText
   };
 })();
 
@@ -141,7 +181,15 @@ const Graph = (function () {
       const auswahl = mitAuswahl
         ? "$expand=fields($select=" + felder + ")"
         : "$expand=fields";
-      let url = listenPfad + "/items?$select=id,createdDateTime&" + auswahl + "&$top=999";
+      /* Wer wann angelegt und zuletzt geändert hat, führt SharePoint von
+         selbst mit. Es braucht dafür keine eigenen Listenspalten, und die
+         Werte lassen sich über die Oberfläche auch nicht fälschen. Im
+         Rückfall ohne Feldauswahl wird nur das Nötigste geholt, damit eine
+         Seite auch dann noch lädt, wenn Graph diese Auswahl verweigert. */
+      const spur = mitAuswahl
+        ? "id,createdDateTime,lastModifiedDateTime,createdBy,lastModifiedBy"
+        : "id,createdDateTime";
+      let url = listenPfad + "/items?$select=" + spur + "&" + auswahl + "&$top=999";
       const treffer = [];
       while (url) {
         const seite = await anfrage(url);
@@ -165,7 +213,19 @@ const Graph = (function () {
     const satz = Object.assign({}, f);
     satz.id = element.id;
     satz.erstellt = element.createdDateTime || f.Created || null;
+    satz.geaendert = element.lastModifiedDateTime || f.Modified || null;
+    satz.erstelltVon = personenName(element.createdBy);
+    satz.geaendertVon = personenName(element.lastModifiedBy);
     return satz;
+  }
+
+  /* Graph liefert Urheber als «identitySet»: ein Objekt mit user, application
+     oder device. Für die Verwaltung genügt der Anzeigename der Person; wurde
+     ein Eintrag von einem Flow geschrieben, steht dort dessen Name. */
+  function personenName(identitaet) {
+    const wer = identitaet && (identitaet.user || identitaet.application);
+    if (!wer) return "";
+    return wer.displayName || wer.email || "";
   }
 
   /* ---------- Klassen ---------- */
@@ -181,7 +241,10 @@ const Graph = (function () {
       code:       k.Code || "",
       status:     k.Status || "offen",
       bemerkung:  k.Bemerkung || "",
-      erstellt:   k.erstellt
+      erstellt:      k.erstellt,
+      erstelltVon:   k.erstelltVon || "",
+      geaendert:     k.geaendert,
+      geaendertVon:  k.geaendertVon || ""
     })).sort((a, b) => (b.datum || "").localeCompare(a.datum || ""));
   }
 
@@ -273,6 +336,34 @@ const Graph = (function () {
     return z;
   }
 
+  /* ---------- Klasse ohne Anmeldung ---------- */
+
+  /* Dieselbe Quelle wie die Gästeseite: Flow B, anonym erreichbar. Damit
+     kommt das Kursblatt ohne Anmeldung aus und die Réception kann seinen
+     Link auch der Kursleitung schicken. Liefert null, wenn der Code nicht
+     passt oder der Flow nicht erreichbar ist; die aufrufende Seite bietet
+     dann den Weg über die Anmeldung an. */
+  async function klasseOeffentlich(code) {
+    const suche = (code || "").trim();
+    if (!suche) return null;
+    try {
+      const antwort = await fetch(KONFIG.flowKlasseUrl + "&code=" + encodeURIComponent(suche));
+      if (!antwort.ok) return null;
+      const d = await antwort.json();
+      if (!d || d.ok === false) return null;
+      return {
+        titel:      d.klasse || "",
+        firma:      d.firma  || "",
+        datum:      d.datum  || "",
+        essenszeit: d.essenszeit || "",
+        code:       suche,
+        status:     d.offen === false ? "geschlossen" : "offen"
+      };
+    } catch (e) {
+      return null;
+    }
+  }
+
   /* ---------- Menütexte ---------- */
 
   /* Die Tagesmenüs kommen weiterhin aus Flow B, weil dort die
@@ -312,6 +403,7 @@ const Graph = (function () {
     bestellungen: bestellungen,
     bestellungLoeschen: bestellungLoeschen,
     zaehler: zaehler,
+    klasseOeffentlich: klasseOeffentlich,
     menuetexte: menuetexte,
     ich: ich
   };

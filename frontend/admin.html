@@ -245,15 +245,32 @@
   }
   .marke.offen { border-color: var(--orange); color: var(--orange); }
 
+  /* Wer wann angelegt und zuletzt geändert hat. Bewusst sehr klein: die
+     Angabe wird selten gebraucht, soll aber ohne Umweg über SharePoint
+     ablesbar sein. */
+  .spur {
+    font-size: 0.7rem;
+    line-height: 1.5;
+    color: var(--grau);
+    margin-top: 12px;
+  }
+
   .linkzeile {
     display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
     margin-top: 20px;
+  }
+  .linkzeile + .linkzeile { margin-top: 12px; }
+  .linkzeile .linkname {
+    flex: none;
+    min-width: 74px;
+    font-size: 0.66rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.14em; color: var(--grau);
   }
   .linkzeile .gastlink {
     font-size: 0.88rem;
     color: var(--grau);
     word-break: break-all;
-    flex: 1 1 260px;
+    flex: 1 1 240px;
   }
 
   .zaehler {
@@ -342,6 +359,7 @@
         <div class="werkzeuge">
           <button type="button" class="knopf" id="btn-umschalten">Vergangene anzeigen</button>
           <button type="button" class="knopf" id="btn-neu">Neue Klasse</button>
+          <button type="button" class="knopf" id="btn-termine">Alle Termine</button>
         </div>
         <div class="liste" id="liste"></div>
         <div class="leer-liste" id="liste-leer" style="display:none"></div>
@@ -362,12 +380,21 @@
             <div class="d-datum" id="d-datum"></div>
             <div class="d-zeit" id="d-zeit"></div>
             <span class="marke" id="d-status"></span>
+            <div class="spur" id="d-spur"></div>
           </div>
 
           <div class="linkzeile">
+            <span class="linkname">Gäste</span>
             <span class="gastlink" id="d-link"></span>
             <button type="button" class="knopf" id="btn-kopieren">Link kopieren</button>
             <span class="kopiert" id="kopiert-text"></span>
+          </div>
+
+          <div class="linkzeile">
+            <span class="linkname">Kursblatt</span>
+            <span class="gastlink" id="d-kursblattlink"></span>
+            <button type="button" class="knopf" id="btn-kursblatt-kopieren">Kursblatt-Link kopieren</button>
+            <span class="kopiert" id="kopiert-kursblatt"></span>
           </div>
 
           <div class="zaehler" id="d-zaehler"></div>
@@ -456,19 +483,35 @@ function mockBauen() {
 
   let naechsteId = 100;
 
+  /* Zeitstempel um n Tage in der Vergangenheit, für die Spur «erstellt am». */
+  function stempel(tage, stunde) {
+    const d = new Date();
+    d.setDate(d.getDate() - tage);
+    d.setHours(stunde, 20, 0, 0);
+    return d.toISOString();
+  }
+
   const klassen = [
     { id: "1", titel: "SORBA EDV AG Lernende 2. Jahr", firma: "SORBA EDV AG",
       datum: tagVerschoben(14), essenszeit: "12:00", code: "K7HMP3RA",
-      status: "offen", bemerkung: "", erstellt: null },
+      status: "offen", bemerkung: "",
+      erstellt: stempel(6, 9), erstelltVon: "Vreni Bühler",
+      geaendert: stempel(2, 14), geaendertVon: "Martin Kaufmann" },
     { id: "2", titel: "Baukader Führungsseminar", firma: "Campus Sursee",
       datum: tagVerschoben(3), essenszeit: "11:45", code: "TQ4X9BND",
-      status: "offen", bemerkung: "", erstellt: null },
+      status: "offen", bemerkung: "",
+      erstellt: stempel(4, 11), erstelltVon: "Martin Kaufmann",
+      geaendert: stempel(4, 11), geaendertVon: "Martin Kaufmann" },
     { id: "3", titel: "Polierkurs Modul 4", firma: "Implenia Schweiz AG",
       datum: tagVerschoben(0), essenszeit: "12:15", code: "M2VJ8KWS",
-      status: "offen", bemerkung: "", erstellt: null },
+      status: "offen", bemerkung: "",
+      erstellt: stempel(11, 8), erstelltVon: "Vreni Bühler",
+      geaendert: stempel(1, 16), geaendertVon: "Vreni Bühler" },
     { id: "4", titel: "Kranführerkurs Abschluss", firma: "Marti AG",
       datum: tagVerschoben(-9), essenszeit: "12:00", code: "R6ZDF4YT",
-      status: "geschlossen", bemerkung: "", erstellt: null }
+      status: "geschlossen", bemerkung: "",
+      erstellt: stempel(20, 10), erstelltVon: "Martin Kaufmann",
+      geaendert: stempel(9, 13), geaendertVon: "Vreni Bühler" }
   ];
 
   const bestellungen = [
@@ -536,7 +579,10 @@ function mockBauen() {
         code: daten.code || "",
         status: daten.status || "offen",
         bemerkung: "",
-        erstellt: new Date().toISOString()
+        erstellt: new Date().toISOString(),
+        erstelltVon: "Testperson (Mock-Modus)",
+        geaendert: new Date().toISOString(),
+        geaendertVon: "Testperson (Mock-Modus)"
       });
       return id;
     },
@@ -547,6 +593,8 @@ function mockBauen() {
       ["titel", "firma", "datum", "essenszeit", "status"].forEach(f => {
         if (daten[f] !== undefined) k[f] = daten[f];
       });
+      k.geaendert = new Date().toISOString();
+      k.geaendertVon = "Testperson (Mock-Modus)";
       return k;
     },
     klasseLoeschen: async function (id) {
@@ -753,10 +801,37 @@ function ansichtKopfZeichnen() {
   marke.textContent = offen ? "Bestellung offen" : "Bestellung geschlossen";
   marke.className = "marke" + (offen ? " offen" : "");
 
+  spurZeichnen(k);
+
   el("d-link").textContent = Hilfe.gastLink(k.code);
+  el("d-kursblattlink").textContent = Hilfe.kursblattLink(k.code);
   el("kopiert-text").textContent = "";
+  el("kopiert-kursblatt").textContent = "";
 
   zaehlerZeichnen(gewaehlteBestellungen);
+}
+
+/* Nachvollziehbarkeit: wer die Klasse angelegt hat und wer sie zuletzt
+   angefasst hat. Die Werte führt SharePoint von selbst mit, sie stammen
+   nicht aus einem eigenen Feld. Wurde seit dem Anlegen nichts geändert,
+   fällt der zweite Teil weg; sonst stünde dort zweimal dasselbe. */
+function spurZeichnen(k) {
+  const feld = el("d-spur");
+  leeren(feld);
+
+  const teile = [];
+  if (k.erstellt) {
+    teile.push("Erstellt " + Hilfe.zeitstempelKurz(k.erstellt)
+      + (k.erstelltVon ? " von " + k.erstelltVon : ""));
+  }
+  const geaendert = k.geaendert && k.erstellt
+    && Math.abs(new Date(k.geaendert) - new Date(k.erstellt)) > 60000;
+  if (geaendert) {
+    teile.push("zuletzt geändert " + Hilfe.zeitstempelKurz(k.geaendert)
+      + (k.geaendertVon ? " von " + k.geaendertVon : ""));
+  }
+  feld.textContent = teile.join(" · ");
+  feld.style.display = teile.length ? "block" : "none";
 }
 
 function zaehlerZeichnen(liste) {
@@ -934,12 +1009,11 @@ async function klasseLoeschen() {
 
 /* ---------- Gästelink kopieren ---------- */
 
-function linkKopieren() {
+function linkKopieren(text, rueckmeldungsfeld) {
   if (!gewaehlteKlasse) return;
-  const text = Hilfe.gastLink(gewaehlteKlasse.code);
 
   function rueckmeldung(erfolg) {
-    const feld = el("kopiert-text");
+    const feld = el(rueckmeldungsfeld);
     feld.textContent = erfolg ? "Kopiert" : "Kopieren nicht möglich, bitte von Hand markieren.";
     if (kopiertTimer) clearTimeout(kopiertTimer);
     kopiertTimer = setTimeout(() => { feld.textContent = ""; }, 2000);
@@ -1014,9 +1088,17 @@ el("btn-bearbeiten").addEventListener("click", () => {
 el("btn-abbrechen").addEventListener("click", formularSchliessen);
 el("detail-formular").addEventListener("submit", formularSpeichern);
 el("btn-loeschen").addEventListener("click", klasseLoeschen);
-el("btn-kopieren").addEventListener("click", linkKopieren);
+el("btn-kopieren").addEventListener("click", () => {
+  linkKopieren(Hilfe.gastLink(gewaehlteKlasse && gewaehlteKlasse.code), "kopiert-text");
+});
+el("btn-kursblatt-kopieren").addEventListener("click", () => {
+  linkKopieren(Hilfe.kursblattLink(gewaehlteKlasse && gewaehlteKlasse.code), "kopiert-kursblatt");
+});
 el("btn-kursblatt").addEventListener("click", () => blattOeffnen("kursblatt.html"));
 el("btn-menueblatt").addEventListener("click", () => blattOeffnen("menueblatt.html"));
+el("btn-termine").addEventListener("click", () => {
+  window.open("termine.html" + (istMock ? "?mock=1" : ""), "_blank");
+});
 el("btn-abmelden").addEventListener("click", () => Anmeldung.abmelden());
 el("btn-erneut").addEventListener("click", () => location.reload());
 

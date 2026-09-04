@@ -10,17 +10,20 @@ Diese Anleitung zeigt Ihnen Schritt für Schritt, was Sie am Empfang dafür tun.
 Für jeden Kurs, der bei uns zu Mittag isst, legen Sie in der Verwaltung eine «Klasse» an.
 Beim Speichern entsteht automatisch ein achtstelliger Zugangscode, zum Beispiel `M2VJ8KWS`.
 Aus diesem Code entstehen ein Gästelink und ein QR-Code, die Sie dem Kurs weitergeben.
-Die Teilnehmenden wählen am Kurstag mit dem Handy ihre Vorspeise und ihren Hauptgang.
+Die Teilnehmenden wählen am Kurstag mit dem Handy ihre Vorspeise und ihren Hauptgang, **bis 10:00 Uhr**.
 Am Kurstag drucken Sie das Menüblatt mit allen Bestellungen aus und geben es der Küche.
 
-Es gibt vier Seiten. Die erste brauchen Sie täglich, die anderen öffnen sich aus der Verwaltung heraus von selbst.
+Es gibt fünf Seiten. Die erste brauchen Sie täglich, die anderen öffnen sich aus der Verwaltung heraus von selbst.
 
 | Seite | Adresse | Für wen |
 |---|---|---|
 | Verwaltung | `https://menue.campus-sursee.ch/admin.html` | Réception |
 | Gästeseite | `https://menue.campus-sursee.ch/?klasse=CODE` | Teilnehmende |
-| Kursblatt zum Aushängen | `https://menue.campus-sursee.ch/kursblatt.html?klasse=CODE` | Réception, zum Drucken |
+| Kursblatt zum Aushängen | `https://menue.campus-sursee.ch/kursblatt.html?klasse=CODE` | Réception zum Drucken, **darf auch der Kursleitung geschickt werden** |
+| Alle Termine | `https://menue.campus-sursee.ch/termine.html` | Réception und Restaurant |
 | Menüblatt für die Küche | `https://menue.campus-sursee.ch/menueblatt.html?klasse=CODE` | Réception, zum Drucken |
+
+**Die 10-Uhr-Regel.** Am Kurstag können die Teilnehmenden bis 10:00 Uhr wählen und ihre Wahl beliebig oft ändern. Ab 10:00 Uhr ist Schluss: Wer dann etwas ändern oder nachträglich bestellen will, wird auf der Seite an die Réception verwiesen. Sie tragen den Fall danach von Hand auf dem ausgedruckten Menüblatt nach und melden ihn der Küche. Das ist derselbe Ablauf wie früher mit dem Papierblatt.
 
 ---
 
@@ -35,7 +38,7 @@ Solange die Anmeldung läuft oder scheitert, sehen Sie stattdessen die Meldung �
 
 Die Verwaltung ist in zwei Spalten aufgeteilt:
 
-- links «Aktuelle Klassen» mit dem Suchfeld «Suchen: Titel, Firma oder Code» und den Knöpfen «Vergangene anzeigen» und «Neue Klasse»
+- links «Aktuelle Klassen» mit dem Suchfeld «Suchen: Titel, Firma oder Code» und den Knöpfen «Vergangene anzeigen», «Neue Klasse» und «Alle Termine»
 - rechts «Details» zur ausgewählten Klasse
 
 Solange Sie nichts angeklickt haben, steht rechts nur: «Links eine Klasse auswählen, um Bestellungen und Gästelink zu sehen.»
@@ -56,9 +59,15 @@ Legen Sie pro Kurs und pro Essenstag eine Klasse an. Isst derselbe Kurs an drei 
 Den Zugangscode müssen Sie nicht eingeben. Er entsteht beim Speichern automatisch und besteht aus acht Zeichen ohne die verwechselbaren Zeichen 0, O, 1 und I.
 
 Nach dem Speichern ist die neue Klasse links ausgewählt und rechts sehen Sie sofort ihre Details:
-Titel, Firma, Datum, «Mittagessen um … Uhr», die Marke «Bestellung offen», den Gästelink und die Zählerleiste.
+Titel, Firma, Datum, «Mittagessen um … Uhr», die Marke «Bestellung offen», die beiden Links und die Zählerleiste.
 
 > Fehlt der Titel, erscheint beim Speichern der rote Hinweis «Bitte einen Titel eingeben.». Ergänzen Sie den Titel und speichern Sie nochmals.
+
+**Wer hat die Klasse angelegt?** Unter der Marke «Bestellung offen» steht eine sehr kleine graue Zeile, zum Beispiel:
+
+> Erstellt 29.08.2026, 09:20 von Vreni Bühler · zuletzt geändert 02.09.2026, 14:20 von Martin Kaufmann
+
+So ist nachvollziehbar, wer den Kurs erfasst und wer ihn zuletzt angefasst hat. Sie müssen dafür nichts eintragen, das System führt es von selbst mit. Wurde seit dem Anlegen nichts geändert, steht nur der erste Teil da. Bei Klassen aus der Zeit vor dieser Änderung kann die Zeile knapper ausfallen oder ganz fehlen.
 
 ---
 
@@ -68,10 +77,18 @@ Sie haben zwei Wege. Sie dürfen auch beide gleichzeitig benutzen.
 
 ### Weg A: Link verschicken
 
+In den Details stehen **zwei** Links untereinander, jeder mit seinem eigenen Kopierknopf:
+
+| Zeile | Link | Wofür |
+|---|---|---|
+| **Gäste** | `https://menue.campus-sursee.ch/?klasse=M2VJ8KWS` | führt direkt ins Bestellformular. Für die Teilnehmenden |
+| **Kursblatt** | `https://menue.campus-sursee.ch/kursblatt.html?klasse=M2VJ8KWS` | zeigt das Blatt mit QR-Code zum Selberausdrucken. Für die Kursleitung oder Referentinnen und Referenten |
+
 1. Wählen Sie die Klasse links in der Liste aus.
-2. Rechts steht der Gästelink, zum Beispiel `https://menue.campus-sursee.ch/?klasse=M2VJ8KWS`.
-3. Klicken Sie auf «Link kopieren». Daneben erscheint kurz das Wort «Kopiert».
-4. Fügen Sie den Link in ein E-Mail an die Kursleitung ein, mit Tastenkombination Strg + V.
+2. Klicken Sie auf «Link kopieren» für den Gästelink oder auf «Kursblatt-Link kopieren» für das Kursblatt. Daneben erscheint kurz das Wort «Kopiert».
+3. Fügen Sie den Link in ein E-Mail ein, mit Tastenkombination Strg + V.
+
+**Den Kursblatt-Link dürfen Sie bedenkenlos nach aussen geben.** Er verlangt keine Anmeldung. Wer ihn öffnet, sieht dasselbe Blatt, das Sie auch drucken würden: Kursname, Firma, Datum, Essenszeit und den QR-Code. Referentinnen und Referenten können es damit selbst ausdrucken und im Kursraum aufhängen, ohne dass Sie ein Papier hinschicken müssen. Preisgegeben wird dabei nichts, was nicht ohnehin auf dem Aushang stünde, und der Link funktioniert nur mit dem achtstelligen Code dieser einen Klasse.
 
 Klappt das Kopieren einmal nicht, meldet die Seite «Kopieren nicht möglich, bitte von Hand markieren.». Markieren Sie den Link dann mit der Maus und kopieren Sie ihn mit Strg + C.
 
@@ -85,7 +102,7 @@ Klappt das Kopieren einmal nicht, meldet die Seite «Kopieren nicht möglich, bi
 Auf dem Blatt steht bereits alles, was die Teilnehmenden wissen müssen:
 
 > «Scannen Sie den QR-Code mit der Handykamera und wählen Sie Ihr Menü. Die Wahl ist nur am Tag des Mittagessens möglich.»
-> «Bitte wählen Sie bis 10:00 Uhr. Danke!»
+> «Bitte wählen Sie bis 10:00 Uhr. Danach sind Änderungen nur noch über die Réception möglich.»
 
 **Was ist der QR-Code?** Ein QR-Code ist das schwarzweisse Quadrat auf dem Blatt. Es enthält nichts anderes als den Gästelink dieser einen Klasse. Wer die Handykamera darauf richtet, bekommt den Link als antippbaren Hinweis auf den Bildschirm und landet mit einem Fingertipp direkt auf der richtigen Seite. Niemand muss etwas abtippen und niemand braucht eine App. Jede Klasse hat ihren eigenen QR-Code, deshalb dürfen Sie Blätter von verschiedenen Kursen nicht vertauschen.
 
@@ -93,7 +110,27 @@ Das Kursblatt können Sie ruhig schon Tage im Voraus drucken. Es funktioniert f�
 
 ---
 
-## 5. Am Kurstag
+## 5. Alle Termine auf einen Blick
+
+Die Verwaltung zeigt links immer nur eine Klasse pro Zeile. Für die Frage «Was kommt in den nächsten Wochen auf uns zu?» gibt es eine eigene Seite.
+
+1. Klicken Sie links auf **«Alle Termine»**. Es öffnet sich ein neuer Tab.
+2. Sie sehen zuoberst vier Zahlen für den ganzen gezeigten Zeitraum: «Tage», «Kurse», «Bestellungen» und «Menü 1 / Menü 2».
+3. Darunter folgt ein Block pro Datum, der nächste zuoberst. Der heutige Tag ist orange mit «heute» angeschrieben.
+4. In jedem Block steht eine Zeile pro Kurs: Essenszeit, Kursname, Firma, Anzahl Bestellungen sowie die Aufteilung auf Menü 1 und Menü 2.
+
+Nützlich dabei:
+
+- **Kurse ohne eine einzige Bestellung** stehen mit einer orangen `0` da. Dort lohnt es sich nachzufassen, meist ist der Link nicht angekommen.
+- Mit **«Vergangene anzeigen»** wechseln Sie zu den zurückliegenden Terminen, mit demselben Knopf wieder zurück.
+- **«Aktualisieren»** holt den neuesten Stand, ohne die Seite neu zu laden.
+- **«Liste drucken»** ergibt einen sauberen A4-Ausdruck ohne Knöpfe. Das ist die Vorschau, die das Restaurant für die Küchenplanung braucht.
+
+Diese Seite ändert nichts. Sie liest nur, Sie können dort also nichts kaputt machen.
+
+---
+
+## 6. Am Kurstag
 
 ### Bestellungen kontrollieren
 
@@ -127,7 +164,7 @@ Steht statt der Menükarte der Satz «Die Tagesmenüs sind zurzeit nicht abrufba
 
 ---
 
-## 6. Klasse ändern oder löschen
+## 7. Klasse ändern oder löschen
 
 ### Ändern
 
@@ -137,6 +174,8 @@ Steht statt der Menükarte der Satz «Die Tagesmenüs sind zurzeit nicht abrufba
 4. Klicken Sie auf «Änderungen speichern» oder auf «Abbrechen».
 
 Zum Status: Steht eine Klasse auf «offen», können die Teilnehmenden wählen, und in den Details steht die orange Marke «Bestellung offen». Stellen Sie den Status auf «geschlossen», wenn keine weiteren Bestellungen mehr eingehen sollen, zum Beispiel nachdem Sie das Menüblatt gedruckt haben. Wer den Link danach öffnet, sieht «Bestellung geschlossen» und den Hinweis, sich bei der Réception zu melden.
+
+> Den Status müssen Sie nicht mehr eigens umstellen, nur damit nach 10:00 Uhr Ruhe ist. Das erledigt die 10-Uhr-Regel von selbst. Der Status bleibt aber nützlich, wenn eine Klasse schon **vor** 10:00 Uhr dicht sein soll.
 
 Den Zugangscode können Sie nicht ändern. Ein bereits verteilter Link oder QR-Code bleibt also gültig, auch wenn Sie Titel, Firma, Datum oder Essenszeit noch anpassen.
 
@@ -152,7 +191,7 @@ Im Alltag müssen Sie gar nichts löschen. Vergangene Klassen verschwinden von s
 
 ---
 
-## 7. Was die Teilnehmenden sehen
+## 8. Was die Teilnehmenden sehen
 
 Wer den Link öffnet oder den QR-Code scannt, kommt auf die Seite «Menüwahl Mittagessen». Zuoberst stehen Kursname, Datum und «Mittagessen um … Uhr». Darunter das Formular:
 
@@ -166,20 +205,41 @@ Fehlt etwas, erscheint oben im Formular die Meldung «Bitte ergänzen:» mit den
 
 Nach dem Absenden erscheint eine Bestätigung: «Danke, Anna!», darunter «Deine Wahl ist gespeichert.» und eine Zusammenfassung mit Name, Vorspeise, Hauptgang und Bemerkung.
 
-Zwei Punkte, die am Empfang immer wieder gefragt werden:
+Drei Punkte, die am Empfang immer wieder gefragt werden:
 
 - **Die Wahl ist nur am Tag des Mittagessens möglich.** Öffnet jemand den Link vorher, erscheint «Menüwahl noch nicht möglich» mit dem Satz, an welchem Tag das Mittagessen stattfindet, und der Bitte, den Link an diesem Tag nochmals zu öffnen. Das ist kein Fehler und Sie müssen nichts unternehmen.
-- **Die Wahl lässt sich nachträglich ändern.** Auf der Bestätigungsseite gibt es den Knopf «Auswahl bearbeiten». Damit kommt man zurück ins Formular, wo bereits alles ausgefüllt ist. Der Knopf unten heisst dann «Änderung speichern». Das funktioniert auf demselben Handy und solange die Klasse auf «offen» steht.
+- **Die Wahl lässt sich bis 10:00 Uhr ändern.** Auf der Bestätigungsseite gibt es den Knopf «Auswahl bearbeiten». Damit kommt man zurück ins Formular, wo bereits alles ausgefüllt ist. Der Knopf unten heisst dann «Änderung speichern». Das funktioniert auf demselben Handy und solange die Klasse auf «offen» steht.
+- **Ab 10:00 Uhr ist die Wahl zu.** Dann verschwindet der Knopf «Auswahl bearbeiten». An seiner Stelle steht:
+
+  > **Änderungen nicht mehr möglich**
+  > Änderungen an der Menüwahl sind nur bis 10:00 Uhr möglich. Bitte wende dich für eine Änderung an die Réception.
+
+  Die bereits abgegebene Bestellung bleibt sichtbar, sie ist nur nicht mehr änderbar. Wer bis dahin gar nichts bestellt hat, sieht statt des Formulars:
+
+  > **Menüwahl geschlossen**
+  > Die Menüwahl ist nur bis 10:00 Uhr möglich.
+  > Bitte melde dich bei der Réception, sie nimmt deine Bestellung entgegen.
+
+  Beides ist so gewollt und kein Fehler. Melden sich Teilnehmende deswegen bei Ihnen, nehmen Sie die Bestellung oder die Änderung entgegen und tragen sie von Hand auf dem ausgedruckten Menüblatt nach.
 
 ---
 
-## 8. Häufige Fragen
+## 9. Häufige Fragen
 
 **Ein Teilnehmer hat den Link zu früh geöffnet und sieht «Menüwahl noch nicht möglich».**
 Alles in Ordnung. Die Menüwahl öffnet erst am Tag des Mittagessens. Er soll denselben Link an diesem Tag nochmals öffnen, am besten am Morgen. Prüfen Sie im Zweifel in der Verwaltung, ob beim «Datum» der Klasse wirklich der richtige Tag steht.
 
 **Jemand hat sich vertippt, zum Beispiel beim Namen oder beim Menü.**
-Er soll auf demselben Handy den Link nochmals öffnen, auf «Auswahl bearbeiten» klicken, korrigieren und auf «Änderung speichern» klicken. Klappt das nicht mehr, zum Beispiel weil das Handy gewechselt hat, korrigieren Sie es von Hand auf dem ausgedruckten Menüblatt und melden es der Küche.
+Vor 10:00 Uhr: Er soll auf demselben Handy den Link nochmals öffnen, auf «Auswahl bearbeiten» klicken, korrigieren und auf «Änderung speichern» klicken. Klappt das nicht mehr, zum Beispiel weil das Handy gewechselt hat oder weil es bereits nach 10:00 Uhr ist, korrigieren Sie es von Hand auf dem ausgedruckten Menüblatt und melden es der Küche.
+
+**Jemand meldet sich um 10:30 Uhr und hat noch gar nicht bestellt.**
+Das ist der vorgesehene Weg, nicht eine Störung. Fragen Sie nach Vorname, Nachname, Vorspeise, Hauptgang und allfälligen Allergien und schreiben Sie es von Hand auf das ausgedruckte Menüblatt. Melden Sie es der Küche, besonders wenn eine Allergie dabei ist. In der Verwaltung lässt sich eine Bestellung nicht nacherfassen; das Papier ist hier der schnellere und verlässlichere Weg.
+
+**Kann ich die 10-Uhr-Grenze für eine einzelne Klasse verschieben?**
+Nein. Sie gilt für alle Kurse gleich. Soll die Zeit grundsätzlich eine andere sein, ist das eine Änderung an der Webseite; melden Sie den Wunsch den ICT-Services.
+
+**Ich möchte, dass die Kursleitung das Blatt selbst ausdruckt.**
+Schicken Sie ihr den Kursblatt-Link, siehe Abschnitt 4, Weg A. Sie braucht dafür kein Konto und keine Anmeldung.
 
 **Eine Klasse taucht in der Liste nicht auf.**
 Drei Gründe kommen infrage:
@@ -200,14 +260,17 @@ Zugriff erhalten die Mitarbeitenden der Réception, freigeschaltet durch die ICT
 Ja. Eine Klasse gilt für genau einen Essenstag.
 
 **Kann ich das Kursblatt schon eine Woche vorher drucken?**
-Ja. Der QR-Code funktioniert unabhängig vom Datum. Nur wählen können die Teilnehmenden erst am Kurstag.
+Ja. Der QR-Code funktioniert unabhängig vom Datum. Nur wählen können die Teilnehmenden erst am Kurstag, und dann bis 10:00 Uhr.
+
+**Wie viele Kurse essen nächste Woche bei uns?**
+Klicken Sie in der Verwaltung auf «Alle Termine», siehe Abschnitt 5. Dort steht jeder Tag mit seinen Kursen und den bisherigen Bestellungen, und die Liste lässt sich für das Restaurant ausdrucken.
 
 **Kann jemand ohne Link zufällig bestellen?**
 Praktisch nicht. Der Zugangscode hat acht Zeichen und ist zufällig. Ohne den passenden Link erscheint der Hinweis «Ungültiger Link».
 
 ---
 
-## 9. Wenn etwas nicht geht
+## 10. Wenn etwas nicht geht
 
 Probieren Sie zuerst diese vier Punkte, in dieser Reihenfolge:
 

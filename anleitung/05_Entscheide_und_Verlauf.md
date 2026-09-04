@@ -1,6 +1,6 @@
 # Entscheide und Verlauf
 
-**Stand:** 28.08.2026
+**Stand:** 04.09.2026
 
 Warum das System so gebaut ist, wie es gebaut ist. Dieses Dokument beantwortet die Fragen, die sich sonst in einem Jahr niemand mehr beantworten kann.
 
@@ -48,9 +48,59 @@ Ein vierter Flow «API Bestellungen laden» war geplant und wurde **nie gebaut**
 
 ---
 
-## 5. Warum das Kursblatt über Graph läuft und nicht über Flow B
+## 5. Warum das Kursblatt zuerst über Graph lief und jetzt doch über Flow B
 
-Kursblätter werden **im Voraus** gedruckt, oft Tage vor dem Kurs. Flow B ist auf den laufenden Tag ausgerichtet, weil er die Tagesmenüs mitliefert. Über Graph stimmen die Klassendaten für jedes Datum. Menütexte braucht das Kursblatt ohnehin keine.
+**Bis 04.09.2026:** Kursblätter werden **im Voraus** gedruckt, oft Tage vor dem Kurs. Flow B galt als auf den laufenden Tag ausgerichtet, weil er die Tagesmenüs mitliefert. Über Graph stimmten die Klassendaten sicher für jedes Datum. Menütexte braucht das Kursblatt ohnehin keine. Der Preis war die Anmeldung: Das Kursblatt liess sich nur intern öffnen.
+
+**Seit 04.09.2026 läuft es über Flow B, ohne Anmeldung.** Auslöser war der Wunsch, den Kursblatt-Link auch der Kursleitung schicken zu können, damit diese das Blatt selbst ausdruckt. Eine Weiterleitung auf `login.microsoftonline.com` ist für Personen ohne Konto im Mandanten eine Sackgasse.
+
+**Die Annahme von damals wurde nachgemessen, nicht geglaubt.** Ein Aufruf von Flow B mit der Testklasse `TEST1234` am 04.09.2026 lieferte `"datum":"2026-08-27"`, also einen vergangenen Kurstag mit korrekten Klassendaten. Flow B ist damit **nicht** auf den laufenden Tag beschränkt; er liefert jede Klasse mit ihrem eigenen Datum. Der ursprüngliche Einwand traf schlicht nicht zu.
+
+**Was preisgegeben wird:** Kursname, Firma, Datum und Essenszeit, und nur an jemanden, der den achtstelligen Code bereits kennt. Genau das steht ohnehin auf dem Aushang, und derselbe Code öffnet über die Gästeseite bereits mehr. Bestellungen liefert Flow B nicht, sie bleiben hinter der Anmeldung.
+
+**Der Weg über Graph blieb bestehen**, als Rückfall für den Fall, dass Flow B nicht antwortet. Er wird aber nie von selbst eingeschlagen, sondern nur über den Knopf «Mit Konto anmelden» auf der Fehlerkarte. Deshalb muss die Umleitungsadresse für `kursblatt.html` in der App-Registrierung eingetragen bleiben, obwohl die Seite im Normalfall keine Anmeldung mehr braucht.
+
+---
+
+## 5a. Warum die 10-Uhr-Frist im Browser geprüft wird und nicht im Flow
+
+Seit dem 04.09.2026 endet die Menüwahl am Kurstag um 10:00 Uhr. Das bildet nach, was auf dem Papierblatt stand und was die Küche zum Planen braucht.
+
+Geprüft wird die Frist in `index.html`, also im Browser der Teilnehmenden. Flow C nimmt eine Bestellung weiterhin an, wenn jemand ihn von Hand aufruft. Das ist bewusst so:
+
+- **Der Zweck ist Verlässlichkeit im Ablauf, nicht Abwehr von Missbrauch.** Es geht darum, dass die Küche ab 10:00 Uhr eine feste Zahl hat und niemand versehentlich noch etwas ändert.
+- **Wer den Code kennt, könnte ohnehin bestellen.** Das ist seit Beginn so entschieden, siehe Abschnitt 2. Eine harte Sperre in Flow C würde daran nichts ändern, sondern nur eine andere Lücke schliessen als die, die offen ist.
+- **Eine Änderung an Flow C ist teuer und heikel.** Der Power-Automate-Designer verliert Ausdrücke still, siehe `03_Technische_Dokumentation.md`, Abschnitt 10. Für einen Nutzen, der hier gering ist, lohnt sich dieses Risiko nicht.
+
+Soll die Frist trotzdem hart gelten, steht der nötige Eingriff in Flow C in `03_Technische_Dokumentation.md`, Abschnitt 7.1. Die Gästeseite ist darauf vorbereitet: Antwortet Flow C mit HTTP 403, zeigt sie bereits die Karte «Bestellung geschlossen».
+
+---
+
+## 5b. Warum die Spur «erstellt von / geändert von» ohne neue Spalten auskommt
+
+Die Verwaltung zeigt seit dem 04.09.2026 unter jedem Klassenkopf eine sehr kleine Zeile mit Zeitpunkt und Person des Anlegens und der letzten Änderung.
+
+Naheliegend wäre gewesen, dafür vier Spalten in der Liste «Klassen» anzulegen und sie beim Speichern mitzuschreiben. Dagegen sprach dreierlei:
+
+1. **SharePoint führt diese Angaben ohnehin mit**, für jeden Listeneintrag, ohne Zutun. Graph liefert sie als `createdBy`, `createdDateTime`, `lastModifiedBy` und `lastModifiedDateTime`.
+2. **Keine Migration.** Bestehende Klassen hätten bei eigenen Spalten leere Werte gehabt. So stimmen sie rückwirkend.
+3. **Nicht fälschbar.** Selbstgeschriebene Spalten liessen sich über die Oberfläche beliebig setzen; die Angaben von SharePoint nicht.
+
+Der Preis ist ein grösseres `$select` auf jeder Abfrage. Sollte Graph das je verweigern, greift der bestehende Rückfall auf die knappe Auswahl: Die Seiten laden weiter, nur die Spur fehlt dann.
+
+---
+
+## 5c. Warum «Alle Termine» eine eigene Seite ist
+
+Das Restaurant wollte eine Vorschau auf die anstehenden Termine. Die Verwaltung zeigt links eine Klasse pro Zeile, absteigend nach Datum, ohne Zusammenzug pro Tag; für diese Frage ist das die falsche Form.
+
+Eine zusätzliche Ansicht **innerhalb** von `admin.html` hätte eine Umleitungsadresse gespart. Dagegen sprach:
+
+- Die Seite soll sich **drucken und verlinken** lassen, damit sie in der Küche aushängen kann.
+- `admin.html` ist bereits die längste Datei des Projekts. Der Grundsatz «eine Seite, eine Aufgabe» hält die Dateien lesbar.
+- Die Terminübersicht **schreibt nichts**. Als eigene Seite ist auf einen Blick klar, dass dort nichts kaputtgehen kann.
+
+Der Preis ist ein zusätzlicher Eintrag in der App-Registrierung: `https://menue.campus-sursee.ch/termine.html` muss als Umleitungsadresse hinterlegt sein, sonst scheitert dort die Anmeldung mit `AADSTS50011`.
 
 ---
 

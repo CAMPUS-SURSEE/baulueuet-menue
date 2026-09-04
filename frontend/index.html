@@ -169,6 +169,20 @@
     cursor: pointer;
   }
 
+  /* Nach dem Annahmeschluss steht hier der Hinweis auf die Réception,
+     an der Stelle, an der vorher der Knopf «Auswahl bearbeiten» stand. */
+  .frist-hinweis {
+    display: none;
+    margin-top: 28px;
+    border: 1px solid var(--linie);
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 0.88rem;
+    color: var(--grau);
+  }
+  .frist-hinweis b { display: block; color: var(--schwarz); font-weight: 600; margin-bottom: 4px; }
+
   .lade { text-align: center; padding: 72px 0; color: var(--grau); font-size: 0.9rem; }
   .spinner {
     width: 26px; height: 26px;
@@ -216,6 +230,14 @@
     <h2>Bestellung geschlossen</h2>
     <p id="geschlossen-text"></p>
     <p style="margin-top:10px">Bitte melde dich bei der Réception.</p>
+  </div>
+
+  <!-- Annahmeschluss vorbei, ohne bestehende Bestellung -->
+  <div id="ansicht-frist" class="karte status-karte" style="display:none">
+    <div class="symbol"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9.5"/><path d="M12 6.5V12l3.5 2.5"/></svg></div>
+    <h2>Menüwahl geschlossen</h2>
+    <p id="frist-text"></p>
+    <p style="margin-top:10px">Bitte melde dich bei der Réception, sie nimmt deine Bestellung entgegen.</p>
   </div>
 
   <!-- Falscher Tag -->
@@ -300,6 +322,10 @@
     <p>Deine Wahl ist gespeichert.</p>
     <div class="zusammenfassung" id="erfolg-zusammenfassung"></div>
     <button type="button" id="btn-bearbeiten">Auswahl bearbeiten</button>
+    <div class="frist-hinweis" id="erfolg-frist">
+      <b>Änderungen nicht mehr möglich</b>
+      <span id="erfolg-frist-text"></span>
+    </div>
   </div>
 
 </div>
@@ -310,6 +336,13 @@
 // ===== Konfiguration =====================================================
 const FLOW_KLASSE_URL     = "https://default2553fb745dcc40728bb5399d18f72a.f9.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/25/workflows/a1871aeb66df48378bc381039d6d0bee/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=b81V67dqbTZntfasDrX-Ijn64wRp0Fa6egLC8ZV3w-s";  // Flow B (GET), &code= wird angehängt
 const FLOW_BESTELLUNG_URL = "https://default2553fb745dcc40728bb5399d18f72a.f9.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/18/workflows/ce48abf2e1c04be68585defd725d2730/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=fq7lQjQT-OxVRAPWwfIiq-774SEaiFT8b8PqLDOA32U";  // Flow C (POST)
+
+/* Annahmeschluss: volle Stunde in Ortszeit. Bis dahin darf am Kurstag
+   gewählt und geändert werden, danach übernimmt die Réception.
+   Derselbe Wert steht als KONFIG.annahmeschluss in konfig.js für die
+   Admin-Seiten. Diese Seite lädt konfig.js bewusst nicht, weil sie ohne
+   Anmeldung auskommt; wird der Wert geändert, ist er dort mitzuziehen. */
+const ANNAHMESCHLUSS = 10;
 // =========================================================================
 
 const MOCK_DATEN = {
@@ -334,7 +367,7 @@ const mock = params.get("mock") === "1";
 const el = id => document.getElementById(id);
 
 function zeige(ansicht) {
-  ["laden", "fehler", "geschlossen", "falschertag", "formular", "erfolg"].forEach(a => {
+  ["laden", "fehler", "geschlossen", "frist", "falschertag", "formular", "erfolg"].forEach(a => {
     el("ansicht-" + a).style.display = (a === ansicht) ? "" : "none";
   });
 }
@@ -342,6 +375,56 @@ function zeige(ansicht) {
 function heuteIso() {
   const j = new Date();
   return j.getFullYear() + "-" + String(j.getMonth() + 1).padStart(2, "0") + "-" + String(j.getDate()).padStart(2, "0");
+}
+
+
+// ===== Annahmeschluss ====================================================
+/* Diese Prüfung läuft im Browser. Sie hält den normalen Weg sauber, ist aber
+   keine Sperre im Sinne der Sicherheit: Flow C nimmt eine Bestellung
+   weiterhin an, wenn jemand ihn von Hand aufruft. Wer das ausschliessen
+   will, baut dieselbe Bedingung in Flow C ein. */
+
+const ANNAHMESCHLUSS_TEXT = String(ANNAHMESCHLUSS).padStart(2, "0") + ":00";
+
+function annahmeschlussVorbei() {
+  // Im Mock-Modus lässt sich der Zustand von Hand herbeiführen, sonst wäre
+  // er nur vor beziehungsweise nach 10:00 Uhr zu sehen.
+  if (mock && params.get("spaet") === "1") return true;
+  if (mock && params.get("spaet") === "0") return false;
+  return new Date().getHours() >= ANNAHMESCHLUSS;
+}
+
+/* Millisekunden bis zum heutigen Annahmeschluss, negativ wenn vorbei. */
+function bisAnnahmeschluss() {
+  const jetzt = new Date();
+  const schluss = new Date(jetzt.getFullYear(), jetzt.getMonth(), jetzt.getDate(),
+                           ANNAHMESCHLUSS, 0, 0, 0);
+  return schluss.getTime() - jetzt.getTime();
+}
+
+let fristTimer = null;
+
+/* Wer die Seite um 09:58 öffnet, soll um 10:00 nicht weiter bearbeiten
+   können. Deshalb wird der Wechsel einmal eingeplant, statt dauernd zu
+   prüfen. */
+function fristUeberwachen() {
+  if (fristTimer) clearTimeout(fristTimer);
+  const rest = bisAnnahmeschluss();
+  if (rest <= 0) return;
+  fristTimer = setTimeout(fristEingetreten, rest + 1000);
+}
+
+function fristEingetreten() {
+  const gespeichert = ladeGespeichert();
+  if (gespeichert) zeigeErfolg(gespeichert);
+  else zeigeFrist();
+}
+
+function zeigeFrist() {
+  el("frist-text").textContent =
+    "Die Menüwahl ist nur bis " + ANNAHMESCHLUSS_TEXT + " Uhr möglich.";
+  window.scrollTo(0, 0);
+  zeige("frist");
 }
 
 function zeigeFehler(titel, text, retry) {
@@ -409,6 +492,17 @@ function zeigeErfolg(b) {
     zeile.appendChild(document.createTextNode(" " + wert));
     z.appendChild(zeile);
   });
+
+  /* Bis zum Annahmeschluss steht hier der Knopf «Auswahl bearbeiten»,
+     danach an seiner Stelle der Hinweis auf die Réception. */
+  const vorbei = annahmeschlussVorbei();
+  el("btn-bearbeiten").style.display = vorbei ? "none" : "";
+  el("erfolg-frist").style.display = vorbei ? "block" : "none";
+  el("erfolg-frist-text").textContent =
+    "Änderungen an der Menüwahl sind nur bis " + ANNAHMESCHLUSS_TEXT + " Uhr möglich. "
+    + "Bitte wende dich für eine Änderung an die Réception.";
+  if (!vorbei) fristUeberwachen();
+
   window.scrollTo(0, 0);
   zeige("erfolg");
 }
@@ -470,6 +564,13 @@ async function ladeKlasse() {
       zeigeErfolg(gespeichert);
       return;
     }
+    // Nichts bestellt und der Annahmeschluss ist vorbei: hier hilft nur noch
+    // die Réception.
+    if (annahmeschlussVorbei()) {
+      zeigeFrist();
+      return;
+    }
+    fristUeberwachen();
     zeige("formular");
   } catch (e) {
     zeigeFehler("Verbindungsfehler", "Das Menü konnte nicht geladen werden. Bitte prüfe deine Internetverbindung.", true);
@@ -482,6 +583,17 @@ el("formular").addEventListener("submit", async ev => {
   ev.preventDefault();
   const fehlerFeld = el("formular-fehler");
   fehlerFeld.style.display = "none";
+
+  /* Der Annahmeschluss kann eintreten, während das Formular offen liegt.
+     Deshalb wird er beim Absenden nochmals geprüft. */
+  if (annahmeschlussVorbei()) {
+    fehlerFeld.textContent = "Die Menüwahl ist seit " + ANNAHMESCHLUSS_TEXT
+      + " Uhr geschlossen. Bitte melde dich bei der Réception.";
+    fehlerFeld.style.display = "block";
+    el("btn-absenden").disabled = true;
+    window.scrollTo(0, 0);
+    return;
+  }
 
   const vorname = el("vorname").value.trim();
   const nachname = el("nachname").value.trim();
@@ -537,6 +649,11 @@ el("formular").addEventListener("submit", async ev => {
 });
 
 el("btn-bearbeiten").addEventListener("click", () => {
+  if (annahmeschlussVorbei()) {
+    // Kann eintreten, wenn die Seite über den Annahmeschluss hinaus offen lag.
+    fristEingetreten();
+    return;
+  }
   const knopf = el("btn-absenden");
   knopf.textContent = "Änderung speichern";
   window.scrollTo(0, 0);

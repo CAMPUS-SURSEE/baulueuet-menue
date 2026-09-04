@@ -1,6 +1,6 @@
 # Einrichtung und Veröffentlichung
 
-**Stand:** 28.08.2026
+**Stand:** 04.09.2026
 
 Dieses Dokument beschreibt, wie das System eingerichtet wird und wie eine Änderung live geht. Wer nur eine bestehende Installation betreut, findet die häufigen Fälle in `02_Betriebshandbuch_Support.md`.
 
@@ -53,14 +53,20 @@ Die Registrierung besteht bereits unter dem Namen **«Menuewahl BAULUUT Admin»*
 
 ```
 https://menue.campus-sursee.ch/admin.html
-https://menue.campus-sursee.ch/kursblatt.html
+https://menue.campus-sursee.ch/termine.html
 https://menue.campus-sursee.ch/menueblatt.html
+https://menue.campus-sursee.ch/kursblatt.html
 http://localhost:8123/admin.html
-http://localhost:8123/kursblatt.html
+http://localhost:8123/termine.html
 http://localhost:8123/menueblatt.html
+http://localhost:8123/kursblatt.html
 ```
 
-Die drei `localhost`-Adressen dienen dem lokalen Testen und können weggelassen werden, wenn nie lokal getestet wird.
+> **Seit dem 04.09.2026 neu: `termine.html`.** Diese Adresse muss ergänzt werden, sonst scheitert die Terminübersicht mit `AADSTS50011`. Das ist der einzige Schritt in Entra ID, den die Änderung vom 04.09.2026 verlangt.
+>
+> **`kursblatt.html` bleibt in der Liste**, obwohl das Kursblatt seit dem 04.09.2026 im Normalfall ohne Anmeldung lädt. Auf seiner Fehlerkarte gibt es den Knopf «Mit Konto anmelden» als Rückfall, wenn Flow B nicht antwortet; ohne den Eintrag scheitert dieser Weg.
+
+Die `localhost`-Adressen dienen dem lokalen Testen und können weggelassen werden, wenn nie lokal getestet wird.
 
 Jede Seite meldet sich auf ihrer eigenen Adresse an, daher die getrennten Einträge. Abfragezeichenfolgen wie `?klasse=CODE` gehören **nicht** dazu; MSAL merkt sich die vollständige Adresse selbst und kehrt am Ende dorthin zurück.
 
@@ -139,8 +145,11 @@ Seit der Anbindung an Git ist dieses Repository der massgebende Stand: Was in `f
 - [ ] `https://menue.campus-sursee.ch/admin.html` öffnet sich und die Anmeldung gelingt
       *Dieser eine Schritt belegt auf einmal, dass Umleitungsadresse, Graph-Berechtigung und Benutzerzuweisung stimmen.*
 - [ ] Testklasse angelegt, Zugangscode wurde automatisch erzeugt
+- [ ] In den Details der Testklasse steht die kleine Zeile «Erstellt … von …» mit dem eigenen Namen
 - [ ] Gästelink kopiert, Gästeseite zeigt die Klasse und die Tagesmenüs
 - [ ] Eine Testbestellung abgegeben, sie erscheint in der Verwaltung
+- [ ] **Kursblatt-Link in einem privaten Fenster geöffnet**, ohne Anmeldung: Das Blatt erscheint samt QR-Code
+- [ ] `termine.html` öffnet sich, die Testklasse steht unter ihrem Datum
 - [ ] Kursblatt gedruckt, **QR-Code mit einer echten Handykamera gescannt** und der Link führt zur richtigen Klasse
 - [ ] Menüblatt gedruckt, Namen, Vorspeisen, Hauptgänge und Bemerkungen stimmen
 - [ ] Ein Konto **ohne** Zuweisung ausprobiert, die Anmeldung wird abgelehnt
@@ -155,7 +164,7 @@ Die Seiten laden zwei Bibliotheken von `cdn.jsdelivr.net`, festgenagelt auf eine
 
 | Bibliothek | Version | Eingebunden in |
 |---|---|---|
-| `@azure/msal-browser` | 4.30.0 | `admin.html`, `kursblatt.html`, `menueblatt.html` |
+| `@azure/msal-browser` | 4.30.0 | `admin.html`, `termine.html`, `menueblatt.html`, `kursblatt.html` |
 | `qrcode-generator` | 1.4.4 | `kursblatt.html` |
 
 Vorgehen beim Anheben:

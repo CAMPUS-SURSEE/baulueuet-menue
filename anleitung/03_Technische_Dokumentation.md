@@ -1,6 +1,6 @@
 # Technische Dokumentation: Menüwahl Restaurant BAULÜÜT
 
-**Stand:** 28.08.2026
+**Stand:** 04.09.2026
 **Gilt für:** die statische Webseite auf `menue.campus-sursee.ch` samt Anbindung an SharePoint, Entra ID und Power Automate
 
 ---
@@ -14,6 +14,7 @@
 5. [Anmeldung und Berechtigungen](#5-anmeldung-und-berechtigungen)
 6. [Zugriff auf die Daten über Microsoft Graph](#6-zugriff-auf-die-daten-über-microsoft-graph)
 7. [Power Automate Flows](#7-power-automate-flows)
+7.1 [Annahmeschluss 10:00 Uhr](#71-annahmeschluss-1000-uhr)
 8. [Eingebundene Bibliotheken](#8-eingebundene-bibliotheken)
 9. [Sicherheitsheader und Content Security Policy](#9-sicherheitsheader-und-content-security-policy)
 10. [Fallstricke, die Zeit kosten](#10-fallstricke-die-zeit-kosten)
@@ -27,9 +28,11 @@
 Kursteilnehmende am Campus Sursee wählen ihr Mittagsmenü im Restaurant BAULÜÜT über eine Webseite statt auf einem Papierblatt.
 
 1. Die Réception legt in der Verwaltung eine «Klasse» an: Kursname, Firma, Datum, Essenszeit. Ein achtstelliger Zugangscode entsteht automatisch.
-2. Die Teilnehmenden erhalten den Gästelink oder ein Blatt mit QR-Code.
-3. Am Tag des Mittagessens wählen sie Vorspeise und Hauptgang, geben Namen und allfällige Allergien an.
+2. Die Teilnehmenden erhalten den Gästelink oder ein Blatt mit QR-Code. Den Link auf das Kursblatt kann die Réception auch der Kursleitung schicken, er verlangt keine Anmeldung.
+3. Am Tag des Mittagessens wählen sie **bis 10:00 Uhr** Vorspeise und Hauptgang, geben Namen und allfällige Allergien an. Danach ist weder Bestellen noch Ändern möglich, beides läuft über die Réception.
 4. Die Küche erhält das gedruckte Menüblatt mit allen Bestellungen.
+
+Wie viele Kurse an welchem Tag anstehen, zeigt `termine.html` als Vorschau für das Restaurant.
 
 ---
 
@@ -38,9 +41,10 @@ Kursteilnehmende am Campus Sursee wählen ihr Mittagsmenü im Restaurant BAULÜ�
 Das ganze System ist eine **statische Webseite**. Es gibt keinen eigenen Server und keine eigene Datenbank.
 
 ```
-Gäste (kein Konto im Mandanten)      Réception (Microsoft-365-Konto)
+Gäste und Kursleitung                Réception (Microsoft-365-Konto)
+(kein Konto im Mandanten)
             |                                     |
-       index.html            admin.html / kursblatt.html / menueblatt.html
+  index.html + kursblatt.html    admin.html / termine.html / menueblatt.html
             |                                     |
             | anonym                              | Entra ID, Anmeldung per MSAL
             v                                     v
@@ -51,6 +55,8 @@ Gäste (kein Konto im Mandanten)      Réception (Microsoft-365-Konto)
 
     Flow B holt zusätzlich die Tagesmenüs von Lunchgate.
     menueblatt.html ruft Flow B nur noch dafür auf.
+    kursblatt.html hält den Weg über Graph als Rückfall bereit, geht ihn
+    aber nur auf Knopfdruck.
 ```
 
 **Warum diese Zweiteilung:** Kursteilnehmende haben kein Konto im Mandanten. Ihre Seite muss ohne Anmeldung funktionieren, deshalb läuft sie über zwei anonym erreichbare Power-Automate-Flows. Die Réception hat ein Konto, dort ist eine echte Anmeldung möglich und richtig; diese Seiten sprechen direkt mit SharePoint.
@@ -68,8 +74,9 @@ Alles im Ordner `frontend\` ist genau das, was auf Netlify liegt.
 | Datei | Aufgabe | Anmeldung nötig |
 |---|---|---|
 | `index.html` | Gästeseite, Menüwahl | nein |
+| `kursblatt.html` | Aushang mit QR-Code, Aufruf mit `?klasse=CODE` | nein, siehe Abschnitt 6.1 |
 | `admin.html` | Verwaltung der Klassen | ja |
-| `kursblatt.html` | Aushang mit QR-Code, Aufruf mit `?klasse=CODE` | ja |
+| `termine.html` | alle Kurstermine nach Datum, Vorschau fürs Restaurant | ja |
 | `menueblatt.html` | Bestellübersicht für die Küche, Aufruf mit `?klasse=CODE` | ja |
 | `konfig.js` | sämtliche Kennungen und Adressen an einer Stelle | |
 | `auth.js` | Anmeldung an Entra ID, dünner Aufsatz auf MSAL | |
@@ -100,6 +107,17 @@ SharePoint-Site **«Reception»**: `https://campussursee.sharepoint.com/sites/ho
 | `Status` | Choice | `offen` oder `geschlossen` |
 | `Suppe`, `Salat`, `Menu1`, `Menu2`, `Dessert` | Text bzw. Notiz | Rückfallwerte, falls Lunchgate nichts liefert |
 | `Menu1Preis`, `Menu2Preis`, `Bemerkung` | | derzeit von der Webseite nicht benutzt |
+
+**Nachvollziehbarkeit ohne eigene Spalten.** Wer eine Klasse angelegt und wer sie zuletzt geändert hat, führt SharePoint für jeden Listeneintrag von selbst mit. Die Verwaltung liest diese Angaben über die Eigenschaften des Listenelements, nicht über Listenspalten:
+
+| Graph-Eigenschaft | Zeigt |
+|---|---|
+| `createdDateTime` | Zeitpunkt des Anlegens |
+| `createdBy.user.displayName` | wer angelegt hat |
+| `lastModifiedDateTime` | Zeitpunkt der letzten Änderung |
+| `lastModifiedBy.user.displayName` | wer zuletzt geändert hat |
+
+Das ist bewusst so gewählt: Es braucht keine neue Spalte, keine Migration, und die Werte lassen sich über die Oberfläche nicht fälschen. Wird eine Klasse durch einen Flow angefasst, steht dort dessen Name statt einer Person. In `graph.js` heissen die Felder `erstellt`, `erstelltVon`, `geaendert` und `geaendertVon`; `admin.html` zeigt sie als kleine graue Zeile unter dem Klassenkopf.
 
 ### Liste «Bestellungen»
 
@@ -138,7 +156,7 @@ Punkte, die man kennen muss:
 
 - **Plattform muss «Single-Page-Anwendung» sein**, nicht «Web». Nur dort erlaubt Microsoft den Tokentausch direkt aus dem Browser. Bei falscher Einstellung kommt `AADSTS9002326`.
 - **Kein Clientgeheimnis.** Single-Page-Anwendungen haben keines und brauchen keines. Client-ID und Mandanten-ID stehen im öffentlich lesbaren Quelltext; das sind Kennungen, keine Geheimnisse.
-- **Je Seite eine eigene Umleitungsadresse**, weil sich jede Seite auf ihrer eigenen Adresse anmeldet. Ohne Abfragezeichenfolge: MSAL merkt sich die vollständige Adresse selbst und kehrt am Ende samt `?klasse=CODE` dorthin zurück.
+- **Je Seite eine eigene Umleitungsadresse**, weil sich jede Seite auf ihrer eigenen Adresse anmeldet. Ohne Abfragezeichenfolge: MSAL merkt sich die vollständige Adresse selbst und kehrt am Ende samt `?klasse=CODE` dorthin zurück. Nötig sind `admin.html`, `termine.html`, `menueblatt.html` und weiterhin `kursblatt.html` für dessen Rückfallweg.
 - **Berechtigung:** delegiert `Sites.ReadWrite.All` und `User.Read`, mit Administratorzustimmung. *Delegiert* heisst, das Token kann nur das, was die angemeldete Person in SharePoint ohnehin darf. Wer keinen Zugriff auf die Site «Reception» hat, bekommt über diese Seiten auch keinen.
 - **Der eigentliche Türsteher** ist nicht die Anmeldung, sondern die Unternehmensanwendung: «Zuweisung erforderlich = Ja», danach nur die Réception zuweisen. Ohne Entra ID P1 lassen sich nur einzelne Personen zuweisen, keine Gruppen. Das muss bei Personalwechsel von Hand nachgeführt werden.
 - **Token liegen im `sessionStorage`.** Beim Schliessen des Tabs sind sie weg. Ein Tab, der aus der Verwaltung heraus geöffnet wird, erbt den Speicher, deshalb verlangen die Druckblätter in der Regel keine zweite Anmeldung.
@@ -158,22 +176,29 @@ await Graph.klasseLoeschen(id)
 await Graph.bestellungen(klasseId)          // ohne Argument: alle
 await Graph.bestellungLoeschen(id)
 Graph.zaehler(liste)                        // {total, suppe, salat, keine, menu1, menu2}
+await Graph.klasseOeffentlich(code)         // Klasse über Flow B, ohne Anmeldung, oder null
 await Graph.menuetexte(code)                // Tagesmenüs aus Flow B, oder null
 await Graph.ich()
 
-Hilfe.heute()          // "2026-08-28"
-Hilfe.datumAusSp(wert) // SharePoint-Zeitstempel -> "2026-08-28"
-Hilfe.datumFuerSp(ymd) // "2026-08-28" -> "2026-08-28T12:00:00Z"
-Hilfe.datumText(ymd)   // "Freitag, 28.08.2026"
-Hilfe.datumKurz(ymd)   // "28.08.2026"
-Hilfe.neuerCode()      // acht Zeichen, ohne 0/O/1/I
-Hilfe.gastLink(code)   // vollständiger Gästelink
+Hilfe.heute()               // "2026-08-28"
+Hilfe.datumAusSp(wert)      // SharePoint-Zeitstempel -> "2026-08-28"
+Hilfe.datumFuerSp(ymd)      // "2026-08-28" -> "2026-08-28T12:00:00Z"
+Hilfe.datumText(ymd)        // "Freitag, 28.08.2026"
+Hilfe.datumKurz(ymd)        // "28.08.2026"
+Hilfe.zeitstempelKurz(iso)  // "28.08.2026, 14:23", für die Spur in der Verwaltung
+Hilfe.neuerCode()           // acht Zeichen, ohne 0/O/1/I
+Hilfe.gastLink(code)        // vollständiger Gästelink
+Hilfe.kursblattLink(code)   // vollständiger Kursblatt-Link
+Hilfe.annahmeschlussStunde() // 10
+Hilfe.annahmeschlussText()   // "10:00"
 ```
 
 **Verwendete Endpunkte**
 
 ```
-GET    /v1.0/sites/{siteId}/lists/{listId}/items?$select=id,createdDateTime&$expand=fields($select=...)&$top=999
+GET    /v1.0/sites/{siteId}/lists/{listId}/items
+         ?$select=id,createdDateTime,lastModifiedDateTime,createdBy,lastModifiedBy
+         &$expand=fields($select=...)&$top=999
 POST   /v1.0/sites/{siteId}/lists/{listId}/items          { "fields": { ... } }
 PATCH  /v1.0/sites/{siteId}/lists/{listId}/items/{id}/fields
 DELETE /v1.0/sites/{siteId}/lists/{listId}/items/{id}
@@ -183,9 +208,21 @@ DELETE /v1.0/sites/{siteId}/lists/{listId}/items/{id}
 
 *Es wird immer die ganze Liste geholt und im Browser gefiltert.* Serverseitige `$filter` auf Listenspalten setzen in SharePoint einen Spaltenindex voraus und scheitern sonst sporadisch, was schwer zu diagnostizieren ist. Dank der Aufbewahrung von 30 Tagen sind es höchstens ein paar hundert Einträge; das trägt problemlos. Folgeseiten über `@odata.nextLink` werden berücksichtigt.
 
-*Die Feldauswahl hat einen Rückfall.* Schlägt eine Abfrage mit `$expand=fields($select=...)` mit HTTP 400 fehl, etwa weil eine Spalte umbenannt wurde, wird automatisch ohne Feldauswahl wiederholt. Das System bleibt so auch nach einer Umbenennung benutzbar.
+*Die Feldauswahl hat einen Rückfall.* Schlägt eine Abfrage mit `$expand=fields($select=...)` mit HTTP 400 fehl, etwa weil eine Spalte umbenannt wurde, wird automatisch ohne Feldauswahl wiederholt. Derselbe Rückfall reduziert auch das `$select` auf dem Listenelement wieder auf `id,createdDateTime`. Verweigert Graph die Auswahl von `createdBy` und `lastModifiedBy` also je, laden die Seiten trotzdem; es fehlt dann nur die Spur «erstellt von / geändert von» in der Verwaltung.
 
 **Fehlermeldungen** werden in `graph.js` in Klartext übersetzt, statt rohe Graph-Meldungen zu zeigen: HTTP 401 auf abgelaufene Anmeldung, 403 auf fehlenden Zugriff auf die Site «Reception», 404 auf falsche Kennungen in `konfig.js`, 429 auf zu viele Anfragen.
+
+### 6.1 Das Kursblatt ohne Anmeldung
+
+`kursblatt.html` lädt seine Klassendaten über `Graph.klasseOeffentlich(code)`, also anonym über Flow B, dieselbe Quelle wie die Gästeseite. Es meldet sich beim Laden **nicht** an.
+
+Der Grund ist fachlich: Die Réception soll den Link der Kursleitung schicken können, damit diese das Blatt selbst ausdruckt. Eine Weiterleitung auf `login.microsoftonline.com` wäre für eine Person ohne Konto im Mandanten eine Sackgasse.
+
+Preisgegeben werden Kursname, Firma, Datum und Essenszeit, und nur an jemanden, der den achtstelligen Code bereits kennt. Genau diese Angaben stehen ohnehin auf dem Aushang, und derselbe Code öffnet über die Gästeseite bereits mehr. Bestellungen sind über diesen Weg nicht erreichbar; Flow B liefert sie nicht.
+
+Der Weg über Microsoft Graph bleibt als Rückfall bestehen, falls Flow B einmal nicht antwortet, wird aber nie von selbst eingeschlagen. Stattdessen erscheint die Fehlerkarte «Kursblatt nicht abrufbar» mit dem Knopf **«Mit Konto anmelden»**; erst der Klick löst `Auth.anmeldungSicherstellen()` und `Graph.klasseNachCode()` aus. Die Umleitungsadresse für `kursblatt.html` muss deshalb in der App-Registrierung eingetragen bleiben.
+
+> **Geprüft am 04.09.2026:** Flow B liefert Klassen mit ihrem eigenen Datum, auch wenn dieses nicht der laufende Tag ist. Ein Aufruf mit der Testklasse `TEST1234` gab `"datum":"2026-08-27"` zurück, also einen vergangenen Tag. Das im Voraus gedruckte Kursblatt stimmt damit für jedes Kursdatum. Das war die offene Frage, die früher gegen Flow B sprach; siehe `05_Entscheide_und_Verlauf.md`, Abschnitt 5.
 
 ---
 
@@ -219,13 +256,36 @@ Die Aufruf-Adressen samt Signatur stehen in `frontend\konfig.js` und im Kopf von
 
 ---
 
+## 7.1 Annahmeschluss 10:00 Uhr
+
+Die Menüwahl ist am Kurstag bis 10:00 Uhr offen. Danach zeigt `index.html`:
+
+| Lage | Anzeige |
+|---|---|
+| Bestellung liegt vor | Bestätigung wie bisher, aber ohne den Knopf «Auswahl bearbeiten». An seiner Stelle der Hinweis, sich für Änderungen an die Réception zu wenden |
+| keine Bestellung | die Karte «Menüwahl geschlossen» mit demselben Verweis auf die Réception |
+
+Umgesetzt ist das in `index.html`:
+
+- `ANNAHMESCHLUSS` ist die volle Stunde in Ortszeit, `annahmeschlussVorbei()` die einzige Stelle, die vergleicht.
+- Geprüft wird an drei Stellen: beim Laden, beim Zeichnen der Bestätigung und **nochmals beim Absenden**. Die dritte Prüfung fängt den Fall ab, dass das Formular über 10:00 Uhr hinaus offen liegt.
+- `fristUeberwachen()` plant zusätzlich einen einzelnen `setTimeout` auf den Zeitpunkt selbst. Wer die Seite um 09:58 öffnet, sieht um 10:00 von selbst die geschlossene Ansicht, ohne neu zu laden.
+- Im Mock-Modus lässt sich der Zustand mit `?mock=1&spaet=1` beziehungsweise `&spaet=0` erzwingen. Ohne diesen Schalter wäre je nach Tageszeit nur eine der beiden Ansichten zu sehen.
+
+> **Diese Prüfung läuft im Browser und ist keine Sperre im Sinne der Sicherheit.**
+> Flow C nimmt eine Bestellung weiterhin an, wenn jemand ihn von Hand aufruft. Für den Zweck genügt das: Es geht darum, den Ablauf für die Küche verlässlich zu machen, nicht darum, Missbrauch abzuwehren, und wer den Code kennt, könnte ohnehin bestellen (siehe `05_Entscheide_und_Verlauf.md`, Abschnitt 2). Soll die Frist hart gelten, gehört dieselbe Bedingung in **Flow C**: vor dem Anlegen des Listeneintrags prüfen, ob `utcNow()` in Ortszeit vor 10:00 Uhr des Kurstages liegt, und sonst mit HTTP 403 antworten. Die Gästeseite zeigt bei 403 bereits die Karte «Bestellung geschlossen»; es wäre also kein weiterer Eingriff in die Webseite nötig.
+
+**Die Uhrzeit steht an zwei Stellen.** `KONFIG.annahmeschluss` in `konfig.js` für die Admin-Seiten und `ANNAHMESCHLUSS` im Kopf von `index.html` für die Gästeseite. Das ist bewusst doppelt: `index.html` bindet `konfig.js` nicht ein, weil die Gästeseite ohne Anmeldung auskommt und deshalb keine der Admin-Dateien lädt. Wird die Zeit geändert, muss sie an **beiden** Stellen geändert werden. Kursblatt und Terminübersicht beschriften sich über `Hilfe.annahmeschlussText()` von selbst.
+
+---
+
 ## 8. Eingebundene Bibliotheken
 
 Grundsatz seit dem 28.08.2026: **so wenig selbstgebauter Code wie möglich.**
 
 | Bibliothek | Version | Aufgabe | Wo eingebunden |
 |---|---|---|---|
-| `@azure/msal-browser` | 4.30.0 | Anmeldung an Entra ID | `admin.html`, `kursblatt.html`, `menueblatt.html` |
+| `@azure/msal-browser` | 4.30.0 | Anmeldung an Entra ID | `admin.html`, `termine.html`, `menueblatt.html`, `kursblatt.html` (nur für den Rückfallweg) |
 | `qrcode-generator` | 1.4.4 | QR-Code | `kursblatt.html` |
 
 Beide kommen von `cdn.jsdelivr.net`, sind auf eine feste Fassung genagelt und mit `integrity="sha384-..."` gegen unbemerkten Austausch abgesichert. Wer eine Version anhebt, muss die Prüfsumme mitziehen, sonst verweigert der Browser das Laden:
@@ -282,7 +342,7 @@ Freigegeben ist nur, was wirklich gebraucht wird:
 
 ## 11. Lokale Entwicklung und Test
 
-Auf dem Arbeitsplatz sind weder Node noch Python installiert. Geprüft wird im Browser.
+Geprüft wird im Browser, mit dem kleinen Server aus `code\serve.ps1`.
 
 ```
 powershell -ExecutionPolicy Bypass -File code\serve.ps1
@@ -296,11 +356,18 @@ Danach läuft ein Server auf `http://localhost:8123/`.
 |---|---|
 | `localhost:8123/index.html?mock=1` | Gästeseite mit Testmenü |
 | `localhost:8123/index.html?mock=1&falschertag=1` | Gästeseite am falschen Tag |
+| `localhost:8123/index.html?mock=1&spaet=1` | Gästeseite nach 10:00 Uhr, unabhängig von der echten Uhrzeit |
+| `localhost:8123/index.html?mock=1&spaet=0` | Gästeseite vor 10:00 Uhr, unabhängig von der echten Uhrzeit |
 | `localhost:8123/admin.html?mock=1` | Verwaltung mit vier Klassen, Anlegen, Ändern und Löschen funktionieren im Speicher |
+| `localhost:8123/termine.html?mock=1` | Terminübersicht mit sieben Kursen an fünf Tagen |
 | `localhost:8123/kursblatt.html?mock=1` | Kursblatt mit QR-Code |
 | `localhost:8123/menueblatt.html?mock=1` | Menüblatt mit acht Bestellungen |
 
-Für Tests mit echter Anmeldung müssen die drei `localhost:8123`-Adressen in der App-Registrierung als Umleitungsadressen eingetragen sein.
+Um die geschlossene Ansicht **mit** bestehender Bestellung zu sehen, zuerst mit `?mock=1&spaet=0` eine Bestellung absenden und danach auf `?mock=1&spaet=1` wechseln. Die Bestellung liegt im `localStorage` unter `bauluut-bestellung-mock`.
+
+Für Tests mit echter Anmeldung müssen die `localhost:8123`-Adressen in der App-Registrierung als Umleitungsadressen eingetragen sein.
+
+> **Auf dem Arbeitsplatz sind Node und Python vorhanden** (geprüft am 04.09.2026: Node 22.15.0, Python 3.13), auch wenn frühere Fassungen dieses Dokuments das Gegenteil behaupteten. `serve.ps1` bleibt trotzdem der einfachste Weg, weil er ohne Installation auskommt. Für eine schnelle Syntaxprüfung der Inline-Skripte genügt `new vm.Script(...)` in Node.
 
 ---
 
@@ -310,6 +377,8 @@ Für Tests mit echter Anmeldung müssen die drei `localhost:8123`-Adressen in de
 |---|---|
 | Gästeseite | `https://menue.campus-sursee.ch` |
 | Verwaltung | `https://menue.campus-sursee.ch/admin.html` |
+| Terminübersicht | `https://menue.campus-sursee.ch/termine.html` |
+| Kursblatt, ohne Anmeldung | `https://menue.campus-sursee.ch/kursblatt.html?klasse=CODE` |
 | SharePoint-Site | `https://campussursee.sharepoint.com/sites/hot-reze` |
 | Site-ID | `campussursee.sharepoint.com,141d7dcf-e2f2-4273-8b14-af04a092ccb8,ac91aebb-2f75-4dd3-bdc4-6b26858f1d2b` |
 | Liste «Klassen» | `966a62ea-0ec5-4054-80a2-9a52d7b32483` |

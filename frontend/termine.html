@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Alle Termine Menüwahl BAULÜÜT</title>
+<link rel="icon" type="image/webp" href="https://baulueuet.ch/wp-content/uploads/2019/06/cropped-bauluut_favicon_neg3-32x32.webp">
+<style>
+  :root {
+    --orange: #E8722A;
+    --schwarz: #111111;
+    --grau: #767676;
+    --linie: #ebebeb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #fff;
+    color: var(--schwarz);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px 64px; }
+
+  header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    padding: 28px 0 20px;
+    border-bottom: 1px solid var(--linie);
+  }
+  header .logo { width: 84px; flex: none; line-height: 0; }
+  header .logo svg { width: 100%; height: auto; fill: var(--schwarz); }
+  header h1 {
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--grau);
+  }
+  .kopf-rechts {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 0.85rem;
+    color: var(--grau);
+    text-align: right;
+  }
+  .kopf-name { max-width: 220px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  @media (max-width: 520px) { .kopf-name { max-width: 150px; } }
+
+  button.knopf {
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 10px 18px;
+    border: 1px solid var(--schwarz);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--schwarz);
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  button.knopf:active { opacity: 0.7; }
+  button.knopf:disabled { opacity: 0.4; cursor: default; }
+
+  .werkzeuge { display: flex; flex-wrap: wrap; gap: 10px; margin: 24px 0 8px; }
+
+  /* Zusammenzug über den ganzen gezeigten Zeitraum */
+  .uebersicht {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    border: 1px solid var(--linie);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 20px;
+  }
+  @media (min-width: 640px) { .uebersicht { grid-template-columns: repeat(4, 1fr); } }
+  .uebersicht div {
+    padding: 12px 8px;
+    text-align: center;
+    border-right: 1px solid var(--linie);
+    border-bottom: 1px solid var(--linie);
+  }
+  .uebersicht div:last-child { border-right: none; }
+  .uebersicht b { display: block; font-size: 1.3rem; font-weight: 700; }
+  .uebersicht span {
+    font-size: 0.66rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.14em; color: var(--grau);
+  }
+
+  /* Ein Block je Datum */
+  .tag { margin-top: 34px; }
+  .tag-kopf {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px;
+    border-bottom: 1px solid var(--schwarz);
+    padding-bottom: 8px;
+  }
+  .tag-kopf .tag-datum { font-size: 1.05rem; font-weight: 700; letter-spacing: -0.01em; }
+  .tag-kopf .tag-heute {
+    font-size: 0.66rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.14em; color: var(--orange);
+  }
+  .tag-kopf .tag-summe { margin-left: auto; font-size: 0.82rem; color: var(--grau); }
+
+  .tabellenrahmen { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th {
+    text-align: left;
+    font-size: 0.66rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.14em; color: var(--grau);
+    padding: 10px 12px 8px 0;
+    border-bottom: 1px solid var(--linie);
+    white-space: nowrap;
+  }
+  td { padding: 11px 12px 11px 0; border-bottom: 1px solid var(--linie); vertical-align: top; }
+  td:last-child, th:last-child { padding-right: 0; }
+  th.zahl, td.zahl { text-align: right; white-space: nowrap; }
+  td.zeit { white-space: nowrap; color: var(--grau); }
+  td.kurs { font-weight: 600; }
+  td.firma { color: var(--grau); }
+  td.leerzahl { color: var(--orange); font-weight: 700; }
+
+  .marke-zu {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 0.62rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.12em; color: var(--grau);
+    border: 1px solid var(--linie);
+    border-radius: 8px;
+    padding: 1px 6px;
+    vertical-align: 1px;
+  }
+
+  .leer { padding: 40px 0; color: var(--grau); font-size: 0.92rem; text-align: center; }
+
+  .fusszeile {
+    margin-top: 36px;
+    padding-top: 16px;
+    border-top: 1px solid var(--linie);
+    font-size: 0.8rem;
+    color: var(--grau);
+  }
+
+  .fehlerfeld {
+    display: none;
+    border-left: 3px solid #c0392b;
+    color: #c0392b;
+    padding: 6px 12px;
+    margin-top: 20px;
+    font-size: 0.9rem;
+  }
+
+  .lade { text-align: center; padding: 96px 0; color: var(--grau); font-size: 0.9rem; }
+  .spinner {
+    width: 26px; height: 26px;
+    border: 2px solid var(--linie);
+    border-top-color: var(--schwarz);
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    animation: dreh 0.8s linear infinite;
+  }
+  @keyframes dreh { to { transform: rotate(360deg); } }
+
+  .status-karte { text-align: center; padding: 72px 0 0; max-width: 480px; margin: 0 auto; }
+  .status-karte .symbol { margin-bottom: 20px; }
+  .status-karte .symbol svg {
+    width: 44px; height: 44px;
+    stroke: var(--schwarz);
+    stroke-width: 1.5;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .status-karte h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; }
+  .status-karte p { color: var(--grau); font-size: 0.95rem; }
+  .status-karte button { margin-top: 28px; }
+
+  /* ===== Druck ===== */
+  @page { size: A4 portrait; margin: 14mm; }
+  @media print {
+    body { line-height: 1.35; }
+    .wrap { max-width: none; padding: 0; }
+    .nicht-drucken { display: none !important; }
+    header { padding: 0 0 4mm; }
+    header .logo { width: 24mm; }
+    header h1 { font-size: 9pt; }
+    .uebersicht { margin-top: 5mm; break-inside: avoid; page-break-inside: avoid; }
+    .uebersicht div { padding: 2.5mm 3mm; }
+    .uebersicht b { font-size: 12pt; }
+    .uebersicht span { font-size: 7.5pt; }
+    .tag { margin-top: 7mm; break-inside: avoid; page-break-inside: avoid; }
+    .tag-kopf .tag-datum { font-size: 11.5pt; }
+    table { font-size: 9.5pt; }
+    thead { display: table-header-group; }
+    tr { break-inside: avoid; page-break-inside: avoid; }
+    td { padding: 2.2mm 3mm 2.2mm 0; }
+    .fusszeile { margin-top: 5mm; font-size: 9pt; color: var(--schwarz); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo" aria-label="BAULÜÜT, Grill und mehr, Bar, Lounge"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 126.6 105.3" role="img"><path d="M66.4 0s.7 3.9-6.5 8.7c-7.3 4.9-8.5 10-6.8 16.2h6.5s-3.5-7.5 4.1-12.3c0 0-2 6.8 2.7 8.7 3.6 1.4 6.6-1.7 6.6-1.7s.1 3.1-1.9 5.3h4.7s2.1-4.9.4-11.1c0 0-4.2 4.9-7.2 2.9-2-1.3-1.3-4.1-.8-6.7.5-2.4.6-6.6-1.8-10zm46.3 27.4c0 12.2-21.6 22.1-48.2 22.1s-48.2-9.9-48.2-22.1h96.4zM11.6 89.9c-1.2.7-3.1 1-5.7 1H0V70.6h4.7c3.2 0 4.9.5 6.4 1.5 1.4.9 2.2 2.2 2.2 4 0 1.9-1.1 3.6-3.1 4.3 3.3.6 4.4 2.9 4.4 4.7s-.8 3.6-3 4.8zM7.8 74.1c-.8-.4-1.8-.6-2.9-.6h-.7v5.7h1.3c1.1 0 1.7-.1 2.2-.4.9-.5 1.5-1.3 1.5-2.4.1-.9-.5-1.8-1.4-2.3zm-2.2 8H4.2v5.6h2c1.1 0 1.9-.1 2.7-.4.8-.4 1.4-1.1 1.4-2.2 0-1.6-1.3-3-4.7-3zm23.9 8.8l-1.6-4.5h-7.5l-1.5 4.5h-4.2l7.1-20.3h4.8l7.6 20.3h-4.7zm-4.7-13.4l-.9-2.5c0 .1-.3 1.1-.7 2.5l-1.9 5.6h5.4l-1.9-5.6zm27.1 3.4c0 3.7-.5 6.1-2.3 7.9-1.4 1.4-3.6 2.4-6.6 2.4-2.8 0-5.5-.8-7.1-2.9-1.3-1.7-1.6-3.9-1.6-7.2V70.6h4.2v10.7c0 2.1.2 3.7 1.1 4.8.8.9 1.9 1.5 3.8 1.5 1.4 0 2.5-.4 3.2-1.2 1-1.1 1.3-2.5 1.3-4.8v-11h4v10.3zm14.6 10h-12V70.6h4.2v16.8h8l-.2 3.5zm19.2-10c0 3.7-.5 6.1-2.3 7.9-1.4 1.4-3.6 2.4-6.6 2.4-2.8 0-5.5-.8-7.1-2.9-1.3-1.7-1.7-4-1.7-7.3V70.6h4.2v10.7c0 2.1.2 3.7 1.1 4.8.8.9 1.9 1.5 3.8 1.5 1.4 0 2.5-.4 3.2-1.2 1-1.1 1.3-2.5 1.3-4.8v-11h4v10.3zm-8.6-6a2.26 2.26 0 0 0 2.3-2.3 2.3 2.3 0 1 0-4.6 0 2.26 2.26 0 0 0 2.3 2.3m29.3 6c0 3.7-.5 6.1-2.3 7.9-1.4 1.4-3.6 2.4-6.6 2.4-2.8 0-5.5-.8-7.1-2.9-1.3-1.7-1.6-3.9-1.6-7.2V70.6H93v10.7c0 2.1.2 3.7 1.1 4.8.8.9 1.9 1.5 3.8 1.5 1.4 0 2.5-.4 3.2-1.2 1-1.1 1.3-2.5 1.3-4.8v-11h4v10.3zm16.9-6.8h-5.4v16.8h-4.2V74.1h-5.4v-3.5h15.3l-.3 3.5zm.5 16.8c-1.7 0-2.8-1.2-2.8-2.9 0-1.6 1.1-2.8 2.9-2.8 1.7 0 2.8 1.2 2.8 2.9-.1 1.7-1.2 2.8-2.9 2.8z"/><path d="M97.7 74.9a2.26 2.26 0 0 0 2.3-2.3 2.3 2.3 0 1 0-4.6 0c-.1 1.3 1 2.3 2.3 2.3M5.6 100.8l-.4.1v2.3l-.1.1-.7-.2c-.4.2-.8.2-1.2.2-1.8 0-3.2-1.2-3.2-3.2 0-1.7 1.1-3.3 3.5-3.3.6 0 1.1.1 1.7.2v1.7c-.1.1-.3.1-.4.1h0l-.3-1.2c-.4-.1-.9-.1-1.3-.1-.5 0-.8 0-1 .1-.3.1-1.1.9-1.1 2.6 0 1.8.9 2.5 2.3 2.5.3 0 .7 0 .9-.1v-1.7l-1-.1v-.1c0-.1 0-.3.1-.4h2.3l-.1.5z"/><path d="M8.2 99.7v3l.9.1h0c0 .1 0 .3-.1.4H6.5l.1-.4.7-.1v-3.2l-.2-.1c-.3-.1-.4-.2-.4-.3V99l1.3-.3.1.7h0c.6-.6.9-.7 1.1-.7.1 0 .2 0 .3.1l.1.7c-.2.1-.4.1-1.4.2zm4.7 3.2c0 .1 0 .3-.1.4h-2.4l.1-.4.7-.1v-3.2l-.2-.1c-.3-.1-.4-.2-.4-.3V99l1.5-.3v4l.8.2h0zm-1.2-5.1c-.4 0-.5-.2-.5-.5a.47.47 0 0 1 .5-.5.5.5 0 1 1 0 1zm4.5 5.1c0 .1 0 .3-.1.4h-2.4l.1-.4.7-.1v-5.3l-.2-.1c-.3-.1-.4-.2-.4-.3v-.2l1.5-.3v6.2l.8.1h0zm3.1 0c0 .1 0 .3-.1.4h-2.4l.1-.4.7-.1v-5.3l-.2-.1c-.3-.1-.4-.2-.4-.3v-.2l1.5-.3v6.2l.8.1h0zm8.5 0c0 .1 0 .3-.1.4l-1.5.1.1-.7h0c-.5.4-1 .7-1.5.7-.8 0-1.4-.4-1.4-1.2v-2.6l-.2-.1c-.3-.1-.4-.2-.4-.3V99l1.5-.3v3.6c.2.2.6.3.9.3.4 0 .7-.1 1.1-.3v-3l-.9-.1h0c0-.1 0-.3.1-.4h1.8l-.3.6v3.3l.8.2h0zm6.2 0c0 .1 0 .3-.1.4h-2.3l.1-.4.7-.1v-3c-.2-.2-.6-.3-.9-.3-.4 0-.8.1-1.1.3v3l.7.1h0c0 .1 0 .3-.1.4h-2.3l.1-.4.7-.1v-3.2l-.2-.1c-.3-.1-.4-.2-.4-.3V99l1.3-.3.1.6h0c.6-.5 1-.6 1.5-.6.9 0 1.4.4 1.4 1.2v2.9l.8.1h0zm5.5 0c0 .1 0 .3-.1.4l-1.5.1.1-.7h0c-.4.5-.9.7-1.3.7-1.2 0-1.9-.9-1.9-2.2 0-1.4 1.1-2.5 2.5-2.5.2 0 .5 0 .7.1v-1.4l-.2-.1c-.3-.1-.4-.2-.4-.3v-.2l1.5-.3v6.2l.6.2h0zm-2.6-.3a1.93 1.93 0 0 0 1-.3v-3c-.4-.1-.9-.1-1.2-.1s-1 .6-1 1.9c-.1 1 .4 1.5 1.2 1.5zm13.8.3c0 .1 0 .3-.1.4h-2.2l.1-.4.6-.1v-3c-.2-.2-.6-.3-.9-.3-.4 0-.8.1-1.1.3v3l.7.1h0c0 .1 0 .3-.1.4h-2.2l.1-.4.6-.1v-3c-.2-.2-.5-.3-.9-.3s-.7.1-1.1.3v3l.7.1h0c0 .1 0 .3-.1.4h-2.3l.1-.4.7-.1v-3.2l-.2-.1c-.3-.1-.4-.2-.4-.3V99l1.3-.3.1.6h0c.6-.5.9-.6 1.4-.6.6 0 1 .2 1.2.7.6-.5 1-.7 1.5-.7.8 0 1.4.3 1.4 1.2v2.9l1.1.1h0zm4.5-2.1h-3c0 1.2.6 1.8 1.6 1.8.5 0 .9-.2 1.2-.4l.1.2c-.3.5-.8.9-1.6.9-1.3 0-2.2-.9-2.2-2.3s1-2.4 2.1-2.4c1 0 1.8.6 1.8 1.7.1.2.1.4 0 .5zm-.7-.5c0-.7-.4-1.1-1.2-1.1h-.4c-.2 0-.6.5-.6 1.2l2.2-.1h0zm6.9 2.6c0 .1 0 .3-.1.4h-2.2l.1-.4.7-.1v-3c-.2-.2-.6-.3-.9-.3-.4 0-.8.1-1.1.3v3l.7.1h0c0 .1 0 .3-.1.4h-2.3l.1-.4.7-.1v-5.3l-.2-.1c-.3-.1-.4-.2-.4-.3v-.2l1.5-.3v2.8h0c.5-.5.9-.6 1.5-.6.9 0 1.4.4 1.4 1.2v2.9h.6 0zm2.6-3.2v3l.9.1h0c0 .1 0 .3-.1.4h-2.5l.1-.4.7-.1v-3.2l-.2-.1c-.3-.1-.4-.2-.4-.3V99l1.3-.3.1.7h0c.6-.6.9-.7 1.1-.7.1 0 .2 0 .3.1l.1.7c-.2.1-.5.1-1.4.2zm5.1.3c-.4 0-.6-.3-.6-.6 0-.4.2-.6.6-.6s.6.2.6.6-.2.6-.6.6zm6.4 3.3h-2.8l.1-.5.8-.1v-5.1l-.9-.1v-.1c0-.1 0-.3.1-.4h2.5c1.4 0 2.2.7 2.2 1.6 0 .7-.4 1.1-1.1 1.4v.1c.8.2 1.4.7 1.4 1.5 0 1-1 1.7-2.3 1.7zm-.3-5.8h-.7v2.4l1.3-.1c.4-.2.7-.7.7-1.2 0-.7-.4-1.1-1.3-1.1zm-.1 2.8h-.6v2.4l1 .1c.8-.1 1.2-.5 1.2-1.2.1-.9-.5-1.3-1.6-1.3zm7.9 2.6c-.1.3-.3.5-.7.5s-.6-.1-.8-.5c-.6.4-.9.5-1.3.5-.8 0-1.3-.3-1.3-1.1 0-.7.4-1 1.3-1.2l1.3-.2v-1.5l-1.6.2c-.4 0-.6-.1-.6-.4 0-.1 0-.3.1-.4h2.5c.3.3.4.6.4 1.1v2.7c.1.1.3.1.5.1h.3v.2zm-1.6-1.6l-1.5.4c-.1.1-.2.3-.2.5 0 .4.2.7.8.7.3 0 .7-.1.9-.1v-1.5zm4.1-1.6v3l.9.1h0c0 .1 0 .3-.1.4h-2.5l.1-.4.7-.1v-3.2l-.2-.1c-.3-.1-.4-.2-.4-.3V99l1.3-.3.1.7h0c.6-.6.9-.7 1.1-.7.1 0 .2 0 .3.1l.1.7c-.2.1-.4.1-1.4.2zm5.1.3c-.4 0-.6-.3-.6-.6 0-.4.2-.6.6-.6s.6.2.6.6c.1.4-.2.6-.6.6zm8.1 3.3H94l.1-.5.8-.1v-5.1l-.9-.1v-.1c0-.1 0-.3.1-.4h2.7l-.1.5-.9.1v5.2l2-.1.3-1.4h.1c.1 0 .3 0 .4.1v1.9zm3.3 0c-1.3 0-2.3-.9-2.3-2.3a2.26 2.26 0 0 1 2.3-2.3c1.3 0 2.3.8 2.3 2.3 0 1.4-1.1 2.3-2.3 2.3zm-.1-4.1c-.9 0-1.3.8-1.3 1.8 0 1.1.5 1.8 1.4 1.8.8 0 1.3-.7 1.3-1.8.1-1.3-.5-1.8-1.4-1.8zm8.4 3.7c0 .1 0 .3-.1.4l-1.5.1.1-.7h0c-.5.4-1 .7-1.5.7-.8 0-1.4-.4-1.4-1.2v-2.6l-.2-.1c-.3-.1-.4-.2-.4-.3V99l1.5-.3v3.6c.2.2.6.3.9.3.4 0 .7-.1 1.1-.3v-3l-.9-.1h0c0-.1 0-.3.1-.4h1.8l-.1.6v3.3l.6.2h0zm6.1 0c0 .1 0 .3-.1.4h-2.2l.1-.4.7-.1v-3c-.2-.2-.6-.3-.9-.3-.4 0-.8.1-1.1.3v3l.7.1h0c0 .1 0 .3-.1.4h-2.3l.1-.4.7-.1v-3.2l-.2-.1c-.3-.1-.4-.2-.4-.3V99l1.3-.3.1.6h0c.6-.5 1-.6 1.5-.6.9 0 1.4.4 1.4 1.2v2.9l.7.1h0zm4.2-3.6h0c.2.3.4.6.4 1 0 .9-.6 1.6-1.8 1.6-.2 0-.5 0-.7-.1-.3.1-.4.4-.4.6 0 .1 0 .2.1.3h1.5c1.1 0 1.6.3 1.6 1 0 .8-1.2 1.6-2.4 1.6s-1.7-.3-1.7-.8c0-.3.1-.5.8-1h0c-.4-.1-.6-.4-.6-.7 0-.4.3-.8.8-1-.5-.2-.8-.7-.8-1.3 0-1 .8-1.7 1.8-1.7.3 0 .5 0 .7.1h1.5v.3c-.2 0-.4.1-.8.1zm-.9 4.2h-1.4c-.3.5-.3.6-.3.7 0 .3.3.5 1.2.5.5 0 1.1-.2 1.4-.4 0-.1.1-.2.1-.3 0-.3-.2-.5-1-.5zm-.6-4.3h-.4c-.2 0-.5.4-.5 1.1 0 .8.4 1.1 1 1.1h.4c.2 0 .5-.4.5-1.1 0-.8-.4-1.1-1-1.1zm6.9 1.6h-3c0 1.2.6 1.8 1.6 1.8.5 0 .9-.2 1.2-.4l.1.2c-.3.5-.8.9-1.6.9-1.3 0-2.2-.9-2.2-2.3s1-2.4 2.1-2.4c1 0 1.8.6 1.8 1.7v.5zm-.8-.5c0-.7-.4-1.1-1.2-1.1h-.4c-.2 0-.6.5-.6 1.2l2.2-.1h0z"/></svg></div>
+    <h1>Alle Termine</h1>
+    <div class="kopf-rechts">
+      <span class="kopf-name" id="kopf-name"></span>
+    </div>
+  </header>
+
+  <!-- Laden -->
+  <div id="ansicht-laden" class="lade">
+    <div class="spinner"></div>
+    Termine werden geladen …
+  </div>
+
+  <!-- Anmelde- oder Verbindungsfehler -->
+  <div id="ansicht-fehler" class="status-karte nicht-drucken" style="display:none">
+    <div class="symbol"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9.5"/><line x1="12" y1="7.5" x2="12" y2="13"/><line x1="12" y1="16.5" x2="12" y2="16.51"/></svg></div>
+    <h2 id="fehler-titel">Anmeldung nicht möglich</h2>
+    <p id="fehler-text"></p>
+    <button type="button" class="knopf" id="btn-erneut">Erneut versuchen</button>
+  </div>
+
+  <!-- Terminliste -->
+  <div id="ansicht-liste" style="display:none">
+    <div id="fehler-global" class="fehlerfeld"></div>
+
+    <div class="werkzeuge nicht-drucken">
+      <button type="button" class="knopf" id="btn-umschalten">Vergangene anzeigen</button>
+      <button type="button" class="knopf" id="btn-aktualisieren">Aktualisieren</button>
+      <button type="button" class="knopf" id="btn-drucken">Liste drucken</button>
+    </div>
+
+    <div class="uebersicht" id="uebersicht"></div>
+    <div id="tage"></div>
+    <div class="leer" id="leer" style="display:none"></div>
+
+    <div class="fusszeile" id="fusszeile"></div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@4.30.0/lib/msal-browser.min.js"
+        integrity="sha384-RGxxfG5yRS8DLU7ZJ8OoLhbV/BsJFHyPuMVHrTLbpj3t5Z15LnviJmaznKY/a7LZ"
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="konfig.js"></script>
+<script src="auth.js"></script>
+<script src="graph.js"></script>
+<script>
+"use strict";
+
+/* ====================================================================
+   termine.html: alle Kurstermine nach Datum gruppiert.
+
+   Gedacht als Vorschau für das Restaurant: Wie viele Kurse essen an
+   welchem Tag, um welche Zeit, und wie viele Bestellungen liegen dafür
+   schon vor. Die Seite ändert nichts, sie liest nur.
+
+   Aufbau wie admin.html: Auth und Graph werden in lokale Namen gelegt,
+   im Mock-Modus (?mock=1) zeigen diese Namen auf Attrappen.
+   ==================================================================== */
+
+const el = id => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+const istMock = params.get("mock") === "1";
+
+
+/* ---------- Attrappen für den Mock-Modus ---------- */
+
+function mockBauen() {
+  function tagVerschoben(n) {
+    const d = new Date();
+    d.setDate(d.getDate() + n);
+    return d.getFullYear() + "-"
+      + String(d.getMonth() + 1).padStart(2, "0") + "-"
+      + String(d.getDate()).padStart(2, "0");
+  }
+
+  const klassen = [
+    { id: "1", titel: "Polierkurs Modul 4",           firma: "Implenia Schweiz AG", datum: tagVerschoben(0),  essenszeit: "12:15", code: "M2VJ8KWS", status: "offen" },
+    { id: "2", titel: "Kranführerkurs Grundlagen",     firma: "Marti AG",            datum: tagVerschoben(0),  essenszeit: "11:45", code: "R6ZDF4YT", status: "offen" },
+    { id: "3", titel: "Baukader Führungsseminar",      firma: "Campus Sursee",       datum: tagVerschoben(1),  essenszeit: "11:45", code: "TQ4X9BND", status: "offen" },
+    { id: "4", titel: "SORBA EDV AG Lernende 2. Jahr", firma: "SORBA EDV AG",        datum: tagVerschoben(6),  essenszeit: "12:00", code: "K7HMP3RA", status: "offen" },
+    { id: "5", titel: "Vermessungskurs Aufbau",        firma: "Implenia Schweiz AG", datum: tagVerschoben(6),  essenszeit: "12:30", code: "P8WQ2LMD", status: "offen" },
+    { id: "6", titel: "Sicherheitsschulung Tiefbau",   firma: "Marti AG",            datum: tagVerschoben(13), essenszeit: "12:00", code: "H4NRT7XB", status: "offen" },
+    { id: "7", titel: "Schalungskurs Abschluss",       firma: "Campus Sursee",       datum: tagVerschoben(-4), essenszeit: "12:00", code: "Z3KMV9QP", status: "geschlossen" }
+  ];
+
+  /* Ein paar Bestellungen, damit die Zahlen nicht alle null sind. Klasse 4
+     und 6 bleiben bewusst leer: so ist zu sehen, wie ein Kurs ohne einzige
+     Bestellung aussieht. */
+  const bestellungen = [];
+  const verteilung = { "1": 14, "2": 9, "3": 22, "4": 0, "5": 6, "6": 0, "7": 18 };
+  Object.keys(verteilung).forEach(klasseId => {
+    for (let i = 0; i < verteilung[klasseId]; i++) {
+      bestellungen.push({
+        id: klasseId + "-" + i,
+        klasseId: klasseId,
+        vorname: "Vorname" + i,
+        nachname: "Nachname" + i,
+        vorspeise: i % 3 === 0 ? "Suppe" : (i % 3 === 1 ? "Salat" : "Keine"),
+        hauptgang: i % 2 === 0 ? "Menü 1" : "Menü 2",
+        bemerkung: ""
+      });
+    }
+  });
+
+  function warten() { return new Promise(r => setTimeout(r, 220)); }
+  function kopie(o) { return JSON.parse(JSON.stringify(o)); }
+
+  return {
+    auth: {
+      anmeldungSicherstellen: async function () {
+        await warten();
+        return { name: "Testperson (Mock-Modus)", adresse: "mock@campus-sursee.ch" };
+      },
+      konto: function () {
+        return { name: "Testperson (Mock-Modus)", adresse: "mock@campus-sursee.ch" };
+      }
+    },
+    graph: {
+      klassen: async function () {
+        await warten();
+        return kopie(klassen).sort((a, b) => (b.datum || "").localeCompare(a.datum || ""));
+      },
+      bestellungen: async function () {
+        await warten();
+        return kopie(bestellungen);
+      }
+    }
+  };
+}
+
+/* Ab hier arbeitet die ganze Seite nur noch mit diesen beiden Namen. */
+let Anmeldung = Auth;
+let Daten = Graph;
+if (istMock) {
+  const attrappe = mockBauen();
+  Anmeldung = attrappe.auth;
+  Daten = attrappe.graph;
+}
+
+
+/* ---------- Zustand ---------- */
+
+let alleKlassen = [];
+let zahlenProKlasse = {};   // klasseId -> {total, menu1, menu2}
+let zeigeVergangene = false;
+
+
+/* ---------- kleine Helfer ---------- */
+
+function leeren(knoten) {
+  while (knoten.firstChild) knoten.removeChild(knoten.firstChild);
+}
+
+function neu(tag, klasse, text) {
+  const k = document.createElement(tag);
+  if (klasse) k.className = klasse;
+  if (text !== undefined && text !== null) k.textContent = text;
+  return k;
+}
+
+function ansichtZeigen(welche) {
+  ["laden", "fehler", "liste"].forEach(a => {
+    el("ansicht-" + a).style.display = (a === welche) ? "" : "none";
+  });
+}
+
+function fehlerZeigen(e) {
+  const feld = el("fehler-global");
+  feld.textContent = (e && e.message) ? e.message : String(e);
+  feld.style.display = "block";
+  window.scrollTo(0, 0);
+}
+
+
+/* ---------- Daten holen ---------- */
+
+/* Wie in der Verwaltung werden beide Listen ganz geholt und im Browser
+   zusammengeführt; serverseitige Filter setzen in SharePoint einen
+   Spaltenindex voraus. */
+async function termineLaden() {
+  el("fehler-global").style.display = "none";
+  try {
+    const [klassen, bestellungen] = await Promise.all([
+      Daten.klassen(),
+      Daten.bestellungen()
+    ]);
+    alleKlassen = klassen;
+
+    zahlenProKlasse = {};
+    bestellungen.forEach(b => {
+      const schluessel = String(b.klasseId);
+      const z = zahlenProKlasse[schluessel]
+        || (zahlenProKlasse[schluessel] = { total: 0, menu1: 0, menu2: 0 });
+      z.total++;
+      if (String(b.hauptgang || "").indexOf("1") >= 0) z.menu1++;
+      else if (String(b.hauptgang || "").indexOf("2") >= 0) z.menu2++;
+    });
+
+    zeichnen();
+  } catch (e) {
+    fehlerZeigen(e);
+  }
+}
+
+
+/* ---------- Anzeige ---------- */
+
+function sichtbareKlassen() {
+  const heute = Hilfe.heute();
+  return alleKlassen.filter(k => ((k.datum || "") < heute) === zeigeVergangene);
+}
+
+/* Klassen nach Datum zusammenfassen. Kommende Termine stehen aufsteigend,
+   der nächste zuoberst; vergangene absteigend, der letzte zuoberst. */
+function nachDatum(klassen) {
+  const tage = {};
+  klassen.forEach(k => {
+    const datum = k.datum || "";
+    (tage[datum] || (tage[datum] = [])).push(k);
+  });
+  const reihenfolge = Object.keys(tage).sort();
+  if (zeigeVergangene) reihenfolge.reverse();
+  return reihenfolge.map(datum => ({
+    datum: datum,
+    klassen: tage[datum].sort((a, b) =>
+      (a.essenszeit || "").localeCompare(b.essenszeit || "")
+      || (a.titel || "").localeCompare(b.titel || "", "de-CH"))
+  }));
+}
+
+function zahlen(klasseId) {
+  return zahlenProKlasse[String(klasseId)] || { total: 0, menu1: 0, menu2: 0 };
+}
+
+function zeichnen() {
+  const treffer = sichtbareKlassen();
+  const gruppen = nachDatum(treffer);
+
+  uebersichtZeichnen(treffer, gruppen.length);
+
+  const behaelter = el("tage");
+  leeren(behaelter);
+
+  const leerfeld = el("leer");
+  if (!gruppen.length) {
+    leerfeld.style.display = "block";
+    leerfeld.textContent = zeigeVergangene
+      ? "Keine vergangenen Termine vorhanden."
+      : "Keine anstehenden Termine vorhanden.";
+  } else {
+    leerfeld.style.display = "none";
+    gruppen.forEach(g => behaelter.appendChild(tagZeichnen(g)));
+  }
+
+  el("fusszeile").textContent =
+    "Stand: " + Hilfe.zeitstempelKurz(new Date().toISOString())
+    + " · Die Teilnehmenden wählen am Kurstag bis " + Hilfe.annahmeschlussText()
+    + " Uhr, danach ändert nur noch die Réception."
+    + " Klassen und Bestellungen werden nach 30 Tagen automatisch gelöscht.";
+}
+
+function uebersichtZeichnen(klassen, anzahlTage) {
+  let bestellungen = 0, menu1 = 0, menu2 = 0;
+  klassen.forEach(k => {
+    const z = zahlen(k.id);
+    bestellungen += z.total;
+    menu1 += z.menu1;
+    menu2 += z.menu2;
+  });
+
+  const behaelter = el("uebersicht");
+  leeren(behaelter);
+  [["Tage", anzahlTage], ["Kurse", klassen.length],
+   ["Bestellungen", bestellungen], ["Menü 1 / Menü 2", menu1 + " / " + menu2]
+  ].forEach(([name, wert]) => {
+    const kasten = neu("div");
+    kasten.appendChild(neu("b", null, String(wert)));
+    kasten.appendChild(neu("span", null, name));
+    behaelter.appendChild(kasten);
+  });
+}
+
+function tagZeichnen(gruppe) {
+  const block = neu("div", "tag");
+
+  const kopf = neu("div", "tag-kopf");
+  kopf.appendChild(neu("div", "tag-datum", Hilfe.datumText(gruppe.datum) || "ohne Datum"));
+  if (gruppe.datum === Hilfe.heute()) kopf.appendChild(neu("div", "tag-heute", "heute"));
+
+  let summe = 0;
+  gruppe.klassen.forEach(k => { summe += zahlen(k.id).total; });
+  kopf.appendChild(neu("div", "tag-summe",
+    gruppe.klassen.length + (gruppe.klassen.length === 1 ? " Kurs" : " Kurse")
+    + " · " + summe + (summe === 1 ? " Bestellung" : " Bestellungen")));
+  block.appendChild(kopf);
+
+  const rahmen = neu("div", "tabellenrahmen");
+  const tabelle = neu("table");
+
+  const kopfzeile = neu("tr");
+  [["Zeit", null], ["Kurs", null], ["Firma", null],
+   ["Best.", "zahl"], ["Menü 1", "zahl"], ["Menü 2", "zahl"]].forEach(([t, klasse]) => {
+    kopfzeile.appendChild(neu("th", klasse, t));
+  });
+  const kopfteil = neu("thead");
+  kopfteil.appendChild(kopfzeile);
+  tabelle.appendChild(kopfteil);
+
+  const koerper = neu("tbody");
+  gruppe.klassen.forEach(k => {
+    const z = zahlen(k.id);
+    const zeile = neu("tr");
+
+    zeile.appendChild(neu("td", "zeit", k.essenszeit ? k.essenszeit + " Uhr" : "—"));
+
+    const kurs = neu("td", "kurs", k.titel || "Ohne Titel");
+    if (k.status !== "offen") kurs.appendChild(neu("span", "marke-zu", "geschlossen"));
+    zeile.appendChild(kurs);
+
+    zeile.appendChild(neu("td", "firma", k.firma || ""));
+    /* Ein Kurs ohne einzige Bestellung fällt farbig auf: dort fehlt für die
+       Küche noch alles, und die Réception muss meist nachfassen. */
+    zeile.appendChild(neu("td", z.total ? "zahl" : "zahl leerzahl", String(z.total)));
+    zeile.appendChild(neu("td", "zahl", String(z.menu1)));
+    zeile.appendChild(neu("td", "zahl", String(z.menu2)));
+
+    koerper.appendChild(zeile);
+  });
+  tabelle.appendChild(koerper);
+  rahmen.appendChild(tabelle);
+  block.appendChild(rahmen);
+
+  return block;
+}
+
+
+/* ---------- Ereignisse ---------- */
+
+function umschalterBeschriften() {
+  el("btn-umschalten").textContent = zeigeVergangene ? "Kommende anzeigen" : "Vergangene anzeigen";
+  document.title = (zeigeVergangene ? "Vergangene Termine" : "Alle Termine") + " Menüwahl BAULÜÜT";
+}
+
+el("btn-umschalten").addEventListener("click", () => {
+  zeigeVergangene = !zeigeVergangene;
+  umschalterBeschriften();
+  zeichnen();
+});
+el("btn-aktualisieren").addEventListener("click", termineLaden);
+el("btn-drucken").addEventListener("click", () => window.print());
+el("btn-erneut").addEventListener("click", () => location.reload());
+
+
+/* ---------- Start ---------- */
+
+async function starten() {
+  ansichtZeigen("laden");
+  let konto;
+  try {
+    konto = await Anmeldung.anmeldungSicherstellen();
+  } catch (e) {
+    el("fehler-text").textContent = (e && e.message) ? e.message : String(e);
+    ansichtZeigen("fehler");
+    return;
+  }
+
+  if (!konto) konto = Anmeldung.konto();
+  el("kopf-name").textContent = konto ? (konto.name || konto.adresse || "") : "";
+
+  umschalterBeschriften();
+  ansichtZeigen("liste");
+  await termineLaden();
+}
+
+starten();
+</script>
+</body>
+</html>

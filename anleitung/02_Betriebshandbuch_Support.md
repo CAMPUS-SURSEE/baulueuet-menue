@@ -1,7 +1,7 @@
 # Betriebs- und Supporthandbuch: Menüwahl Restaurant BAULÜÜT
 
 **Für:** ICT-Services Campus Sursee
-**Stand:** 28.08.2026
+**Stand:** 04.09.2026
 **Gilt für:** die Webseite `https://menue.campus-sursee.ch` samt SharePoint-Listen, Power-Automate-Flows und Entra-App-Registrierung
 **Verwandte Dokumente:** `ANLEITUNG_ANMELDUNG.md` (Einrichtung der App-Registrierung), `HANDOFF_Menuewahl_BAULUUT_Stand_2026-08-28.md` (Projektstand und Architektur)
 
@@ -20,6 +20,8 @@ Alle Zitate von Fehlermeldungen in diesem Handbuch stammen wortgetreu aus dem Qu
    - [3.4 Anmeldung abgelaufen, Token-Fehler](#34-anmeldung-abgelaufen-token-fehler)
    - [3.5 Klasse nicht gefunden, Gästelink defekt](#35-klasse-nicht-gefunden-gästelink-defekt)
    - [3.6 Gast sieht «falscher Tag» statt Formular](#36-gast-sieht-falscher-tag-statt-formular)
+   - [3.6a Gast sieht «Menüwahl geschlossen» oder findet den Bearbeiten-Knopf nicht](#36a-gast-sieht-menüwahl-geschlossen-oder-findet-den-bearbeiten-knopf-nicht)
+   - [3.6b Kursblatt-Link führt bei Externen zur Microsoft-Anmeldung](#36b-kursblatt-link-führt-bei-externen-zur-microsoft-anmeldung)
    - [3.7 Tagesmenüs fehlen auf dem Menüblatt](#37-tagesmenüs-fehlen-auf-dem-menüblatt)
    - [3.8 Menütexte falsch verteilt](#38-menütexte-falsch-verteilt)
    - [3.9 QR-Code lässt sich nicht scannen](#39-qr-code-lässt-sich-nicht-scannen)
@@ -44,7 +46,8 @@ Kursteilnehmende wählen ihr Mittagsmenü über eine Webseite statt auf Papier. 
 | Webseite | statische Seiten, kein Server, keine Datenbank | Netlify, `https://menue.campus-sursee.ch` |
 | `index.html` | Gästeseite, ohne Anmeldung | Netlify |
 | `admin.html` | Verwaltung der Klassen, mit Anmeldung | Netlify |
-| `kursblatt.html` | Aushang mit QR-Code, mit Anmeldung | Netlify |
+| `termine.html` | alle Kurstermine nach Datum, mit Anmeldung. Liest nur | Netlify |
+| `kursblatt.html` | Aushang mit QR-Code, **ohne** Anmeldung, lädt über Flow B | Netlify |
 | `menueblatt.html` | Bestellübersicht für die Küche, mit Anmeldung | Netlify |
 | Liste «Klassen» | ein Eintrag pro Kurs, mit 8-stelligem Code | SharePoint-Site «Reception» (`hot-reze`) |
 | Liste «Bestellungen» | ein Eintrag pro Person | SharePoint-Site «Reception» |
@@ -58,7 +61,8 @@ Alle IDs, Adressen und Flow-Aufrufadressen stehen an einem Ort: `frontend\konfig
 ### 1.2 Wer redet mit wem
 
 - **Gäste** öffnen `index.html` anonym. Die Seite spricht ausschliesslich mit **Flow B** (Klassendaten und Tagesmenüs) und **Flow C** (Bestellung speichern). Kein Konto, kein Token.
-- **Réception** meldet sich auf `admin.html`, `kursblatt.html` und `menueblatt.html` mit dem Microsoft-365-Konto an und greift danach **direkt über Microsoft Graph** auf die beiden SharePoint-Listen zu. Die Berechtigung ist delegiert: Das Token kann nur das, was die Person in SharePoint ohnehin darf.
+- **Kursleitung** öffnet `kursblatt.html` ebenfalls anonym. Auch diese Seite spricht nur mit **Flow B**. Sie meldet sich nie von selbst an; der Weg über Graph steht allein hinter dem Knopf «Mit Konto anmelden» auf der Fehlerkarte.
+- **Réception** meldet sich auf `admin.html`, `termine.html` und `menueblatt.html` mit dem Microsoft-365-Konto an und greift danach **direkt über Microsoft Graph** auf die beiden SharePoint-Listen zu. Die Berechtigung ist delegiert: Das Token kann nur das, was die Person in SharePoint ohnehin darf.
 - **Ausnahme:** `menueblatt.html` holt die Bestellungen über Graph, die Menütexte aber weiterhin über **Flow B**, weil dort die Lunchgate-Anbindung sitzt.
 
 ### 1.3 Zuständigkeiten
@@ -110,7 +114,7 @@ Wichtig zum Verständnis der Meldungen: Auf `kursblatt.html` und `menueblatt.htm
 
 | Code | Ursache | Prüfschritt | Behebung |
 |---|---|---|---|
-| `AADSTS50011` | Die Umleitungsadresse ist in der App-Registrierung nicht hinterlegt oder weicht ab. Auch `http` gegen `https`, ein zusätzlicher Schrägstrich oder eine abweichende Domäne zählen als Abweichung. | In Entra ID unter **App-Registrierungen → Menuewahl BAULUUT Admin → Authentifizierung** die Liste der SPA-Umleitungsadressen mit der Adresse in der Browserzeile vergleichen (ohne den Teil ab `?`). | Fehlende Adresse ergänzen. Nötig sind `https://menue.campus-sursee.ch/admin.html`, `.../kursblatt.html`, `.../menueblatt.html`, für lokale Tests zusätzlich die drei `http://localhost:8123/…`-Varianten. Abfragezeichenfolgen wie `?klasse=CODE` gehören **nicht** dazu; die Seiten schneiden sie für die Anmeldung ab und stellen sie danach selbst wieder her. Speichern nicht vergessen. |
+| `AADSTS50011` | Die Umleitungsadresse ist in der App-Registrierung nicht hinterlegt oder weicht ab. Auch `http` gegen `https`, ein zusätzlicher Schrägstrich oder eine abweichende Domäne zählen als Abweichung. | In Entra ID unter **App-Registrierungen → Menuewahl BAULUUT Admin → Authentifizierung** die Liste der SPA-Umleitungsadressen mit der Adresse in der Browserzeile vergleichen (ohne den Teil ab `?`). | Fehlende Adresse ergänzen. Nötig sind `https://menue.campus-sursee.ch/admin.html`, `.../termine.html`, `.../menueblatt.html` und `.../kursblatt.html` (für dessen Rückfallweg), für lokale Tests zusätzlich die `http://localhost:8123/…`-Varianten. Abfragezeichenfolgen wie `?klasse=CODE` gehören **nicht** dazu; die Seiten schneiden sie für die Anmeldung ab und stellen sie danach selbst wieder her. Speichern nicht vergessen. |
 | `AADSTS9002326` | Die Plattform der App-Registrierung steht auf «Web» statt auf «Single-Page-Anwendung». Nur bei SPA erlaubt Microsoft den Tokentausch direkt aus dem Browser. | Gleiche Seite **Authentifizierung**: Unter welcher Plattformüberschrift stehen die drei Adressen? | Die Adressen unter der Plattform **Single-Page-Anwendung (SPA)** eintragen und die Plattform «Web» entfernen. |
 | `AADSTS50105` | Die Person ist der Unternehmensanwendung nicht zugewiesen. Das ist der beabsichtigte Zustand für alle ausserhalb der Réception. | In Entra ID unter **Unternehmensanwendungen → Menuewahl BAULUUT Admin → Benutzer und Gruppen** nachsehen, ob das Konto aufgeführt ist. | Wenn die Person Zugriff haben soll: zuweisen, siehe Abschnitt 5.1. Wenn nicht: kein Fehler, so ist es gedacht. |
 
@@ -122,7 +126,7 @@ dann ist die Datei `konfig.js` auf Netlify unvollständig oder wurde durch eine 
 
 ### 3.2 Anmeldebibliothek und CDN
 
-**Symptom:** Auf einer der drei Admin-Seiten erscheint im Klartext
+**Symptom:** Auf einer der Seiten mit Anmeldung (`admin.html`, `termine.html`, `menueblatt.html`) erscheint im Klartext
 
 > Die Anmeldebibliothek konnte nicht geladen werden. Bitte die Internetverbindung prüfen und die Seite neu laden.
 
@@ -261,6 +265,52 @@ beziehungsweise mit `menueblatt.html?klasse=ABC123`. **Ursache:** Die Seite wurd
 
 dann steht der Status der Klasse auf «geschlossen». Behebung: in `admin.html` die Klasse bearbeiten und den Status auf «offen» setzen. Der gleiche Text erscheint auch, wenn Flow C beim Absenden mit HTTP 403 antwortet, die Klasse also zwischen dem Öffnen der Seite und dem Absenden geschlossen wurde.
 
+### 3.6a Gast sieht «Menüwahl geschlossen» oder findet den Bearbeiten-Knopf nicht
+
+**Symptom A:** Statt des Formulars zeigt `index.html`
+
+> **Menüwahl geschlossen**
+> Die Menüwahl ist nur bis 10:00 Uhr möglich.
+> Bitte melde dich bei der Réception, sie nimmt deine Bestellung entgegen.
+
+**Symptom B:** Auf der Bestätigungsseite fehlt der Knopf «Auswahl bearbeiten». An seiner Stelle steht
+
+> **Änderungen nicht mehr möglich**
+> Änderungen an der Menüwahl sind nur bis 10:00 Uhr möglich. Bitte wende dich für eine Änderung an die Réception.
+
+**Ursache:** Beides ist so gedacht und **kein Fehler**. Seit dem 04.09.2026 endet die Menüwahl am Kurstag um 10:00 Uhr. Symptom A trifft, wer bis dahin nichts bestellt hat, Symptom B, wer bestellt hat und nachträglich ändern will. Die bereits abgegebene Bestellung bleibt in beiden Fällen unangetastet.
+
+**Behebung:** Keine im System. Die Réception nimmt die Bestellung oder die Änderung entgegen und trägt sie von Hand auf dem ausgedruckten Menüblatt nach. Eine Nacherfassung in der Verwaltung ist nicht vorgesehen.
+
+**Wenn die Meldung zur falschen Zeit erscheint**
+
+1. **Uhrzeit des Geräts prüfen.** Die Frist wird im Browser gegen die lokale Systemzeit geprüft, genau wie die Datumsprüfung in Abschnitt 3.6. Ein falsch gestelltes Handy oder eine fremde Zeitzone erzeugt dieses Bild zu früh oder zu spät.
+2. **Seite neu laden.** Lag die Seite über 10:00 Uhr hinaus offen, schaltet sie von selbst um. Das ist gewollt.
+3. Erscheint die Meldung **vormittags vor 10:00 Uhr** auf mehreren Geräten mit richtiger Uhrzeit, ist das ein echter Fehler. Dann in `frontend\index.html` den Wert der Konstanten `ANNAHMESCHLUSS` prüfen; er muss `10` sein.
+
+**Zur Einordnung:** Diese Frist ist eine Prüfung im Browser, keine Sperre. Flow C nimmt eine Bestellung weiterhin an, wenn jemand ihn von Hand aufruft. Das ist bewusst so, siehe `05_Entscheide_und_Verlauf.md`, Abschnitt 5a. Wer die Frist hart erzwingen will, findet den nötigen Eingriff in Flow C in `03_Technische_Dokumentation.md`, Abschnitt 7.1.
+
+### 3.6b Kursblatt-Link führt bei Externen zur Microsoft-Anmeldung
+
+**Symptom:** Eine Kursleitung ohne Konto im Mandanten erhält den Kursblatt-Link und landet auf `login.microsoftonline.com` statt auf dem Blatt.
+
+**Ursache:** Seit dem 04.09.2026 lädt `kursblatt.html` anonym über Flow B und darf **nie** von selbst zur Anmeldung umleiten. Passiert es doch, wurde entweder eine ältere Fassung der Datei ausgeliefert, oder jemand hat den Aufruf von `Auth.anmeldungSicherstellen()` zurück in den Ladepfad geschoben.
+
+**Prüfschritte**
+
+1. `https://menue.campus-sursee.ch/kursblatt.html?klasse=CODE` in einem **privaten Fenster** öffnen, also ohne bestehende Microsoft-Sitzung. Das Blatt muss ohne Anmeldung erscheinen.
+2. Netzwerkanalyse öffnen (Abschnitt 4.3). Erwartet wird **ein** GET an den Power-Automate-Host und **kein** Aufruf an `login.microsoftonline.com`.
+3. Bei Netlify unter **Deploys** prüfen, ob der neueste Stand veröffentlicht ist.
+
+**Behebung:** Aktuellen Stand veröffentlichen, siehe Abschnitt 5.4.
+
+**Verwandtes Bild:** Erscheint
+
+> **Kursblatt nicht abrufbar**
+> Zu diesem Klassencode wurde nichts gefunden. Bitte prüfen Sie den Link. Mitarbeitende der Réception können es mit ihrem Geschäftskonto nochmals versuchen.
+
+dann hat Flow B nichts geliefert: entweder ist der Code falsch, oder der Flow ist gestört. Erst den Code prüfen, danach die Flow-Läufe (Abschnitt 4.4). Die Réception kommt in der Zwischenzeit über den Knopf **«Mit Konto anmelden»** an das Blatt; dieser Weg läuft über Microsoft Graph und ist von Flow B unabhängig.
+
 ### 3.7 Tagesmenüs fehlen auf dem Menüblatt
 
 **Symptom:** Auf `menueblatt.html` fehlt der Kasten «Menü des Tages», stattdessen steht dort
@@ -389,6 +439,10 @@ Meldungen, die im Betrieb auftauchen können und oben nicht bereits behandelt si
 | «Kopieren nicht möglich, bitte von Hand markieren.» | Verwaltung, neben «Link kopieren» | Die Zwischenablage ist gesperrt. Der Zugriff braucht einen sicheren Kontext, also HTTPS oder `localhost`. | Link im Feld daneben von Hand markieren und kopieren. Prüfen, ob die Seite tatsächlich über `https://` geöffnet wurde. |
 | Rückfrage beim Löschen: «Klasse «*Name*» wirklich löschen? Die bereits erfassten Bestellungen dieser Klasse werden dabei nicht mitgelöscht; sie bleiben in der Liste «Bestellungen» stehen.» | Verwaltung | keine Störung, sondern die bewusste Warnung vor dem Löschen | Siehe Abschnitt 6, Punkt 3. |
 | «Anmeldung nicht möglich» als Überschrift | Verwaltung | Sammelbild für alle Anmeldefehler; der Text darunter nennt die Ursache | Siehe 3.1 bis 3.4. Knopf «Erneut versuchen» lädt die Seite neu. |
+| «Die Menüwahl ist seit 10:00 Uhr geschlossen. Bitte melde dich bei der Réception.» | Gästeseite, roter Balken im Formular | Das Formular lag über den Annahmeschluss hinaus offen und wurde danach abgesendet. | Keine. Die Bestellung wurde **nicht** gespeichert; die Réception nimmt sie entgegen. Siehe 3.6a. |
+| «Menüwahl geschlossen» als Überschrift | Gästeseite | Annahmeschluss vorbei, keine Bestellung vorhanden | Kein Fehler, siehe 3.6a. |
+| «Kursblatt nicht abrufbar» als Überschrift | Kursblatt | Flow B hat zu diesem Code nichts geliefert: falscher Code oder Flow gestört | Code prüfen, danach Flow-Läufe (4.4). Die Réception kommt über «Mit Konto anmelden» ans Blatt. Siehe 3.6b. |
+| «Keine anstehenden Termine vorhanden.» | Terminübersicht | Es gibt keine Klasse mit einem Datum ab heute. | Kein Fehler. Mit «Vergangene anzeigen» die zurückliegenden Termine prüfen. |
 
 ---
 
@@ -400,10 +454,12 @@ An **jede** Seite lässt sich `?mock=1` anhängen. Die Seite arbeitet dann mit f
 
 ```
 https://menue.campus-sursee.ch/admin.html?mock=1
+https://menue.campus-sursee.ch/termine.html?mock=1
 https://menue.campus-sursee.ch/kursblatt.html?mock=1
 https://menue.campus-sursee.ch/menueblatt.html?mock=1
 https://menue.campus-sursee.ch/?mock=1
 https://menue.campus-sursee.ch/?mock=1&falschertag=1
+https://menue.campus-sursee.ch/?mock=1&spaet=1
 ```
 
 Das ist das schnellste Mittel, um Anzeige- von Datenproblemen zu trennen:
@@ -430,7 +486,8 @@ F12, Reiter «Netzwerk», dann die Seite neu laden. Erwartete Aufrufe:
 |---|---|
 | Gästeseite | ein GET an den Power-Automate-Host (Flow B), beim Absenden ein POST (Flow C) |
 | Verwaltung | MSAL vom CDN, Anmeldung an `login.microsoftonline.com`, mehrere GET an `graph.microsoft.com` |
-| Kursblatt | MSAL und QR-Bibliothek vom CDN, Anmeldung, GET an `graph.microsoft.com` |
+| Kursblatt | QR-Bibliothek vom CDN, ein GET an den Power-Automate-Host (Flow B). **Keine Anmeldung, kein Graph** im Normalfall |
+| Terminübersicht | MSAL vom CDN, Anmeldung, zwei GET an `graph.microsoft.com` (Klassen und Bestellungen) |
 | Menüblatt | MSAL vom CDN, Anmeldung, GET an `graph.microsoft.com`, zusätzlich ein GET an den Power-Automate-Host für die Menütexte |
 
 Fehlt ein Aufruf ganz, ist er meist von der CSP blockiert. Steht dort ein Statuscode, ist er der beste Anhaltspunkt für das Ticket.
@@ -491,7 +548,7 @@ Betroffen sind zwei Bibliotheken: `@azure/msal-browser` (aktuell 4.30.0, eingebu
    ```
 3. In **allen** betroffenen Seiten in `frontend\` sowohl die Versionsnummer in der Adresse als auch den Wert im Attribut `integrity="sha384-…"` ersetzen. Beides muss zusammenpassen, sonst verweigert der Browser das Laden und die Seite meldet «Die Anmeldebibliothek konnte nicht geladen werden. …».
 4. Zuerst lokal oder mit `?mock=1` prüfen, danach veröffentlichen (Abschnitt 5.4).
-5. Nach der Veröffentlichung alle drei Admin-Seiten einmal echt anmelden und das Kursblatt einmal mit QR-Code öffnen.
+5. Nach der Veröffentlichung `admin.html`, `termine.html` und `menueblatt.html` einmal echt anmelden und das Kursblatt einmal mit QR-Code öffnen, letzteres **ohne** Anmeldung.
 
 Anlass für eine Anhebung ist eine Sicherheitsmeldung zur Bibliothek oder ein konkreter Fehler. Ohne Anlass ist die feste Fassung die sicherere Wahl.
 
@@ -500,7 +557,7 @@ Anlass für eine Anhebung ist eine Sicherheitsmeldung zur Bibliothek oder ein ko
 Netlify ist an das Git-Repository angebunden. Ein Push auf `main` veröffentlicht automatisch, ein eigener Schritt bei Netlify entfällt.
 
 1. Änderung in `frontend\` vornehmen.
-2. Lokal prüfen: `code\serve.ps1` starten, `http://localhost:8123/` öffnen. Für Seiten mit Anmeldung müssen die drei `localhost:8123`-Umleitungsadressen in der App-Registrierung eingetragen sein.
+2. Lokal prüfen: `code\serve.ps1` starten, `http://localhost:8123/` öffnen. Für Seiten mit Anmeldung müssen die `localhost:8123`-Umleitungsadressen in der App-Registrierung eingetragen sein, siehe `04_Einrichtung_und_Deployment.md`, Abschnitt 2.2.
 3. Committen und auf `main` pushen.
 4. Bei Netlify unter **Deploys** verfolgen, bis der Deploy als «Published» markiert ist. Das dauert üblicherweise weniger als eine Minute.
 5. Gegenprüfen: `admin.html` öffnen, eine Klasse auswählen, Kursblatt und Menüblatt aufrufen und einen Gästelink testen. Beim Prüfen den Browsercache umgehen (Strg und F5).
@@ -523,13 +580,13 @@ Eine fehlerhafte Veröffentlichung lässt sich in Netlify über den Deploy-Verla
 
 Diese Punkte sind bekannt und bewusst in Kauf genommen. Sie gehören ins Gespräch, bevor jemand sie für einen Fehler hält.
 
-1. **Flow C prüft das Datum nicht serverseitig.** Die Regel «nur am Tag des Mittagessens» setzt allein die Gästeseite durch. Wer die Schnittstelle direkt aufruft, kann eine Bestellung auch an einem anderen Tag absetzen. Die Aufrufadresse mit Signatur steht im Quelltext der öffentlich zugänglichen Gästeseite; sie ist damit für jeden lesbar, der die Seite öffnet. Für diesen Anwendungsfall, eine Menüwahl ohne schutzwürdige Daten, ist das vertretbar, aber es ist keine Sicherheitsgrenze. Eine serverseitige Datumsprüfung in Flow C steht auf der Liste der offenen Punkte.
+1. **Flow C prüft weder Datum noch Uhrzeit serverseitig.** Die Regeln «nur am Tag des Mittagessens» und «nur bis 10:00 Uhr» setzt allein die Gästeseite durch. Wer die Schnittstelle direkt aufruft, kann eine Bestellung auch an einem anderen Tag absetzen. Die Aufrufadresse mit Signatur steht im Quelltext der öffentlich zugänglichen Gästeseite; sie ist damit für jeden lesbar, der die Seite öffnet. Für diesen Anwendungsfall, eine Menüwahl ohne schutzwürdige Daten, ist das vertretbar, aber es ist keine Sicherheitsgrenze. Eine serverseitige Prüfung von Datum und Uhrzeit in Flow C steht auf der Liste der offenen Punkte; der nötige Eingriff ist in `03_Technische_Dokumentation.md`, Abschnitt 7.1, beschrieben. Dasselbe gilt sinngemäss für Flow B: Er liefert Klassendaten an jeden, der einen gültigen Code kennt. Genau darauf beruht das öffentliche Kursblatt, siehe `05_Entscheide_und_Verlauf.md`, Abschnitt 5.
 2. **Die Aufteilung der Vorspeisenzeile ist textabhängig.** Flow B trennt das Lunchgate-Feld `P3` am Wort « oder ». Schreibt die Küche anders, landet die ganze Zeile im Suppe-Feld. Das fällt niemandem im System auf, es fällt erst auf dem gedruckten Blatt auf. Siehe Abschnitt 3.8.
 3. **Beim Löschen einer Klasse bleiben deren Bestellungen stehen.** Sie verlieren ihren Bezug und verschwinden aus jeder Ansicht, stehen aber weiter in der Liste «Bestellungen», bis der Aufräum-Flow sie nach 30 Tagen entfernt. Die Verwaltung warnt beim Löschen ausdrücklich davor. Der Aufräum-Flow könnte erweitert werden, sodass er verwaiste Bestellungen mit entfernt; das ist noch nicht umgesetzt.
 4. **Zugriff auf die Verwaltung muss bei Personalwechsel von Hand nachgeführt werden.** Ohne Entra ID P1 lassen sich nur einzelne Personen zuweisen, keine Gruppen. Es gibt keinen automatischen Abgleich mit einer Abteilung oder einer AD-Gruppe. Wer austritt, bleibt zugewiesen, bis jemand die Zuweisung entfernt.
-5. **Abhängigkeit von einem fremden CDN.** Anmeldung und QR-Code setzen voraus, dass `cdn.jsdelivr.net` erreichbar ist. Fällt der Dienst aus oder wird er im Netz blockiert, sind die drei Admin-Seiten nicht benutzbar. Sie melden das im Klartext, statt leer zu bleiben. Die Gästeseite ist nicht betroffen: Sie lädt keine Bibliothek und funktioniert weiter. Als Gegengewicht sind beide Bibliotheken auf feste Fassungen genagelt und mit Prüfsumme abgesichert; ein manipuliertes Auslieferungspaket würde nicht geladen.
+5. **Abhängigkeit von einem fremden CDN.** Anmeldung und QR-Code setzen voraus, dass `cdn.jsdelivr.net` erreichbar ist. Fällt der Dienst aus oder wird er im Netz blockiert, sind die drei Seiten mit Anmeldung (`admin.html`, `termine.html`, `menueblatt.html`) nicht benutzbar. Sie melden das im Klartext, statt leer zu bleiben. Die Gästeseite ist nicht betroffen: Sie lädt keine Bibliothek und funktioniert weiter. Das Kursblatt lädt und zeigt seine Angaben ebenfalls weiter, nur der QR-Code fehlt dann; der Gästelink darunter bleibt als Ersatz lesbar. Als Gegengewicht sind beide Bibliotheken auf feste Fassungen genagelt und mit Prüfsumme abgesichert; ein manipuliertes Auslieferungspaket würde nicht geladen.
 6. **Kein serverseitiger Filter.** Die Seiten holen ganze Listen und filtern im Browser, weil serverseitige Filter auf SharePoint-Listenspalten einen Index voraussetzen und sonst sporadisch fehlschlagen. Bei 30 Tagen Aufbewahrung sind das wenige hundert Einträge, das trägt problemlos. Würde die Aufbewahrung stark verlängert, müsste dieser Punkt neu bewertet werden.
-7. **Keine automatische Veröffentlichung.** Jede Änderung an der Webseite geht per Drag & Drop auf Netlify. Es gibt keine Versionsverwaltung ausserhalb des Deploy-Verlaufs von Netlify und des Projektordners.
+7. **Die Uhrzeit des Annahmeschlusses steht an zwei Stellen im Quellcode.** `KONFIG.annahmeschluss` in `frontend\konfig.js` gilt für die Admin-Seiten, `ANNAHMESCHLUSS` im Kopf von `frontend\index.html` für die Gästeseite. Die Gästeseite lädt `konfig.js` bewusst nicht, weil sie ohne Anmeldung auskommt. Wird die Zeit nur an einer Stelle geändert, widersprechen sich Kursblatt und Gästeseite. Siehe `03_Technische_Dokumentation.md`, Abschnitt 7.1.
 8. **Die Gästeseite merkt sich die Bestellung nur lokal.** Sie speichert die abgesendete Wahl im `localStorage` des Geräts, damit die Bestätigung nach dem Neuladen wieder erscheint und die Wahl bearbeitet werden kann. Auf einem anderen Gerät oder in einem privaten Fenster ist diese Erinnerung weg; eine erneute Bestellung erzeugt dann einen zweiten Eintrag in der Liste. Doppelte Namen auf dem Menüblatt haben in der Regel diese Ursache.
 
 ---

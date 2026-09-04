@@ -240,6 +240,12 @@ const Graph = (function () {
       essenszeit: k.Essenszeit || "",
       code:       k.Code || "",
       status:     k.Status || "offen",
+      /* Erwartete Teilnehmerzahl. 0 heisst «nicht hinterlegt»: die Spalte
+         kann leer sein, und solange sie es ist, zeigt die Verwaltung nur
+         die tatsächlichen Bestellungen ohne Massstab daneben. Fehlt die
+         Spalte in SharePoint ganz, greift in `alleElemente` der Rückfall
+         ohne Feldauswahl und der Wert bleibt hier schlicht 0. */
+      erwartet:   Number(k.Teilnehmer) || 0,
       bemerkung:  k.Bemerkung || "",
       erstellt:      k.erstellt,
       erstelltVon:   k.erstelltVon || "",
@@ -264,6 +270,12 @@ const Graph = (function () {
     if (daten.code       !== undefined) felder.Code       = daten.code;
     if (daten.status     !== undefined) felder.Status     = daten.status;
     if (daten.bemerkung  !== undefined) felder.Bemerkung  = daten.bemerkung;
+    /* null räumt die Zahlenspalte wieder aus. Das ist nicht dasselbe wie 0:
+       leer heisst «noch nicht bekannt», 0 hiesse «niemand wird erwartet». */
+    if (daten.erwartet   !== undefined) {
+      felder.Teilnehmer = (daten.erwartet === null || daten.erwartet === "")
+        ? null : Number(daten.erwartet);
+    }
     return felder;
   }
 

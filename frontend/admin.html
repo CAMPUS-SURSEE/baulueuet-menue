@@ -876,7 +876,7 @@ function listeZeichnen() {
   if (!treffer.length) {
     leerfeld.style.display = "block";
     leerfeld.appendChild(neu("div", null, suchtext.trim()
-      ? "Keine Klasse gefunden."
+      ? "Kein Termin gefunden."
       : "Für heute ist kein Termin eingetragen."));
     /* Wer nichts findet, soll nicht raten müssen, ob es den Termin gar nicht
        gibt oder ob nur der Filter zu eng steht. Gibt es Treffer ausserhalb

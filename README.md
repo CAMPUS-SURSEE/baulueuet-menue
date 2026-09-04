@@ -27,8 +27,7 @@ baulueuet-menue/
 ├── wrangler.toml                     Hosting-Einstellungen für Cloudflare Pages
 ├── frontend/                         die Webseite, genau so wie sie gehostet wird
 │   ├── index.html                    Gästeseite, Menüwahl
-│   ├── admin.html                    Verwaltung der Klassen
-│   ├── termine.html                  alle Kurstermine nach Datum, Vorschau fürs Restaurant
+│   ├── admin.html                    Verwaltung der Termine, nach Kurstag gruppiert
 │   ├── kursblatt.html                Aushang mit QR-Code, ohne Anmeldung
 │   ├── menueblatt.html               Bestellübersicht für die Küche
 │   ├── konfig.js                     alle Kennungen und Adressen an einer Stelle
@@ -89,14 +88,13 @@ sie würde Pages `_headers` wegen des Unterstrichs ignorieren.
 
 ---
 
-## Die fünf Seiten
+## Die vier Seiten
 
 | Adresse | Wofür | Anmeldung |
 |---|---|---|
 | `https://menue.campus-sursee.ch/?klasse=CODE` | Gäste wählen ihr Menü | nein |
 | `https://menue.campus-sursee.ch/kursblatt.html?klasse=CODE` | Aushang mit QR-Code, darf der Kursleitung geschickt werden | nein |
-| `https://menue.campus-sursee.ch/admin.html` | Verwaltung der Klassen | ja |
-| `https://menue.campus-sursee.ch/termine.html` | alle Kurstermine nach Datum, Vorschau fürs Restaurant | ja |
+| `https://menue.campus-sursee.ch/admin.html` | Verwaltung der Termine | ja |
 | `https://menue.campus-sursee.ch/menueblatt.html?klasse=CODE` | Bestellübersicht für die Küche | ja |
 
 Cloudflare Pages leitet Adressen mit `.html` auf die Fassung ohne Endung um:

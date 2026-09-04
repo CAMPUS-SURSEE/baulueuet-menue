@@ -7,20 +7,19 @@ Diese Anleitung zeigt Ihnen Schritt für Schritt, was Sie am Empfang dafür tun.
 
 ## 1. Kurz erklärt
 
-Für jeden Kurs, der bei uns zu Mittag isst, legen Sie in der Verwaltung eine «Klasse» an.
+Für jeden Kurs, der bei uns zu Mittag isst, legen Sie in der Verwaltung einen «Termin» an.
 Beim Speichern entsteht automatisch ein achtstelliger Zugangscode, zum Beispiel `M2VJ8KWS`.
 Aus diesem Code entstehen ein Gästelink und ein QR-Code, die Sie dem Kurs weitergeben.
 Die Teilnehmenden wählen am Kurstag mit dem Handy ihre Vorspeise und ihren Hauptgang, **bis 10:00 Uhr**.
 Am Kurstag drucken Sie das Menüblatt mit allen Bestellungen aus und geben es der Küche.
 
-Es gibt fünf Seiten. Die erste brauchen Sie täglich, die anderen öffnen sich aus der Verwaltung heraus von selbst.
+Es gibt vier Seiten. Die erste brauchen Sie täglich, die anderen öffnen sich aus der Verwaltung heraus von selbst.
 
 | Seite | Adresse | Für wen |
 |---|---|---|
 | Verwaltung | `https://menue.campus-sursee.ch/admin.html` | Réception |
 | Gästeseite | `https://menue.campus-sursee.ch/?klasse=CODE` | Teilnehmende |
 | Kursblatt zum Aushängen | `https://menue.campus-sursee.ch/kursblatt.html?klasse=CODE` | Réception zum Drucken, **darf auch der Kursleitung geschickt werden** |
-| Alle Termine | `https://menue.campus-sursee.ch/termine.html` | Réception und Restaurant |
 | Menüblatt für die Küche | `https://menue.campus-sursee.ch/menueblatt.html?klasse=CODE` | Réception, zum Drucken |
 
 **Die 10-Uhr-Regel.** Am Kurstag können die Teilnehmenden bis 10:00 Uhr wählen und ihre Wahl beliebig oft ändern. Ab 10:00 Uhr ist Schluss: Wer dann etwas ändern oder nachträglich bestellen will, wird auf der Seite an die Réception verwiesen. Sie tragen den Fall danach von Hand auf dem ausgedruckten Menüblatt nach und melden ihn der Küche. Das ist derselbe Ablauf wie früher mit dem Papierblatt.
@@ -38,36 +37,53 @@ Solange die Anmeldung läuft oder scheitert, sehen Sie stattdessen die Meldung �
 
 Die Verwaltung ist in zwei Spalten aufgeteilt:
 
-- links «Aktuelle Klassen» mit dem Suchfeld «Suchen: Titel, Firma oder Code» und den Knöpfen «Vergangene anzeigen», «Neue Klasse» und «Alle Termine»
-- rechts «Details» zur ausgewählten Klasse
+- links zuoberst der schwarze Knopf **«Neuer Termin»** über die ganze Spaltenbreite, darunter die Überschrift «Termine», das Suchfeld «Suchen: Titel, Firma oder Code» und der Knopf «Filter»
+- darunter die Terminliste, nach Kurstag gruppiert
+- rechts «Details» zum ausgewählten Termin
 
-Solange Sie nichts angeklickt haben, steht rechts nur: «Links eine Klasse auswählen, um Bestellungen und Gästelink zu sehen.»
+Solange Sie nichts angeklickt haben, steht rechts nur: «Links einen Termin auswählen, um Bestellungen und Gästelink zu sehen.»
+
+**Wie die Liste aufgebaut ist.** Über jeder Gruppe steht der Kurstag, zum Beispiel «Freitag, 04.09.2026»; der heutige Tag ist zusätzlich orange mit «heute» angeschrieben. Darunter stehen alle Termine dieses Tages, nach Essenszeit sortiert. Rechts an jeder Zeile steht die Anzahl Bestellungen, zum Beispiel «5 / 18 Best.»: fünf Bestellungen liegen vor, achtzehn Teilnehmende werden erwartet. Ist keine Teilnehmerzahl hinterlegt, steht dort nur «5 Best.».
+
+**Der Filter.** Von Haus aus zeigt die Liste **nur die heutigen Termine**. Das ist der Alltagsfall. Klicken Sie auf «Filter», öffnet sich ein kleines Feld mit zwei Kästchen:
+
+| Kästchen | Blendet zusätzlich ein |
+|---|---|
+| «Zukünftige Termine» | alle Kurstage nach heute |
+| «Vergangene Termine» | alle Kurstage vor heute |
+
+Neben dem Knopf steht, was gerade gezeigt wird: «Nur heute», «Heute und später», «Heute und früher» oder «Alle Termine». Die heutigen Termine sind immer sichtbar, unabhängig von den Kästchen. Das Feld schliesst sich wieder mit einem Klick daneben oder mit der Esc-Taste; die Einstellung bleibt bis zum Neuladen der Seite erhalten.
+
+Zuoberst stehen die heutigen Termine, danach die kommenden Tage vom nächsten an, danach die vergangenen vom letzten an. So bleibt der heutige Tag immer oben, auch wenn Sie beides eingeblendet haben.
 
 ---
 
-## 3. Eine Klasse anlegen
+## 3. Einen Termin anlegen
 
-Legen Sie pro Kurs und pro Essenstag eine Klasse an. Isst derselbe Kurs an drei Tagen bei uns, brauchen Sie drei Klassen.
+Legen Sie pro Kurs und pro Essenstag einen Termin an. Isst derselbe Kurs an drei Tagen bei uns, brauchen Sie drei Termine.
 
-1. Klicken Sie links auf «Neue Klasse». Rechts erscheint das Formular unter dem Titel «Neue Klasse».
+1. Klicken Sie links zuoberst auf «Neuer Termin». Rechts erscheint das Formular unter dem Titel «Neuer Termin».
 2. **«Titel *»** ausfüllen. Das ist der Name des Kurses, den auch die Teilnehmenden sehen, zum Beispiel «Polierkurs Modul 4». Dieses Feld ist Pflicht, das Sternchen weist darauf hin.
 3. **«Firma»** ausfüllen. Der Auftraggeber oder die Trägerfirma, zum Beispiel «Implenia Schweiz AG». Darf leer bleiben, hilft aber später beim Suchen.
-4. **«Datum»** prüfen. Das ist der Tag, an dem der Kurs zu Mittag isst. Vorgeschlagen wird der heutige Tag, meist müssen Sie ihn also anpassen. Das Datum entscheidet, wann die Teilnehmenden wählen dürfen und ob die Klasse links unter «Aktuelle Klassen» oder unter «Vergangene Klassen» steht.
+4. **«Datum»** prüfen. Das ist der Tag, an dem der Kurs zu Mittag isst. Vorgeschlagen wird der heutige Tag, meist müssen Sie ihn also anpassen. Das Datum entscheidet, wann die Teilnehmenden wählen dürfen und unter welchem Kurstag der Termin links in der Liste steht.
 5. **«Essenszeit»** prüfen. Das ist die Uhrzeit des Mittagessens. Vorgeschlagen wird 12:00. Die Zeit erscheint auf dem Kursblatt und auf dem Menüblatt als Hinweis für Küche und Teilnehmende. Sie steuert nicht, wann die Wahl möglich ist.
-6. Klicken Sie auf «Klasse speichern». Mit «Abbrechen» verwerfen Sie die Eingaben.
+6. **«Erwartete Teilnehmer»** ausfüllen, wenn die Zahl bekannt ist, zum Beispiel `18`. Diese Zahl ist nur ein Massstab: Sie sehen später auf einen Blick «5 / 18 Best.» und wissen damit sofort, wie viele Bestellungen noch fehlen. Sie schränkt nichts ein, es dürfen also auch mehr Leute bestellen. Lassen Sie das Feld leer, solange die Zahl nicht feststeht; dann steht in der Liste nur die Anzahl Bestellungen. Nachtragen können Sie sie jederzeit über «Bearbeiten».
+7. Klicken Sie auf «Termin speichern». Mit «Abbrechen» verwerfen Sie die Eingaben.
 
 Den Zugangscode müssen Sie nicht eingeben. Er entsteht beim Speichern automatisch und besteht aus acht Zeichen ohne die verwechselbaren Zeichen 0, O, 1 und I.
 
-Nach dem Speichern ist die neue Klasse links ausgewählt und rechts sehen Sie sofort ihre Details:
-Titel, Firma, Datum, «Mittagessen um … Uhr», die Marke «Bestellung offen», die beiden Links und die Zählerleiste.
+Nach dem Speichern ist der neue Termin links ausgewählt und rechts sehen Sie sofort seine Details:
+Titel, Firma, Datum, «Mittagessen um … Uhr», «Erwartete Teilnehmer: 18», die beiden Links und die Zählerleiste.
 
-> Fehlt der Titel, erscheint beim Speichern der rote Hinweis «Bitte einen Titel eingeben.». Ergänzen Sie den Titel und speichern Sie nochmals.
+Liegt der neue Termin nicht am heutigen Tag, blendet die Liste den passenden Zeitraum von selbst ein; Sie müssen den Filter dafür nicht von Hand umstellen.
 
-**Wer hat die Klasse angelegt?** Unter der Marke «Bestellung offen» steht eine sehr kleine graue Zeile, zum Beispiel:
+> Fehlt der Titel, erscheint beim Speichern der rote Hinweis «Bitte einen Titel eingeben.». Ergänzen Sie den Titel und speichern Sie nochmals. Steht bei «Erwartete Teilnehmer» etwas anderes als eine ganze Zahl von 0 bis 999, meldet die Seite «Erwartete Teilnehmer: bitte eine ganze Zahl von 0 bis 999 eingeben.».
+
+**Wer hat den Termin angelegt?** Unter dem Kopf steht eine sehr kleine graue Zeile, zum Beispiel:
 
 > Erstellt 29.08.2026, 09:20 von Vreni Bühler · zuletzt geändert 02.09.2026, 14:20 von Martin Kaufmann
 
-So ist nachvollziehbar, wer den Kurs erfasst und wer ihn zuletzt angefasst hat. Sie müssen dafür nichts eintragen, das System führt es von selbst mit. Wurde seit dem Anlegen nichts geändert, steht nur der erste Teil da. Bei Klassen aus der Zeit vor dieser Änderung kann die Zeile knapper ausfallen oder ganz fehlen.
+So ist nachvollziehbar, wer den Kurs erfasst und wer ihn zuletzt angefasst hat. Sie müssen dafür nichts eintragen, das System führt es von selbst mit. Wurde seit dem Anlegen nichts geändert, steht nur der erste Teil da. Bei Terminen aus der Zeit vor dieser Änderung kann die Zeile knapper ausfallen oder ganz fehlen.
 
 ---
 
@@ -84,17 +100,17 @@ In den Details stehen **zwei** Links untereinander, jeder mit seinem eigenen Kop
 | **Gäste** | `https://menue.campus-sursee.ch/?klasse=M2VJ8KWS` | führt direkt ins Bestellformular. Für die Teilnehmenden |
 | **Kursblatt** | `https://menue.campus-sursee.ch/kursblatt.html?klasse=M2VJ8KWS` | zeigt das Blatt mit QR-Code zum Selberausdrucken. Für die Kursleitung oder Referentinnen und Referenten |
 
-1. Wählen Sie die Klasse links in der Liste aus.
+1. Wählen Sie den Termin links in der Liste aus.
 2. Klicken Sie auf «Link kopieren» für den Gästelink oder auf «Kursblatt-Link kopieren» für das Kursblatt. Daneben erscheint kurz das Wort «Kopiert».
 3. Fügen Sie den Link in ein E-Mail ein, mit Tastenkombination Strg + V.
 
-**Den Kursblatt-Link dürfen Sie bedenkenlos nach aussen geben.** Er verlangt keine Anmeldung. Wer ihn öffnet, sieht dasselbe Blatt, das Sie auch drucken würden: Kursname, Firma, Datum, Essenszeit und den QR-Code. Referentinnen und Referenten können es damit selbst ausdrucken und im Kursraum aufhängen, ohne dass Sie ein Papier hinschicken müssen. Preisgegeben wird dabei nichts, was nicht ohnehin auf dem Aushang stünde, und der Link funktioniert nur mit dem achtstelligen Code dieser einen Klasse.
+**Den Kursblatt-Link dürfen Sie bedenkenlos nach aussen geben.** Er verlangt keine Anmeldung. Wer ihn öffnet, sieht dasselbe Blatt, das Sie auch drucken würden: Kursname, Firma, Datum, Essenszeit und den QR-Code. Referentinnen und Referenten können es damit selbst ausdrucken und im Kursraum aufhängen, ohne dass Sie ein Papier hinschicken müssen. Preisgegeben wird dabei nichts, was nicht ohnehin auf dem Aushang stünde, und der Link funktioniert nur mit dem achtstelligen Code dieses einen Termins.
 
 Klappt das Kopieren einmal nicht, meldet die Seite «Kopieren nicht möglich, bitte von Hand markieren.». Markieren Sie den Link dann mit der Maus und kopieren Sie ihn mit Strg + C.
 
 ### Weg B: Kursblatt drucken und aufhängen
 
-1. Wählen Sie die Klasse aus und klicken Sie auf «Kursblatt drucken».
+1. Wählen Sie den Termin aus und klicken Sie auf «Kursblatt drucken».
 2. Es öffnet sich ein neuer Browser-Tab mit dem fertigen Blatt: BAULÜÜT-Logo, Kursname, Firma, Datum, Essenszeit, ein grosser QR-Code und darunter der Link als Text.
 3. Klicken Sie unten auf dem Blatt nochmals auf «Kursblatt drucken». Der Druckdialog öffnet sich. Der Knopf selbst wird nicht mitgedruckt.
 4. Hängen Sie das Blatt im Kurszimmer auf oder legen Sie es auf die Tische.
@@ -104,31 +120,30 @@ Auf dem Blatt steht bereits alles, was die Teilnehmenden wissen müssen:
 > «Scannen Sie den QR-Code mit der Handykamera und wählen Sie Ihr Menü. Die Wahl ist nur am Tag des Mittagessens möglich.»
 > «Bitte wählen Sie bis 10:00 Uhr. Danach sind Änderungen nur noch über die Réception möglich.»
 
-**Was ist der QR-Code?** Ein QR-Code ist das schwarzweisse Quadrat auf dem Blatt. Es enthält nichts anderes als den Gästelink dieser einen Klasse. Wer die Handykamera darauf richtet, bekommt den Link als antippbaren Hinweis auf den Bildschirm und landet mit einem Fingertipp direkt auf der richtigen Seite. Niemand muss etwas abtippen und niemand braucht eine App. Jede Klasse hat ihren eigenen QR-Code, deshalb dürfen Sie Blätter von verschiedenen Kursen nicht vertauschen.
+**Was ist der QR-Code?** Ein QR-Code ist das schwarzweisse Quadrat auf dem Blatt. Es enthält nichts anderes als den Gästelink dieses einen Termins. Wer die Handykamera darauf richtet, bekommt den Link als antippbaren Hinweis auf den Bildschirm und landet mit einem Fingertipp direkt auf der richtigen Seite. Niemand muss etwas abtippen und niemand braucht eine App. Jeder Termin hat seinen eigenen QR-Code, deshalb dürfen Sie Blätter von verschiedenen Kursen nicht vertauschen.
 
 Das Kursblatt können Sie ruhig schon Tage im Voraus drucken. Es funktioniert für jedes Kursdatum.
 
 ---
 
-## 5. Alle Termine auf einen Blick
+## 5. Termine über den Tag hinaus anschauen
 
-Die Verwaltung zeigt links immer nur eine Klasse pro Zeile. Für die Frage «Was kommt in den nächsten Wochen auf uns zu?» gibt es eine eigene Seite.
+Von Haus aus zeigt die Liste links nur, was heute ansteht. Für die Frage «Was kommt in den nächsten Wochen auf uns zu?» blenden Sie die übrigen Kurstage dazu:
 
-1. Klicken Sie links auf **«Alle Termine»**. Es öffnet sich ein neuer Tab.
-2. Sie sehen zuoberst vier Zahlen für den ganzen gezeigten Zeitraum: «Tage», «Kurse», «Bestellungen» und «Menü 1 / Menü 2».
-3. Darunter folgt ein Block pro Datum, der nächste zuoberst. Der heutige Tag ist orange mit «heute» angeschrieben.
-4. In jedem Block steht eine Zeile pro Kurs: Essenszeit, Kursname, Firma, Anzahl Bestellungen sowie die Aufteilung auf Menü 1 und Menü 2.
+1. Klicken Sie links auf **«Filter»**.
+2. Setzen Sie das Häkchen bei **«Zukünftige Termine»**. Neben dem Knopf steht jetzt «Heute und später».
+3. Schliessen Sie das Feld mit einem Klick daneben oder mit der Esc-Taste.
+
+Die Liste zeigt nun jeden kommenden Kurstag als eigenen Block, den nächsten zuoberst, mit allen Terminen dieses Tages nach Essenszeit sortiert. Rechts an jeder Zeile steht «Bestellungen / erwartete Teilnehmende», zum Beispiel «5 / 18 Best.».
 
 Nützlich dabei:
 
-- **Kurse ohne eine einzige Bestellung** stehen mit einer orangen `0` da. Dort lohnt es sich nachzufassen, meist ist der Link nicht angekommen.
-- Mit **«Vergangene anzeigen»** wechseln Sie zu den zurückliegenden Terminen, mit demselben Knopf wieder zurück.
-- **«Aktualisieren»** holt den neuesten Stand, ohne die Seite neu zu laden.
-- **«Liste drucken»** ergibt einen sauberen A4-Ausdruck ohne Knöpfe. Das ist die Vorschau, die das Restaurant für die Küchenplanung braucht.
+- **Kurse, bei denen noch wenig oder nichts bestellt ist**, erkennen Sie sofort an der ersten Zahl. Dort lohnt es sich nachzufassen, meist ist der Link nicht angekommen.
+- Für zurückliegende Kurse setzen Sie zusätzlich das Häkchen bei **«Vergangene Termine»**. Neben dem Knopf steht dann «Alle Termine».
+- Der heutige Tag bleibt immer zuoberst, egal welche Häkchen gesetzt sind.
+- Mit **F5** holen Sie den neuesten Stand. Die Häkchen stehen danach wieder auf «Nur heute».
 
-Diese Seite ändert nichts. Sie liest nur, Sie können dort also nichts kaputt machen.
-
----
+> **Was ist mit der Seite «Alle Termine»?** Die gibt es seit dem 04.09.2026 nicht mehr. Sie zeigte dasselbe in einem eigenen Tab; seit die Liste links nach Kurstagen gruppiert ist, brauchen Sie dafür keine zweite Seite mehr. Einen Ausdruck der Tagesübersicht fürs Restaurant gibt es damit nicht mehr; brauchen Sie einen, melden Sie das den ICT-Services.
 
 ## 6. Am Kurstag
 

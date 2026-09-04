@@ -1,4 +1,4 @@
-/* auth.js — Anmeldung an Entra ID (Microsoft 365) für die Admin-Seiten.
+/* auth.js: Anmeldung an Entra ID (Microsoft 365) für die Admin-Seiten.
 
    Dünner Aufsatz auf MSAL, der offiziellen Anmeldebibliothek von Microsoft.
    MSAL wird per CDN eingebunden, siehe die Script-Zeile in den Admin-Seiten.

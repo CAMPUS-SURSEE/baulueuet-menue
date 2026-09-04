@@ -113,7 +113,7 @@ Wichtig zum Verständnis der Meldungen: Auf `kursblatt.html` und `menueblatt.htm
 
 | Code | Ursache | Prüfschritt | Behebung |
 |---|---|---|---|
-| `AADSTS50011` | Die Umleitungsadresse ist in der App-Registrierung nicht hinterlegt oder weicht ab. Auch `http` gegen `https`, ein zusätzlicher Schrägstrich oder eine abweichende Domäne zählen als Abweichung. | In Entra ID unter **App-Registrierungen → Menuewahl BAULUUT Admin → Authentifizierung** die Liste der SPA-Umleitungsadressen mit der Adresse in der Browserzeile vergleichen (ohne den Teil ab `?`). | Fehlende Adresse ergänzen. Nötig sind `https://menue.campus-sursee.ch/admin`, `.../menueblatt` und `.../kursblatt` (für dessen Rückfallweg) — **ohne `.html`**, weil Cloudflare Pages `/admin.html` auf `/admin` umleitet und die Seite sich auf der Adresse anmeldet, auf der sie tatsächlich läuft. Die Schreibweisen mit `.html` bleiben zusätzlich stehen, für lokale Tests dazu die `http://localhost:8123/…`-Varianten. Abfragezeichenfolgen wie `?klasse=CODE` gehören **nicht** dazu; die Seiten schneiden sie für die Anmeldung ab und stellen sie danach selbst wieder her. Speichern nicht vergessen. |
+| `AADSTS50011` | Die Umleitungsadresse ist in der App-Registrierung nicht hinterlegt oder weicht ab. Auch `http` gegen `https`, ein zusätzlicher Schrägstrich oder eine abweichende Domäne zählen als Abweichung. | In Entra ID unter **App-Registrierungen → Menuewahl BAULUUT Admin → Authentifizierung** die Liste der SPA-Umleitungsadressen mit der Adresse in der Browserzeile vergleichen (ohne den Teil ab `?`). | Fehlende Adresse ergänzen. Nötig sind `https://menue.campus-sursee.ch/admin`, `.../menueblatt` und `.../kursblatt` (für dessen Rückfallweg), und zwar **ohne `.html`**, weil Cloudflare Pages `/admin.html` auf `/admin` umleitet und die Seite sich auf der Adresse anmeldet, auf der sie tatsächlich läuft. Die Schreibweisen mit `.html` bleiben zusätzlich stehen, für lokale Tests dazu die `http://localhost:8123/…`-Varianten. Abfragezeichenfolgen wie `?klasse=CODE` gehören **nicht** dazu; die Seiten schneiden sie für die Anmeldung ab und stellen sie danach selbst wieder her. Speichern nicht vergessen. |
 | `AADSTS9002326` | Die Plattform der App-Registrierung steht auf «Web» statt auf «Single-Page-Anwendung». Nur bei SPA erlaubt Microsoft den Tokentausch direkt aus dem Browser. | Gleiche Seite **Authentifizierung**: Unter welcher Plattformüberschrift stehen die drei Adressen? | Die Adressen unter der Plattform **Single-Page-Anwendung (SPA)** eintragen und die Plattform «Web» entfernen. |
 | `AADSTS50105` | Die Person ist der Unternehmensanwendung nicht zugewiesen. Das ist der beabsichtigte Zustand für alle ausserhalb der Réception. | In Entra ID unter **Unternehmensanwendungen → Menuewahl BAULUUT Admin → Benutzer und Gruppen** nachsehen, ob das Konto aufgeführt ist. | Wenn die Person Zugriff haben soll: zuweisen, siehe Abschnitt 5.1. Wenn nicht: kein Fehler, so ist es gedacht. |
 
@@ -442,8 +442,8 @@ Meldungen, die im Betrieb auftauchen können und oben nicht bereits behandelt si
 | «Menüwahl geschlossen» als Überschrift | Gästeseite | Annahmeschluss vorbei, keine Bestellung vorhanden | Kein Fehler, siehe 3.6a. |
 | «Kursblatt nicht abrufbar» als Überschrift | Kursblatt | Flow B hat zu diesem Code nichts geliefert: falscher Code oder Flow gestört | Code prüfen, danach Flow-Läufe (4.4). Die Réception kommt über «Mit Konto anmelden» ans Blatt. Siehe 3.6b. |
 | «Für heute ist kein Termin eingetragen.» | Verwaltung, linke Spalte | Es gibt keinen Termin mit dem heutigen Datum, und der Filter steht auf «Nur heute». | Kein Fehler. Über «Filter» die zukünftigen oder vergangenen Termine einblenden. |
-| «Kein Termin gefunden.» | Verwaltung, linke Spalte | Der Suchtext passt auf keinen Termin im eingestellten Zeitraum. | Kein Fehler. Liegen Treffer ausserhalb, steht darunter «… Termine liegen ausserhalb des Filters — alle anzeigen»; ein Klick blendet sie ein. |
-| «Erwartete Teilnehmer: bitte eine ganze Zahl von 0 bis 999 eingeben.» | Verwaltung, Formular | Im Feld steht etwas anderes als eine ganze Zahl in diesem Bereich. | Eingabe korrigieren oder Feld leeren. |
+| «Kein Termin gefunden.» | Verwaltung, linke Spalte | Der Suchtext passt auf keinen Termin im eingestellten Zeitraum. | Kein Fehler. Liegen Treffer ausserhalb, steht darunter «… Termine liegen ausserhalb des Filters, alle anzeigen»; ein Klick blendet sie ein. |
+| «Erwartete Teilnehmeranzahl: bitte eine ganze Zahl von 0 bis 999 eingeben.» | Verwaltung, Formular | Im Feld steht etwas anderes als eine ganze Zahl in diesem Bereich. | Eingabe korrigieren oder Feld leeren. |
 | «Field 'Teilnehmer' is not recognized» oder ähnlich beim Speichern | Verwaltung, Formular | Die Spalte `Teilnehmer` fehlt in der SharePoint-Liste «Klassen». | Spalte anlegen (Zahl, darf leer sein), siehe `03_Technische_Dokumentation.md`, Abschnitt 4. |
 
 ---
@@ -569,7 +569,7 @@ Eine fehlerhafte Veröffentlichung lässt sich in Cloudflare Pages über die Lis
 ### 5.5 Neuen Termin anlegen (Réception, zur Auskunft)
 
 1. `https://menue.campus-sursee.ch/admin.html` öffnen.
-2. «Neuer Termin» links zuoberst, dann Titel, Firma, Datum, Essenszeit und wahlweise die erwarteten Teilnehmer erfassen. Datum ist auf heute vorbelegt, Essenszeit auf 12:00, Status automatisch «offen».
+2. «Neuer Termin» links zuoberst, dann Titel, Firma, Datum, Essenszeit und wahlweise die erwartete Teilnehmeranzahl erfassen. Datum ist auf heute vorbelegt, Essenszeit auf 12:00, Status automatisch «offen».
 3. Speichern. Der Code entsteht dabei automatisch und ist danach in der Detailansicht sichtbar.
 4. «Link kopieren» für den Gästelink, «Kursblatt drucken» für den Aushang mit QR-Code.
 5. Am Kurstag «Menüblatt drucken» für die Küche.

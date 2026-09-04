@@ -239,7 +239,6 @@
     accent-color: var(--schwarz);
     cursor: pointer;
   }
-  .filter-feld .hinweis { margin-top: 8px; padding-top: 10px; border-top: 1px solid var(--linie); }
 
   /* Ein Block je Kurstag: darüber das Datum, darunter die Termine dieses
      Tages. Damit steht ein Datum einmal statt in jeder Zeile. */
@@ -490,7 +489,6 @@
               <input type="checkbox" id="filter-vergangen">
               Vergangene Termine
             </label>
-            <div class="hinweis">Die heutigen Termine sind immer sichtbar.</div>
           </div>
         </div>
 
@@ -560,7 +558,7 @@
             <label class="feldlabel" for="f-zeit">Essenszeit</label>
             <input type="time" id="f-zeit">
 
-            <label class="feldlabel" for="f-erwartet">Erwartete Teilnehmer</label>
+            <label class="feldlabel" for="f-erwartet">Erwartete Teilnehmeranzahl</label>
             <input type="number" id="f-erwartet" min="0" max="999" step="1"
                    inputmode="numeric" autocomplete="off">
             <div class="feldhinweis">
@@ -839,22 +837,20 @@ function sichtbareKlassen() {
   return alleKlassen.filter(k => passtZuZeitraum(k) && passtZuSuche(k));
 }
 
-/* Termine nach Kurstag zusammenfassen. Heute steht zuoberst, danach die
-   kommenden Tage aufsteigend, danach die vergangenen absteigend. So bleibt
-   der nächstliegende Tag in beide Richtungen oben, statt dass eine lange
-   Vergangenheit den heutigen Tag nach unten schiebt. Tage ohne Datum
-   kommen ganz zum Schluss. */
+/* Termine nach Kurstag zusammenfassen, durchgehend absteigend: der am
+   weitesten in der Zukunft liegende Tag steht zuoberst, der am weitesten
+   zurückliegende zuunterst, der heutige dazwischen an seinem Platz. Eine
+   einzige Richtung für alle Tage, damit die Liste beim Ein- und Ausblenden
+   von Zeiträumen nicht die Sortierung wechselt. Tage ohne Datum kommen
+   ganz zum Schluss. */
 function nachTagen(klassen) {
-  const heute = Hilfe.heute();
   const tage = {};
   klassen.forEach(k => {
     const datum = k.datum || "";
     (tage[datum] || (tage[datum] = [])).push(k);
   });
 
-  const mitDatum = Object.keys(tage).filter(d => d).sort();
-  const reihenfolge = mitDatum.filter(d => d >= heute)
-    .concat(mitDatum.filter(d => d < heute).reverse());
+  const reihenfolge = Object.keys(tage).filter(d => d).sort().reverse();
   if (tage[""]) reihenfolge.push("");
 
   return reihenfolge.map(datum => ({
@@ -884,8 +880,8 @@ function listeZeichnen() {
     const draussen = alleKlassen.filter(k => passtZuSuche(k) && !passtZuZeitraum(k)).length;
     if (draussen) {
       const knopf = neu("button", "textknopf", draussen === 1
-        ? "1 Termin liegt ausserhalb des Filters — alle anzeigen"
-        : draussen + " Termine liegen ausserhalb des Filters — alle anzeigen");
+        ? "1 Termin liegt ausserhalb des Filters, alle anzeigen"
+        : draussen + " Termine liegen ausserhalb des Filters, alle anzeigen");
       knopf.type = "button";
       knopf.addEventListener("click", () => {
         zeigeZukunft = true;
@@ -940,7 +936,7 @@ function zeileZeichnen(k) {
   return zeile;
 }
 
-/* «5 / 18 Best.», solange eine erwartete Teilnehmerzahl hinterlegt ist,
+/* «5 / 18 Best.», solange eine erwartete Teilnehmeranzahl hinterlegt ist,
    sonst nur «5 Best.». */
 function anzahlZeichnen(ist, erwartet) {
   const feld = neu("div", "z-anzahl");
@@ -1037,7 +1033,7 @@ function ansichtKopfZeichnen() {
   el("d-zeit").textContent = k.essenszeit ? "Mittagessen um " + k.essenszeit + " Uhr" : "";
 
   const erwartet = el("d-erwartet");
-  erwartet.textContent = k.erwartet ? "Erwartete Teilnehmer: " + k.erwartet : "";
+  erwartet.textContent = k.erwartet ? "Erwartete Teilnehmeranzahl: " + k.erwartet : "";
   erwartet.style.display = k.erwartet ? "block" : "none";
 
   spurZeichnen(k);
@@ -1083,7 +1079,7 @@ function zaehlerZeichnen(liste) {
    ["Keine", z.keine], ["Menü 1", z.menu1], ["Menü 2", z.menu2]].forEach(([name, wert]) => {
     const kasten = neu("div");
     const zahl = neu("b", null, String(wert));
-    /* Nur im ersten Feld steht die erwartete Teilnehmerzahl daneben; bei
+    /* Nur im ersten Feld steht die erwartete Teilnehmeranzahl daneben; bei
        Suppe oder Menü 1 wäre sie kein sinnvoller Massstab. */
     if (name === "Total" && erwartet) {
       zahl.appendChild(neu("span", "erwartet", " / " + erwartet));
@@ -1198,7 +1194,7 @@ async function formularSpeichern(ereignis) {
   if (erwartetRoh !== "") {
     erwartet = Number(erwartetRoh);
     if (!Number.isInteger(erwartet) || erwartet < 0 || erwartet > 999) {
-      fehlerfeld.textContent = "Erwartete Teilnehmer: bitte eine ganze Zahl von 0 bis 999 eingeben.";
+      fehlerfeld.textContent = "Erwartete Teilnehmeranzahl: bitte eine ganze Zahl von 0 bis 999 eingeben.";
       fehlerfeld.style.display = "block";
       el("f-erwartet").focus();
       return;

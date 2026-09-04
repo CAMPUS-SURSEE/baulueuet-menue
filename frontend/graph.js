@@ -1,4 +1,4 @@
-/* graph.js — Zugriff auf die SharePoint-Listen «Klassen» und «Bestellungen»
+/* graph.js: Zugriff auf die SharePoint-Listen «Klassen» und «Bestellungen»
    über Microsoft Graph. Ersetzt die frühere Power-Apps-Anbindung.
 
    Die Berechtigung ist delegiert: das Token kann nur das, was die angemeldete
@@ -240,7 +240,7 @@ const Graph = (function () {
       essenszeit: k.Essenszeit || "",
       code:       k.Code || "",
       status:     k.Status || "offen",
-      /* Erwartete Teilnehmerzahl. 0 heisst «nicht hinterlegt»: die Spalte
+      /* Erwartete Teilnehmeranzahl. 0 heisst «nicht hinterlegt»: die Spalte
          kann leer sein, und solange sie es ist, zeigt die Verwaltung nur
          die tatsächlichen Bestellungen ohne Massstab daneben. Fehlt die
          Spalte in SharePoint ganz, greift in `alleElemente` der Rückfall

@@ -33,7 +33,7 @@ Dieses Dokument beschreibt, wie das System eingerichtet wird und wie eine Änder
 > **Vor dem Veröffentlichen der Fassung vom 04.09.2026: Spalte `Teilnehmer` anlegen.**
 > In der SharePoint-Liste «Klassen» eine Spalte vom Typ **Zahl** mit dem internen
 > Namen `Teilnehmer` erstellen, ohne Vorgabewert und nicht erforderlich. Sie nimmt
-> die erwartete Teilnehmerzahl eines Termins auf.
+> die erwartete Teilnehmeranzahl eines Termins auf.
 >
 > Fehlt die Spalte, **liest** die Verwaltung weiter (`graph.js` fällt auf den Abruf
 > ohne Feldauswahl zurück und zeigt keinen Massstab), **speichern** lässt sich ein
@@ -171,7 +171,7 @@ Seit der Anbindung an Git ist dieses Repository der massgebende Stand: Was in `f
       *Dieser eine Schritt belegt auf einmal, dass Umleitungsadresse, Graph-Berechtigung und Benutzerzuweisung stimmen.*
 - [ ] Spalte `Teilnehmer` in der Liste «Klassen» vorhanden (Zahl, darf leer sein)
 - [ ] Testtermin angelegt, Zugangscode wurde automatisch erzeugt
-- [ ] Beim Testtermin «Erwartete Teilnehmer» gesetzt; die Liste links zeigt «0 / *n* Best.», danach das Feld wieder geleert und gespeichert
+- [ ] Beim Testtermin «Erwartete Teilnehmeranzahl» gesetzt; die Liste links zeigt «0 / *n* Best.», danach das Feld wieder geleert und gespeichert
 - [ ] In den Details des Testtermins steht die kleine Zeile «Erstellt … von …» mit dem eigenen Namen
 - [ ] Gästelink kopiert, Gästeseite zeigt den Kurs und die Tagesmenüs
 - [ ] Eine Testbestellung abgegeben, sie erscheint in der Verwaltung

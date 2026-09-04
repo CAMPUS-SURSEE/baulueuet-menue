@@ -27,7 +27,7 @@
 
 Kursteilnehmende am Campus Sursee wählen ihr Mittagsmenü im Restaurant BAULÜÜT über eine Webseite statt auf einem Papierblatt.
 
-1. Die Réception legt in der Verwaltung einen «Termin» an: Kursname, Firma, Datum, Essenszeit und, wenn bekannt, die erwartete Teilnehmerzahl. Ein achtstelliger Zugangscode entsteht automatisch.
+1. Die Réception legt in der Verwaltung einen «Termin» an: Kursname, Firma, Datum, Essenszeit und, wenn bekannt, die erwartete Teilnehmeranzahl. Ein achtstelliger Zugangscode entsteht automatisch.
 2. Die Teilnehmenden erhalten den Gästelink oder ein Blatt mit QR-Code. Den Link auf das Kursblatt kann die Réception auch der Kursleitung schicken, er verlangt keine Anmeldung.
 3. Am Tag des Mittagessens wählen sie **bis 10:00 Uhr** Vorspeise und Hauptgang, geben Namen und allfällige Allergien an. Danach ist weder Bestellen noch Ändern möglich, beides läuft über die Réception.
 4. Die Küche erhält das gedruckte Menüblatt mit allen Bestellungen.
@@ -106,11 +106,11 @@ SharePoint-Site **«Reception»**: `https://campussursee.sharepoint.com/sites/ho
 | `Essenszeit` | Text | Format `HH:MM`, zum Beispiel `12:00` |
 | `Code` | Text | achtstelliger Zugangscode, Alphabet ohne 0, O, 1 und I |
 | `Status` | Choice | `offen` oder `geschlossen`. Von der Verwaltung nur noch beim Anlegen auf `offen` gesetzt, siehe unten |
-| `Teilnehmer` | Zahl | erwartete Teilnehmerzahl, darf leer sein. Reiner Massstab, schränkt nichts ein |
+| `Teilnehmer` | Zahl | erwartete Teilnehmeranzahl, darf leer sein. Reiner Massstab, schränkt nichts ein |
 | `Suppe`, `Salat`, `Menu1`, `Menu2`, `Dessert` | Text bzw. Notiz | Rückfallwerte, falls Lunchgate nichts liefert |
 | `Menu1Preis`, `Menu2Preis`, `Bemerkung` | | derzeit von der Webseite nicht benutzt |
 
-> **Spalte `Teilnehmer` (seit 04.09.2026).** Zahlenspalte, Vorgabewert leer, nicht erforderlich. Fehlt sie in der Liste, läuft die Verwaltung weiter: Der Aufruf mit Feldauswahl scheitert dann mit HTTP 400, `alleElemente` in `graph.js` wiederholt ihn ohne Auswahl, und `erwartet` bleibt 0 — die Verwaltung zeigt dann nur die tatsächlichen Bestellungen. **Speichern** schlägt in diesem Fall allerdings fehl, weil Graph ein unbekanntes Feld ablehnt. Die Spalte ist also anzulegen, bevor die neue Fassung veröffentlicht wird.
+> **Spalte `Teilnehmer` (seit 04.09.2026).** Zahlenspalte, Vorgabewert leer, nicht erforderlich. Fehlt sie in der Liste, läuft die Verwaltung weiter: Der Aufruf mit Feldauswahl scheitert dann mit HTTP 400, `alleElemente` in `graph.js` wiederholt ihn ohne Auswahl, und `erwartet` bleibt 0; die Verwaltung zeigt dann nur die tatsächlichen Bestellungen. **Speichern** schlägt in diesem Fall allerdings fehl, weil Graph ein unbekanntes Feld ablehnt. Die Spalte ist also anzulegen, bevor die neue Fassung veröffentlicht wird.
 >
 > Leer und `0` sind bewusst nicht dasselbe: Leer heisst «noch nicht bekannt» und die Verwaltung zeigt gar keinen Massstab; eine `0` hiesse «niemand wird erwartet». Ein geleertes Formularfeld schreibt deshalb `null` in die Spalte, nicht `0`.
 

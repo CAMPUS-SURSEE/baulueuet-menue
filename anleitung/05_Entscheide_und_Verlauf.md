@@ -100,7 +100,9 @@ Das Restaurant wollte eine Vorschau auf die anstehenden Termine. Weil die Verwal
 - **Der Umschalter «Vergangene anzeigen» beantwortete die falsche Frage.** Er kannte nur zwei Zustände, entweder alles Kommende oder alles Vergangene. Gefragt war fast immer: der heutige Tag.
 - **Der zusätzliche Eintrag in der App-Registrierung**, ohne den die Seite mit `AADSTS50011` scheiterte.
 
-**Was stattdessen gebaut wurde.** Die linke Spalte von `admin.html` gruppiert die Termine jetzt selbst nach Kurstag, mit dem Datum als Überschrift über jeder Gruppe. Der Umschalter ist einem **Filter** gewichen: Von Haus aus stehen dort nur die heutigen Termine, zwei Kästchen blenden «Zukünftige Termine» und «Vergangene Termine» dazu. Die heutigen bleiben in jedem Fall sichtbar, und der heutige Tag steht immer zuoberst — danach die kommenden Tage aufsteigend, danach die vergangenen absteigend.
+**Was stattdessen gebaut wurde.** Die linke Spalte von `admin.html` gruppiert die Termine jetzt selbst nach Kurstag, mit dem Datum als Überschrift über jeder Gruppe. Der Umschalter ist einem **Filter** gewichen: Von Haus aus stehen dort nur die heutigen Termine, zwei Kästchen blenden «Zukünftige Termine» und «Vergangene Termine» dazu. Die heutigen bleiben in jedem Fall sichtbar.
+
+Sortiert wird **durchgehend absteigend**, der am weitesten in der Zukunft liegende Tag zuoberst. Eine erste Fassung hielt stattdessen den heutigen Tag zuoberst und hängte kommende und vergangene Tage in je eigener Richtung an. In der Liste las sich das als zwei verschiedene Sortierungen übereinander und war nicht zu durchschauen. Eine einzige Richtung für alle Tage ist langweiliger, aber vorhersagbar: Der heutige Tag rutscht dann eben nach unten, sobald kommende Termine eingeblendet sind, und bleibt über seine orange Marke «heute» trotzdem auffindbar.
 
 **Was dabei verloren ging:** der Ausdruck der Tagesübersicht fürs Restaurant und der Zusammenzug «Tage / Kurse / Bestellungen / Menü 1 / Menü 2» über den ganzen Zeitraum. Beides war an die eigene Seite gebunden. Wird es wieder gebraucht, ist es in der linken Spalte nicht sinnvoll unterzubringen; dann braucht es die eigene Seite erneut.
 
@@ -124,9 +126,9 @@ Wer einen Termin vorzeitig schliessen will, setzt den Wert direkt in der SharePo
 
 ---
 
-## 5e. Warum die erwartete Teilnehmerzahl nur ein Massstab ist
+## 5e. Warum die erwartete Teilnehmeranzahl nur ein Massstab ist
 
-Die Réception fragte: «Fehlen noch Bestellungen?» Bisher liess sich das nur beantworten, wenn man die Teilnehmerzahl des Kurses im Kopf hatte. Seit dem 04.09.2026 lässt sie sich am Termin hinterlegen, und die Liste zeigt «5 / 18 Best.».
+Die Réception fragte: «Fehlen noch Bestellungen?» Bisher liess sich das nur beantworten, wenn man die Teilnehmeranzahl des Kurses im Kopf hatte. Seit dem 04.09.2026 lässt sie sich am Termin hinterlegen, und die Liste zeigt «5 / 18 Best.».
 
 Die Zahl **schränkt nichts ein**. Sie ist keine Obergrenze, kein Kontingent und keine Pflichtangabe:
 
@@ -202,7 +204,7 @@ Diese Punkte sind bekannt und bewusst in Kauf genommen. Sie gehören auf die Lis
 | 28.08.2026, Mittag | **Ablösung von Power Apps.** Neue Verwaltung `admin.html`, Anmeldung an Entra ID, Zugriff auf SharePoint über Microsoft Graph. Flow D wird gegenstandslos |
 | 28.08.2026, Nachmittag | Umstellung auf Bibliotheken vom CDN (MSAL, qrcode-generator), Fusszeilen entfernt, vollständige Dokumentation |
 | 04.09.2026, Vormittag | Alle Seiten durchgehend auf schmale Bildschirme ausgelegt: überlappende Spalten in der Verwaltung behoben, Tabellen auf dem Telefon als Karten, seitliche Ränder und Schriftgrössen wachsen mit der Fensterbreite. Terminübersicht `termine.html` als eigene Seite |
-| 04.09.2026, Nachmittag | **Umbau der Verwaltung.** `termine.html` wieder entfernt und die linke Spalte von `admin.html` nach Kurstag gruppiert; Umschalter «Vergangene anzeigen» durch einen Filter ersetzt, der von Haus aus nur den heutigen Tag zeigt. «Neuer Termin» ganz nach oben. Status «Bestellung offen» aus der Oberfläche entfernt. Neue Spalte `Teilnehmer` für die erwartete Teilnehmerzahl, in der Liste als «5 / 18 Best.» |
+| 04.09.2026, Nachmittag | **Umbau der Verwaltung.** `termine.html` wieder entfernt und die linke Spalte von `admin.html` nach Kurstag gruppiert, durchgehend absteigend sortiert; Umschalter «Vergangene anzeigen» durch einen Filter ersetzt, der von Haus aus nur den heutigen Tag zeigt. «Neuer Termin» ganz nach oben. Status «Bestellung offen» aus der Oberfläche entfernt. Neue Spalte `Teilnehmer` für die erwartete Teilnehmeranzahl, in der Liste als «5 / 18 Best.» |
 
 **Beim Umbau gefundene und behobene Fehler**, festgehalten, weil sie sich wiederholen könnten:
 

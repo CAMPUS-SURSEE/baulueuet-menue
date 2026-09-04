@@ -1,4 +1,4 @@
-/* konfig.js — zentrale Einstellungen für die Admin-Seiten des Menüwahl-Systems.
+/* konfig.js: zentrale Einstellungen für die Admin-Seiten des Menüwahl-Systems.
    Diese Datei enthält KEINE Geheimnisse. Mandanten- und Client-ID sind bei
    Single-Page-Applications öffentlich; der Schutz kommt aus der Anmeldung
    und aus der Benutzerzuweisung in Entra ID. */

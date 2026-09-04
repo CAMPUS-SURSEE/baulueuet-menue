@@ -43,7 +43,7 @@ Die Verwaltung ist in zwei Spalten aufgeteilt:
 
 Solange Sie nichts angeklickt haben, steht rechts nur: «Links einen Termin auswählen, um Bestellungen und Gästelink zu sehen.»
 
-**Wie die Liste aufgebaut ist.** Über jeder Gruppe steht der Kurstag, zum Beispiel «Freitag, 04.09.2026»; der heutige Tag ist zusätzlich orange mit «heute» angeschrieben. Darunter stehen alle Termine dieses Tages, nach Essenszeit sortiert. Rechts an jeder Zeile steht die Anzahl Bestellungen, zum Beispiel «5 / 18 Best.»: fünf Bestellungen liegen vor, achtzehn Teilnehmende werden erwartet. Ist keine Teilnehmerzahl hinterlegt, steht dort nur «5 Best.».
+**Wie die Liste aufgebaut ist.** Über jeder Gruppe steht der Kurstag, zum Beispiel «Freitag, 04.09.2026»; der heutige Tag ist zusätzlich orange mit «heute» angeschrieben. Darunter stehen alle Termine dieses Tages, nach Essenszeit sortiert. Rechts an jeder Zeile steht die Anzahl Bestellungen, zum Beispiel «5 / 18 Best.»: fünf Bestellungen liegen vor, achtzehn Teilnehmende werden erwartet. Ist keine Teilnehmeranzahl hinterlegt, steht dort nur «5 Best.».
 
 **Der Filter.** Von Haus aus zeigt die Liste **nur die heutigen Termine**. Das ist der Alltagsfall. Klicken Sie auf «Filter», öffnet sich ein kleines Feld mit zwei Kästchen:
 
@@ -54,7 +54,7 @@ Solange Sie nichts angeklickt haben, steht rechts nur: «Links einen Termin ausw
 
 Neben dem Knopf steht, was gerade gezeigt wird: «Nur heute», «Heute und später», «Heute und früher» oder «Alle Termine». Die heutigen Termine sind immer sichtbar, unabhängig von den Kästchen. Das Feld schliesst sich wieder mit einem Klick daneben oder mit der Esc-Taste; die Einstellung bleibt bis zum Neuladen der Seite erhalten.
 
-Zuoberst stehen die heutigen Termine, danach die kommenden Tage vom nächsten an, danach die vergangenen vom letzten an. So bleibt der heutige Tag immer oben, auch wenn Sie beides eingeblendet haben.
+Sortiert wird durchgehend nach Datum, der am weitesten in der Zukunft liegende Tag zuoberst, der am weitesten zurückliegende zuunterst. Zeigt die Liste nur den heutigen Tag, steht dieser allein da; blenden Sie die kommenden Termine ein, rückt der heutige Tag nach unten.
 
 ---
 
@@ -67,17 +67,17 @@ Legen Sie pro Kurs und pro Essenstag einen Termin an. Isst derselbe Kurs an drei
 3. **«Firma»** ausfüllen. Der Auftraggeber oder die Trägerfirma, zum Beispiel «Implenia Schweiz AG». Darf leer bleiben, hilft aber später beim Suchen.
 4. **«Datum»** prüfen. Das ist der Tag, an dem der Kurs zu Mittag isst. Vorgeschlagen wird der heutige Tag, meist müssen Sie ihn also anpassen. Das Datum entscheidet, wann die Teilnehmenden wählen dürfen und unter welchem Kurstag der Termin links in der Liste steht.
 5. **«Essenszeit»** prüfen. Das ist die Uhrzeit des Mittagessens. Vorgeschlagen wird 12:00. Die Zeit erscheint auf dem Kursblatt und auf dem Menüblatt als Hinweis für Küche und Teilnehmende. Sie steuert nicht, wann die Wahl möglich ist.
-6. **«Erwartete Teilnehmer»** ausfüllen, wenn die Zahl bekannt ist, zum Beispiel `18`. Diese Zahl ist nur ein Massstab: Sie sehen später auf einen Blick «5 / 18 Best.» und wissen damit sofort, wie viele Bestellungen noch fehlen. Sie schränkt nichts ein, es dürfen also auch mehr Leute bestellen. Lassen Sie das Feld leer, solange die Zahl nicht feststeht; dann steht in der Liste nur die Anzahl Bestellungen. Nachtragen können Sie sie jederzeit über «Bearbeiten».
+6. **«Erwartete Teilnehmeranzahl»** ausfüllen, wenn die Zahl bekannt ist, zum Beispiel `18`. Diese Zahl ist nur ein Massstab: Sie sehen später auf einen Blick «5 / 18 Best.» und wissen damit sofort, wie viele Bestellungen noch fehlen. Sie schränkt nichts ein, es dürfen also auch mehr Leute bestellen. Lassen Sie das Feld leer, solange die Zahl nicht feststeht; dann steht in der Liste nur die Anzahl Bestellungen. Nachtragen können Sie sie jederzeit über «Bearbeiten».
 7. Klicken Sie auf «Termin speichern». Mit «Abbrechen» verwerfen Sie die Eingaben.
 
 Den Zugangscode müssen Sie nicht eingeben. Er entsteht beim Speichern automatisch und besteht aus acht Zeichen ohne die verwechselbaren Zeichen 0, O, 1 und I.
 
 Nach dem Speichern ist der neue Termin links ausgewählt und rechts sehen Sie sofort seine Details:
-Titel, Firma, Datum, «Mittagessen um … Uhr», «Erwartete Teilnehmer: 18», die beiden Links und die Zählerleiste.
+Titel, Firma, Datum, «Mittagessen um … Uhr», «Erwartete Teilnehmeranzahl: 18», die beiden Links und die Zählerleiste.
 
 Liegt der neue Termin nicht am heutigen Tag, blendet die Liste den passenden Zeitraum von selbst ein; Sie müssen den Filter dafür nicht von Hand umstellen.
 
-> Fehlt der Titel, erscheint beim Speichern der rote Hinweis «Bitte einen Titel eingeben.». Ergänzen Sie den Titel und speichern Sie nochmals. Steht bei «Erwartete Teilnehmer» etwas anderes als eine ganze Zahl von 0 bis 999, meldet die Seite «Erwartete Teilnehmer: bitte eine ganze Zahl von 0 bis 999 eingeben.».
+> Fehlt der Titel, erscheint beim Speichern der rote Hinweis «Bitte einen Titel eingeben.». Ergänzen Sie den Titel und speichern Sie nochmals. Steht bei «Erwartete Teilnehmeranzahl» etwas anderes als eine ganze Zahl von 0 bis 999, meldet die Seite «Erwartete Teilnehmeranzahl: bitte eine ganze Zahl von 0 bis 999 eingeben.».
 
 **Wer hat den Termin angelegt?** Unter dem Kopf steht eine sehr kleine graue Zeile, zum Beispiel:
 
@@ -134,13 +134,13 @@ Von Haus aus zeigt die Liste links nur, was heute ansteht. Für die Frage «Was 
 2. Setzen Sie das Häkchen bei **«Zukünftige Termine»**. Neben dem Knopf steht jetzt «Heute und später».
 3. Schliessen Sie das Feld mit einem Klick daneben oder mit der Esc-Taste.
 
-Die Liste zeigt nun jeden kommenden Kurstag als eigenen Block, den nächsten zuoberst, mit allen Terminen dieses Tages nach Essenszeit sortiert. Rechts an jeder Zeile steht «Bestellungen / erwartete Teilnehmende», zum Beispiel «5 / 18 Best.».
+Die Liste zeigt nun jeden kommenden Kurstag als eigenen Block, den am weitesten entfernten zuoberst und den heutigen zuunterst, mit allen Terminen eines Tages nach Essenszeit sortiert. Rechts an jeder Zeile steht «Bestellungen / erwartete Teilnehmende», zum Beispiel «5 / 18 Best.».
 
 Nützlich dabei:
 
 - **Kurse, bei denen noch wenig oder nichts bestellt ist**, erkennen Sie sofort an der ersten Zahl. Dort lohnt es sich nachzufassen, meist ist der Link nicht angekommen.
 - Für zurückliegende Kurse setzen Sie zusätzlich das Häkchen bei **«Vergangene Termine»**. Neben dem Knopf steht dann «Alle Termine».
-- Der heutige Tag bleibt immer zuoberst, egal welche Häkchen gesetzt sind.
+- Der heutige Tag ist orange mit «heute» angeschrieben und dadurch auch in einer langen Liste sofort zu finden.
 - Mit **F5** holen Sie den neuesten Stand. Die Häkchen stehen danach wieder auf «Nur heute».
 
 > **Was ist mit der Seite «Alle Termine»?** Die gibt es seit dem 04.09.2026 nicht mehr. Sie zeigte dasselbe in einem eigenen Tab; seit die Liste links nach Kurstagen gruppiert ist, brauchen Sie dafür keine zweite Seite mehr. Einen Ausdruck der Tagesübersicht fürs Restaurant gibt es damit nicht mehr; brauchen Sie einen, melden Sie das den ICT-Services.
@@ -151,7 +151,7 @@ Nützlich dabei:
 
 1. Öffnen Sie die Verwaltung und wählen Sie links den Termin aus.
 2. Rechts sehen Sie die Zählerleiste mit sechs Zahlen: «Total», «Suppe», «Salat», «Keine», «Menü 1» und «Menü 2».
-3. Haben Sie beim Termin eine erwartete Teilnehmerzahl hinterlegt, steht sie beim «Total» gleich daneben, zum Beispiel «5 / 18». Fehlen Bestellungen, erinnern Sie die Kursleitung.
+3. Haben Sie beim Termin eine erwartete Teilnehmeranzahl hinterlegt, steht sie beim «Total» gleich daneben, zum Beispiel «5 / 18». Fehlen Bestellungen, erinnern Sie die Kursleitung.
 4. Darunter steht die Liste aller Bestellungen mit den Spalten «Name», «Vorspeise», «Hauptgang» und «Bemerkung».
 
 In der Terminliste links steht bei jedem Termin rechts dieselbe Angabe in Kurzform, zum Beispiel «5 / 18 Best.». So sehen Sie auf einen Blick, wo noch etwas fehlt, ohne jeden Termin einzeln anzuklicken.
@@ -185,10 +185,10 @@ Steht statt der Menükarte der Satz «Die Tagesmenüs sind zurzeit nicht abrufba
 
 1. Wählen Sie den Termin links aus.
 2. Klicken Sie rechts auf «Bearbeiten». Über dem Formular steht jetzt «Termin bearbeiten».
-3. Sie sehen dieselben Felder wie beim Anlegen: «Titel», «Firma», «Datum», «Essenszeit» und «Erwartete Teilnehmer».
+3. Sie sehen dieselben Felder wie beim Anlegen: «Titel», «Firma», «Datum», «Essenszeit» und «Erwartete Teilnehmeranzahl».
 4. Klicken Sie auf «Änderungen speichern» oder auf «Abbrechen».
 
-Am häufigsten werden Sie hier die **erwarteten Teilnehmer** nachtragen oder korrigieren, sobald die Kursleitung die endgültige Zahl meldet. Leeren Sie das Feld, wenn die Zahl doch nicht feststeht; dann verschwindet der Massstab wieder und in der Liste steht nur noch die Anzahl Bestellungen.
+Am häufigsten werden Sie hier die **erwartete Teilnehmeranzahl** nachtragen oder korrigieren, sobald die Kursleitung die endgültige Zahl meldet. Leeren Sie das Feld, wenn die Zahl doch nicht feststeht; dann verschwindet der Massstab wieder und in der Liste steht nur noch die Anzahl Bestellungen.
 
 Den Zugangscode können Sie nicht ändern. Ein bereits verteilter Link oder QR-Code bleibt also gültig, auch wenn Sie Titel, Firma, Datum oder Essenszeit noch anpassen.
 

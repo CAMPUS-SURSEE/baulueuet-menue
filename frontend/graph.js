@@ -158,7 +158,7 @@ const Graph = (function () {
   const LISTE_KLASSEN = "/sites/" + KONFIG.siteId + "/lists/" + KONFIG.listeKlassen;
   const LISTE_BESTELLUNGEN = "/sites/" + KONFIG.siteId + "/lists/" + KONFIG.listeBestellungen;
 
-  const FELDER_KLASSE = "Title,Firma,Datum,Essenszeit,Code,Status,Teilnehmer,Sprache,Suppe,Salat,Menu1,Menu2,Dessert,Bemerkung";
+  const FELDER_KLASSE = "Title,Firma,Datum,Essenszeit,Code,Status,Teilnehmer,Sprache,Suppe,Salat,Menu1,Menu2,Dessert";
   const FELDER_BESTELLUNG = "Title,KlasseID,KlasseCode,Vorname,Nachname,Vorspeise,Hauptgang,Bemerkung";
 
   async function anfrage(pfad, optionen) {
@@ -274,7 +274,6 @@ const Graph = (function () {
       /* Sprache der Teilnehmenden, siehe Hilfe.spracheNormieren. Leer oder
          fehlend heisst Deutsch; so bleiben ältere Termine unverändert. */
       sprache:    Hilfe.spracheNormieren(k.Sprache),
-      bemerkung:  k.Bemerkung || "",
       erstellt:      k.erstellt,
       erstelltVon:   k.erstelltVon || "",
       geaendert:     k.geaendert,
@@ -297,7 +296,6 @@ const Graph = (function () {
     if (daten.essenszeit !== undefined) felder.Essenszeit = daten.essenszeit;
     if (daten.code       !== undefined) felder.Code       = daten.code;
     if (daten.status     !== undefined) felder.Status     = daten.status;
-    if (daten.bemerkung  !== undefined) felder.Bemerkung  = daten.bemerkung;
     if (daten.sprache    !== undefined) felder.Sprache    = Hilfe.spracheNormieren(daten.sprache);
     /* null räumt die Zahlenspalte wieder aus. Das ist nicht dasselbe wie 0:
        leer heisst «noch nicht bekannt», 0 hiesse «niemand wird erwartet». */

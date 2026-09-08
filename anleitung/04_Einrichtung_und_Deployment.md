@@ -23,8 +23,7 @@ Dieses Dokument beschreibt, wie das System eingerichtet wird und wie eine Änder
 | Baustein | Zustand | Wer |
 |---|---|---|
 | SharePoint-Listen «Klassen» und «Bestellungen» | vorhanden | ICT |
-| Spalte `Teilnehmer` in der Liste «Klassen» | **vor der Veröffentlichung anzulegen**, siehe unten | ICT |
-| Spalte `Sprache` in der Liste «Klassen» | **vor der Veröffentlichung anzulegen**, siehe unten | ICT |
+| Spalten `Teilnehmer` und `Sprache` in der Liste «Klassen» | vorhanden (`Sprache` am 08.09.2026 über Graph angelegt; gleichzeitig `Menu1Preis`, `Menu2Preis`, `Bemerkung` entfernt) | ICT |
 | Power Automate Flows B, C und Aufräum-Flow | vorhanden und in Betrieb | ICT |
 | Cloudflare-Pages-Projekt auf `menue.campus-sursee.ch` | vorhanden | ICT |
 | App-Registrierung in Entra ID | angelegt, Client-ID eingetragen | ICT |

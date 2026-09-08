@@ -109,7 +109,8 @@ SharePoint-Site **«Reception»**: `https://campussursee.sharepoint.com/sites/ho
 | `Teilnehmer` | Zahl | erwartete Teilnehmeranzahl, darf leer sein. Reiner Massstab, schränkt nichts ein |
 | `Sprache` | Text | `de`, `fr` oder `en`. Sprache von Kursblatt und Gästeseite. Leer oder unbekannt gilt als `de` |
 | `Suppe`, `Salat`, `Menu1`, `Menu2`, `Dessert` | Text bzw. Notiz | Rückfallwerte, falls Lunchgate nichts liefert |
-| `Menu1Preis`, `Menu2Preis`, `Bemerkung` | | derzeit von der Webseite nicht benutzt |
+
+> Die früheren Spalten `Menu1Preis`, `Menu2Preis` und `Bemerkung` wurden am 08.09.2026 aus der Liste entfernt; keine Seite und kein Flow der Webseite hat sie gelesen. Die Liste entspricht seither genau dieser Tabelle.
 
 > **Spalte `Teilnehmer` (seit 04.09.2026).** Zahlenspalte, Vorgabewert leer, nicht erforderlich. Fehlt sie in der Liste, läuft die Verwaltung weiter: Der Aufruf mit Feldauswahl scheitert dann mit HTTP 400, `alleElemente` in `graph.js` wiederholt ihn ohne Auswahl, und `erwartet` bleibt 0; die Verwaltung zeigt dann nur die tatsächlichen Bestellungen. **Speichern** schlägt in diesem Fall allerdings fehl, weil Graph ein unbekanntes Feld ablehnt. Die Spalte ist also anzulegen, bevor die neue Fassung veröffentlicht wird.
 >

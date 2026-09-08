@@ -510,7 +510,7 @@ Für die Störungssuche besonders nützlich: die Ausgabe der Aktion «Lunchgate�
 
 Site «Reception»: `https://campussursee.sharepoint.com/sites/hot-reze`, dort **Websiteinhalte**, dann die Liste «Klassen» oder «Bestellungen».
 
-- **Liste «Klassen»:** Spalten `Title`, `Firma`, `Datum`, `Essenszeit`, `Code`, `Status` («offen» oder «geschlossen»), `Suppe`, `Salat`, `Menu1`, `Menu2`, `Dessert`, `Bemerkung`.
+- **Liste «Klassen»:** Spalten `Title`, `Firma`, `Datum`, `Essenszeit`, `Code`, `Status` («offen» oder «geschlossen»), `Teilnehmer`, `Sprache`, `Suppe`, `Salat`, `Menu1`, `Menu2`, `Dessert`.
 - **Liste «Bestellungen»:** Spalten `Title`, `KlasseID`, `KlasseCode`, `Vorname`, `Nachname`, `Vorspeise` («Suppe», «Salat» oder «Keine»), `Hauptgang` («Menü 1» oder «Menü 2»), `Bemerkung`, `Created`.
 - **Achtung:** Die Liste «Bestellungen» hat **keine** eigene Datumsspalte. Die Zuordnung zum Kurstag läuft immer über `KlasseID`. Wer nach einem Tag suchen will, sucht zuerst die Klasse und dann deren ID.
 - Zum Suchen eignet sich die Spalte `KlasseCode`, weil sie den Code im Klartext enthält.

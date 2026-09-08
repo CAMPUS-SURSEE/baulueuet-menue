@@ -37,13 +37,15 @@ Solange die Anmeldung läuft oder scheitert, sehen Sie stattdessen die Meldung �
 
 Die Verwaltung ist in zwei Spalten aufgeteilt:
 
-- links zuoberst der schwarze Knopf **«Neuer Termin»** über die ganze Spaltenbreite, darunter die Überschrift «Termine», das Suchfeld «Suchen: Titel, Firma oder Code» und der Knopf «Filter»
+- links zuoberst der schwarze Knopf **«Neuer Termin»** über die ganze Spaltenbreite, darunter die Überschrift «Termine», das Suchfeld «Suchen: Titel, Firma oder Code», der Knopf «Filter» und daneben ein kleiner Pfeilknopf für die Sortierung
 - darunter die Terminliste, nach Kurstag gruppiert
-- rechts «Details» zum ausgewählten Termin
+- rechts der ausgewählte Termin mit seinen Bestellungen
 
 Solange Sie nichts angeklickt haben, steht rechts nur: «Links einen Termin auswählen, um Bestellungen und Gästelink zu sehen.»
 
 **Wie die Liste aufgebaut ist.** Über jeder Gruppe steht der Kurstag, zum Beispiel «Freitag, 04.09.2026»; der heutige Tag ist zusätzlich orange mit «heute» angeschrieben. Darunter stehen alle Termine dieses Tages, nach Essenszeit sortiert. Rechts an jeder Zeile steht die Anzahl Bestellungen, zum Beispiel «5 / 18 Best.»: fünf Bestellungen liegen vor, achtzehn Teilnehmende werden erwartet. Ist keine Teilnehmeranzahl hinterlegt, steht dort nur «5 Best.».
+
+**Die Sortierung.** Von Haus aus steht der Kurstag, der am weitesten in der Zukunft liegt, zuoberst und der am weitesten zurückliegende zuunterst; der Pfeilknopf neben «Filter» zeigt dann nach unten. Ein Klick darauf kehrt die Reihenfolge um, der Pfeil zeigt nach oben und der früheste Kurstag steht zuoberst. Ein zweiter Klick stellt die ursprüngliche Reihenfolge wieder her.
 
 **Der Filter.** Von Haus aus zeigt die Liste **nur die heutigen Termine**. Das ist der Alltagsfall. Klicken Sie auf «Filter», öffnet sich ein kleines Feld mit zwei Kästchen:
 
@@ -67,13 +69,14 @@ Legen Sie pro Kurs und pro Essenstag einen Termin an. Isst derselbe Kurs an drei
 3. **«Firma»** ausfüllen. Der Auftraggeber oder die Trägerfirma, zum Beispiel «Implenia Schweiz AG». Darf leer bleiben, hilft aber später beim Suchen.
 4. **«Datum»** prüfen. Das ist der Tag, an dem der Kurs zu Mittag isst. Vorgeschlagen wird der heutige Tag, meist müssen Sie ihn also anpassen. Das Datum entscheidet, wann die Teilnehmenden wählen dürfen und unter welchem Kurstag der Termin links in der Liste steht.
 5. **«Essenszeit»** prüfen. Das ist die Uhrzeit des Mittagessens. Vorgeschlagen wird 12:00. Die Zeit erscheint auf dem Kursblatt und auf dem Menüblatt als Hinweis für Küche und Teilnehmende. Sie steuert nicht, wann die Wahl möglich ist.
-6. **«Erwartete Teilnehmeranzahl»** ausfüllen, wenn die Zahl bekannt ist, zum Beispiel `18`. Diese Zahl ist nur ein Massstab: Sie sehen später auf einen Blick «5 / 18 Best.» und wissen damit sofort, wie viele Bestellungen noch fehlen. Sie schränkt nichts ein, es dürfen also auch mehr Leute bestellen. Lassen Sie das Feld leer, solange die Zahl nicht feststeht; dann steht in der Liste nur die Anzahl Bestellungen. Nachtragen können Sie sie jederzeit über «Bearbeiten».
-7. Klicken Sie auf «Termin speichern». Mit «Abbrechen» verwerfen Sie die Eingaben.
+6. **«Sprache»** wählen: Deutsch, Französisch oder Englisch. Vorgeschlagen wird Deutsch. Die Sprache bestimmt, in welcher Sprache das Kursblatt und die Menüwahl auf dem Handy der Teilnehmenden erscheinen. Das Menüblatt für die Küche bleibt in jedem Fall deutsch, und auch die Menütexte selbst (Tagessuppe, Menü 1 usw.) kommen deutsch aus der Küche.
+7. **«Erwartete Teilnehmeranzahl»** ausfüllen, wenn die Zahl bekannt ist, zum Beispiel `18`. Diese Zahl ist nur ein Massstab: Sie sehen später auf einen Blick «5 / 18 Best.» und wissen damit sofort, wie viele Bestellungen noch fehlen. Sie schränkt nichts ein, es dürfen also auch mehr Leute bestellen. Lassen Sie das Feld leer, solange die Zahl nicht feststeht; dann steht in der Liste nur die Anzahl Bestellungen. Nachtragen können Sie sie jederzeit über «Bearbeiten».
+8. Klicken Sie auf «Termin speichern». Mit «Abbrechen» verwerfen Sie die Eingaben.
 
 Den Zugangscode müssen Sie nicht eingeben. Er entsteht beim Speichern automatisch und besteht aus acht Zeichen ohne die verwechselbaren Zeichen 0, O, 1 und I.
 
 Nach dem Speichern ist der neue Termin links ausgewählt und rechts sehen Sie sofort seine Details:
-Titel, Firma, Datum, «Mittagessen um … Uhr», «Erwartete Teilnehmeranzahl: 18», die beiden Links und die Zählerleiste.
+Titel, Firma, Datum, «Mittagessen um … Uhr», «Erwartete Teilnehmeranzahl: 18», bei einem fremdsprachigen Kurs «Sprache: Französisch» oder «Sprache: Englisch», der Gästelink und die Zählerleiste.
 
 Liegt der neue Termin nicht am heutigen Tag, blendet die Liste den passenden Zeitraum von selbst ein; Sie müssen den Filter dafür nicht von Hand umstellen.
 
@@ -93,25 +96,20 @@ Sie haben zwei Wege. Sie dürfen auch beide gleichzeitig benutzen.
 
 ### Weg A: Link verschicken
 
-In den Details stehen **zwei** Links untereinander, jeder mit seinem eigenen Kopierknopf:
-
-| Zeile | Link | Wofür |
-|---|---|---|
-| **Gäste** | `https://menue.campus-sursee.ch/?klasse=M2VJ8KWS` | führt direkt ins Bestellformular. Für die Teilnehmenden |
-| **Kursblatt** | `https://menue.campus-sursee.ch/kursblatt.html?klasse=M2VJ8KWS` | zeigt das Blatt mit QR-Code zum Selberausdrucken. Für die Kursleitung oder Referentinnen und Referenten |
+Beim Termin steht die Zeile **Gäste** mit dem Link, zum Beispiel `https://menue.campus-sursee.ch/?klasse=M2VJ8KWS`. Er führt direkt ins Bestellformular und ist für die Teilnehmenden gedacht.
 
 1. Wählen Sie den Termin links in der Liste aus.
-2. Klicken Sie auf «Link kopieren» für den Gästelink oder auf «Kursblatt-Link kopieren» für das Kursblatt. Daneben erscheint kurz das Wort «Kopiert».
+2. Klicken Sie auf «Link kopieren». Daneben erscheint kurz das Wort «Kopiert».
 3. Fügen Sie den Link in ein E-Mail ein, mit Tastenkombination Strg + V.
 
-**Den Kursblatt-Link dürfen Sie bedenkenlos nach aussen geben.** Er verlangt keine Anmeldung. Wer ihn öffnet, sieht dasselbe Blatt, das Sie auch drucken würden: Kursname, Firma, Datum, Essenszeit und den QR-Code. Referentinnen und Referenten können es damit selbst ausdrucken und im Kursraum aufhängen, ohne dass Sie ein Papier hinschicken müssen. Preisgegeben wird dabei nichts, was nicht ohnehin auf dem Aushang stünde, und der Link funktioniert nur mit dem achtstelligen Code dieses einen Termins.
+**Soll die Kursleitung das Blatt selbst ausdrucken**, öffnen Sie es mit «Kursblatt drucken» (Weg B) und kopieren Sie die Adresse aus der Adresszeile des neuen Tabs. Diesen Link dürfen Sie bedenkenlos nach aussen geben: Er verlangt keine Anmeldung. Wer ihn öffnet, sieht dasselbe Blatt, das Sie auch drucken würden: Kursname, Firma, Datum, Essenszeit und den QR-Code, in der Sprache des Termins. Preisgegeben wird dabei nichts, was nicht ohnehin auf dem Aushang stünde, und der Link funktioniert nur mit dem achtstelligen Code dieses einen Termins.
 
 Klappt das Kopieren einmal nicht, meldet die Seite «Kopieren nicht möglich, bitte von Hand markieren.». Markieren Sie den Link dann mit der Maus und kopieren Sie ihn mit Strg + C.
 
 ### Weg B: Kursblatt drucken und aufhängen
 
 1. Wählen Sie den Termin aus und klicken Sie auf «Kursblatt drucken».
-2. Es öffnet sich ein neuer Browser-Tab mit dem fertigen Blatt: BAULÜÜT-Logo, Kursname, Firma, Datum, Essenszeit, ein grosser QR-Code und darunter der Link als Text.
+2. Es öffnet sich ein neuer Browser-Tab mit dem fertigen Blatt: BAULÜÜT-Logo, Kursname, Firma, Datum, Essenszeit, ein grosser QR-Code und darunter der Link als Text. Das Blatt ist in der Sprache, die Sie beim Termin gewählt haben; der QR-Code führt die Teilnehmenden dann ebenfalls auf die Menüwahl in dieser Sprache.
 3. Klicken Sie unten auf dem Blatt nochmals auf «Kursblatt drucken». Der Druckdialog öffnet sich. Der Knopf selbst wird nicht mitgedruckt.
 4. Hängen Sie das Blatt im Kurszimmer auf oder legen Sie es auf die Tische.
 
@@ -134,7 +132,7 @@ Von Haus aus zeigt die Liste links nur, was heute ansteht. Für die Frage «Was 
 2. Setzen Sie das Häkchen bei **«Zukünftige Termine»**. Neben dem Knopf steht jetzt «Heute und später».
 3. Schliessen Sie das Feld mit einem Klick daneben oder mit der Esc-Taste.
 
-Die Liste zeigt nun jeden kommenden Kurstag als eigenen Block, den am weitesten entfernten zuoberst und den heutigen zuunterst, mit allen Terminen eines Tages nach Essenszeit sortiert. Rechts an jeder Zeile steht «Bestellungen / erwartete Teilnehmende», zum Beispiel «5 / 18 Best.».
+Die Liste zeigt nun jeden kommenden Kurstag als eigenen Block, den am weitesten entfernten zuoberst und den heutigen zuunterst, mit allen Terminen eines Tages nach Essenszeit sortiert. Möchten Sie den nächsten Kurstag zuoberst sehen, klicken Sie auf den Pfeilknopf neben «Filter»; er dreht die Reihenfolge um. Rechts an jeder Zeile steht «Bestellungen / erwartete Teilnehmende», zum Beispiel «5 / 18 Best.».
 
 Nützlich dabei:
 
@@ -213,8 +211,8 @@ Steht statt der Menükarte der Satz «Die Tagesmenüs sind zurzeit nicht abrufba
 ### Ändern
 
 1. Wählen Sie den Termin links aus.
-2. Klicken Sie rechts auf «Bearbeiten». Über dem Formular steht jetzt «Termin bearbeiten».
-3. Sie sehen dieselben Felder wie beim Anlegen: «Titel», «Firma», «Datum», «Essenszeit» und «Erwartete Teilnehmeranzahl».
+2. Klicken Sie rechts auf den grauen Schriftzug «Bearbeiten» mit dem Stift, gleich neben dem Kurstitel. Über dem Formular steht jetzt «Termin bearbeiten».
+3. Sie sehen dieselben Felder wie beim Anlegen: «Titel», «Firma», «Datum», «Essenszeit», «Sprache» und «Erwartete Teilnehmeranzahl».
 4. Klicken Sie auf «Änderungen speichern» oder auf «Abbrechen».
 
 Am häufigsten werden Sie hier die **erwartete Teilnehmeranzahl** nachtragen oder korrigieren, sobald die Kursleitung die endgültige Zahl meldet. Leeren Sie das Feld, wenn die Zahl doch nicht feststeht; dann verschwindet der Massstab wieder und in der Liste steht nur noch die Anzahl Bestellungen.
@@ -281,7 +279,10 @@ Das ist der vorgesehene Weg, nicht eine Störung. Fragen Sie nach Vorname, Nachn
 Nein. Sie gilt für alle Kurse gleich. Soll die Zeit grundsätzlich eine andere sein, ist das eine Änderung an der Webseite; melden Sie den Wunsch den ICT-Services.
 
 **Ich möchte, dass die Kursleitung das Blatt selbst ausdruckt.**
-Schicken Sie ihr den Kursblatt-Link, siehe Abschnitt 4, Weg A. Sie braucht dafür kein Konto und keine Anmeldung.
+Öffnen Sie das Kursblatt mit «Kursblatt drucken» und schicken Sie ihr die Adresse aus dem neuen Tab, siehe Abschnitt 4, Weg A. Sie braucht dafür kein Konto und keine Anmeldung.
+
+**Ein Kurs spricht Französisch oder Englisch.**
+Wählen Sie beim Anlegen oder über «Bearbeiten» im Feld «Sprache» die passende Sprache. Kursblatt und Menüwahl erscheinen dann in dieser Sprache. Die Menütexte selbst bleiben deutsch, weil sie so aus der Küche kommen; das Menüblatt für die Küche bleibt ebenfalls deutsch.
 
 **Ein Termin taucht in der Liste nicht auf.**
 Drei Gründe kommen infrage:

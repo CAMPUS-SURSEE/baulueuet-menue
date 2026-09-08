@@ -205,7 +205,11 @@ Der alte QR-Encoder liegt nicht mehr im Quellcode. Der Testordner `qr-test` im A
 
 **Aufbewahrung 30 Tage.** Es sind Namen mit Angaben zu Allergien, also Gesundheitsdaten. Sie werden nur so lange behalten, wie sie für den Betrieb gebraucht werden.
 
-**Keine Fusszeile auf den Seiten.** Auf Wunsch entfernt, damit die Blätter im Druck ruhiger wirken.
+**Keine Fusszeile auf den Seiten.** Auf Wunsch entfernt, damit die Blätter im Druck ruhiger wirken. Am 08.09.2026 ist auch der Satz «Wir bitten Sie das Menüauswahlblatt bis 10:00 Uhr an der Réception abzugeben» vom Menüblatt verschwunden; seit die Wahl über das Handy läuft, gibt niemand mehr ein Blatt ab.
+
+**Die Sprache reist im Link mit, nicht über Flow B.** Seit dem 08.09.2026 trägt ein Termin die Sprache seiner Teilnehmenden (`de`, `fr`, `en`). Kursblatt und Gästeseite laden ohne Anmeldung über Flow B, und der Flow kennt die neue Spalte nicht. Statt den Flow anzufassen, hängt die Verwaltung `&sprache=fr` an die Adresse des Kursblatts, und das Kursblatt setzt denselben Zusatz in den QR-Code. So bleibt Flow B unverändert, bestehende deutsche Links bleiben gültig, und die Sprache lässt sich am Link selbst nachvollziehen. Die Menütexte aus Lunchgate bleiben deutsch; übersetzt sind nur die Beschriftungen der Seiten.
+
+**Die Kursblatt-Linkzeile ist weg.** Sie stand unter dem Gästelink mit eigenem Kopierknopf. Das Blatt ist über «Kursblatt drucken» ohnehin einen Klick entfernt, und wer die Adresse weitergeben will, nimmt sie aus dem geöffneten Tab. Zwei Linkzeilen übereinander haben die Réception eher verwirrt als geholfen.
 
 **Hosting bei Cloudflare Pages statt bei Netlify.** Am 04.09.2026 gewechselt. An der Webseite selbst ändert das nichts: Beide Anbieter liefern den Ordner `frontend` unverändert aus und werten `frontend\_headers` gleich aus. Aus `netlify.toml` wurde `wrangler.toml`. Ein einziger Unterschied ist zu beachten: Cloudflare Pages leitet `/admin.html` auf `/admin` um. Die Seiten melden sich damit auf der Adresse ohne Endung an, weshalb in Entra ID beide Schreibweisen als Umleitungsadresse hinterlegt sind.
 
@@ -239,6 +243,7 @@ Diese Punkte sind bekannt und bewusst in Kauf genommen. Sie gehören auf die Lis
 | 04.09.2026, Vormittag | Alle Seiten durchgehend auf schmale Bildschirme ausgelegt: überlappende Spalten in der Verwaltung behoben, Tabellen auf dem Telefon als Karten, seitliche Ränder und Schriftgrössen wachsen mit der Fensterbreite. Terminübersicht `termine.html` als eigene Seite |
 | 04.09.2026, Nachmittag | **Umbau der Verwaltung.** `termine.html` wieder entfernt und die linke Spalte von `admin.html` nach Kurstag gruppiert, durchgehend absteigend sortiert; Umschalter «Vergangene anzeigen» durch einen Filter ersetzt, der von Haus aus nur den heutigen Tag zeigt. «Neuer Termin» ganz nach oben. Status «Bestellung offen» aus der Oberfläche entfernt. Neue Spalte `Teilnehmer` für die erwartete Teilnehmeranzahl, in der Liste als «5 / 18 Best.» |
 
+| 08.09.2026 | **Sprache je Termin und Feinschliff der Verwaltung.** Neue Spalte `Sprache` (`de`/`fr`/`en`); Kursblatt und Gästeseite vollständig auf Französisch und Englisch, Sprache reist als `&sprache=` im Link mit. In der Verwaltung: Pfeilknopf neben «Filter» kehrt die Sortierung der Kurstage um; «Bearbeiten» als grauer Textlink mit Stift neben dem Titel statt als Knopf; Legende «Details» über dem Termin entfernt; «Kursblatt drucken» und «Menüblatt drucken» teilen sich die volle Breite; Kursblatt-Linkzeile entfernt. Menüblatt ohne die Fusszeile «… bis 10:00 Uhr an der Réception abzugeben» |
 | 04.09.2026, Nachmittag | **Bestellungen in der Verwaltung bearbeitbar.** Die Réception kann jede Bestellung jederzeit ändern, nacherfassen und löschen, auch nach dem Annahmeschluss. Neu in `graph.js`: `bestellungAnlegen` und `bestellungAendern`; `bestellungLoeschen` war vorhanden, aber unbenutzt. Der bisherige Weg über das handschriftlich ergänzte Menüblatt entfällt |
 
 **Beim Umbau gefundene und behobene Fehler**, festgehalten, weil sie sich wiederholen könnten:

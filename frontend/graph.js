@@ -88,11 +88,33 @@ const Hilfe = (function () {
     return KONFIG.gastBasis + "?klasse=" + encodeURIComponent(code || "");
   }
 
-  /* Das Kursblatt ist ohne Anmeldung erreichbar, damit die Réception den Link
-     auch der Kursleitung schicken kann. Deshalb gibt es ihn hier genauso
-     fertig zusammengesetzt wie den Gästelink. */
-  function kursblattLink(code) {
-    return KONFIG.gastBasis + "kursblatt.html?klasse=" + encodeURIComponent(code || "");
+  /* ---------- Sprache ----------
+     Ein Termin trägt die Sprache seiner Teilnehmenden: Deutsch, Französisch
+     oder Englisch. Kursblatt und Gästeseite erscheinen in dieser Sprache;
+     das Menüblatt für die Küche bleibt deutsch. Gespeichert wird der
+     zweibuchstabige Code in der Spalte `Sprache`. Alles, was nicht fr oder
+     en ist, gilt als Deutsch, auch eine leere Spalte bei älteren Terminen. */
+  const SPRACHEN = { de: "Deutsch", fr: "Französisch", en: "Englisch" };
+
+  function spracheNormieren(wert) {
+    const s = String(wert || "").trim().toLowerCase().slice(0, 2);
+    return SPRACHEN[s] ? s : "de";
+  }
+
+  function spracheName(wert) {
+    return SPRACHEN[spracheNormieren(wert)];
+  }
+
+  /* Anhängsel für Links auf Kursblatt und Gästeseite. Beide laden ohne
+     Anmeldung über Flow B und sehen die SharePoint-Spalte nicht; die
+     Sprache reist deshalb im Link mit. Für Deutsch bleibt der Link kurz. */
+  function spracheZusatz(wert) {
+    const s = spracheNormieren(wert);
+    return s === "de" ? "" : "&sprache=" + s;
+  }
+
+  function gastLinkMitSprache(code, sprache) {
+    return gastLink(code) + spracheZusatz(sprache);
   }
 
   /* Annahmeschluss: am Kurstag bis KONFIG.annahmeschluss (Stunde, lokal).
@@ -118,7 +140,10 @@ const Hilfe = (function () {
     heute: heute,
     neuerCode: neuerCode,
     gastLink: gastLink,
-    kursblattLink: kursblattLink,
+    gastLinkMitSprache: gastLinkMitSprache,
+    spracheNormieren: spracheNormieren,
+    spracheName: spracheName,
+    spracheZusatz: spracheZusatz,
     annahmeschlussStunde: annahmeschlussStunde,
     annahmeschlussText: annahmeschlussText
   };
@@ -133,7 +158,7 @@ const Graph = (function () {
   const LISTE_KLASSEN = "/sites/" + KONFIG.siteId + "/lists/" + KONFIG.listeKlassen;
   const LISTE_BESTELLUNGEN = "/sites/" + KONFIG.siteId + "/lists/" + KONFIG.listeBestellungen;
 
-  const FELDER_KLASSE = "Title,Firma,Datum,Essenszeit,Code,Status,Teilnehmer,Suppe,Salat,Menu1,Menu2,Dessert,Bemerkung";
+  const FELDER_KLASSE = "Title,Firma,Datum,Essenszeit,Code,Status,Teilnehmer,Sprache,Suppe,Salat,Menu1,Menu2,Dessert,Bemerkung";
   const FELDER_BESTELLUNG = "Title,KlasseID,KlasseCode,Vorname,Nachname,Vorspeise,Hauptgang,Bemerkung";
 
   async function anfrage(pfad, optionen) {
@@ -246,6 +271,9 @@ const Graph = (function () {
          Spalte in SharePoint ganz, greift in `alleElemente` der Rückfall
          ohne Feldauswahl und der Wert bleibt hier schlicht 0. */
       erwartet:   Number(k.Teilnehmer) || 0,
+      /* Sprache der Teilnehmenden, siehe Hilfe.spracheNormieren. Leer oder
+         fehlend heisst Deutsch; so bleiben ältere Termine unverändert. */
+      sprache:    Hilfe.spracheNormieren(k.Sprache),
       bemerkung:  k.Bemerkung || "",
       erstellt:      k.erstellt,
       erstelltVon:   k.erstelltVon || "",
@@ -270,6 +298,7 @@ const Graph = (function () {
     if (daten.code       !== undefined) felder.Code       = daten.code;
     if (daten.status     !== undefined) felder.Status     = daten.status;
     if (daten.bemerkung  !== undefined) felder.Bemerkung  = daten.bemerkung;
+    if (daten.sprache    !== undefined) felder.Sprache    = Hilfe.spracheNormieren(daten.sprache);
     /* null räumt die Zahlenspalte wieder aus. Das ist nicht dasselbe wie 0:
        leer heisst «noch nicht bekannt», 0 hiesse «niemand wird erwartet». */
     if (daten.erwartet   !== undefined) {
@@ -424,7 +453,10 @@ const Graph = (function () {
         datum:      d.datum  || "",
         essenszeit: d.essenszeit || "",
         code:       suche,
-        status:     d.offen === false ? "geschlossen" : "offen"
+        status:     d.offen === false ? "geschlossen" : "offen",
+        /* Flow B liefert die Sprache nur, wenn er dafür erweitert wurde;
+           sonst bleibt sie leer und die Seite nimmt sie aus dem Link. */
+        sprache:    d.sprache || ""
       };
     } catch (e) {
       return null;

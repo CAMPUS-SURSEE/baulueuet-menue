@@ -216,6 +216,20 @@
     margin: 14px 0 20px;
   }
   #btn-filter.aktiv { border-color: var(--schwarz); color: var(--schwarz); font-weight: 600; }
+  /* Der Sortierknopf neben dem Filter zeigt nur einen Pfeil: nach unten,
+     wenn der früheste Termin zuunterst steht, nach oben, wenn er zuoberst
+     steht. Der Text steht für die Sprachausgabe im aria-label. */
+  #btn-sortierung {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 8px 10px; line-height: 0;
+  }
+  #btn-sortierung svg {
+    width: 16px; height: 16px;
+    stroke: currentColor; stroke-width: 2; fill: none;
+    stroke-linecap: round; stroke-linejoin: round;
+    transition: transform 0.15s;
+  }
+  #btn-sortierung.aufsteigend svg { transform: rotate(180deg); }
   .filter-lage { font-size: 0.8rem; color: var(--grau); }
   .filter-feld {
     position: absolute;
@@ -310,7 +324,33 @@
   .detail-leer { color: var(--grau); font-size: 0.92rem; padding: 24px 0; }
 
   .detail-kopf { border-bottom: 1px solid var(--linie); padding-bottom: 20px; }
-  .detail-kopf .d-titel { font-size: clamp(1.15rem, 4.5vw, 1.35rem); font-weight: 700; letter-spacing: -0.01em; }
+  /* Titel und «Bearbeiten» stehen in einer Zeile: der Titel nimmt den
+     Platz, der Textlink bleibt rechts daneben und bricht nicht um. */
+  .detail-kopf .titelzeile {
+    display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 16px;
+  }
+  .detail-kopf .d-titel {
+    font-size: clamp(1.15rem, 4.5vw, 1.35rem); font-weight: 700; letter-spacing: -0.01em;
+    flex: 1 1 auto; min-width: 0;
+  }
+  /* «Bearbeiten» als leiser Textlink mit Stift: bewusst ohne Rahmen, damit
+     er neben dem Titel nicht mit den Druckknöpfen darunter konkurriert. */
+  button.bearbeiten-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    flex: none;
+    border: none; background: none; padding: 0;
+    font: inherit; font-size: 0.85rem; font-weight: 500;
+    color: var(--grau);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  button.bearbeiten-link svg {
+    width: 14px; height: 14px;
+    stroke: currentColor; stroke-width: 1.8; fill: none;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
+  button.bearbeiten-link:hover { color: var(--schwarz); }
+  button.bearbeiten-link:focus-visible { outline: 2px solid var(--schwarz); outline-offset: 3px; border-radius: 3px; }
   .detail-kopf .d-firma { color: var(--grau); font-size: 0.95rem; margin-top: 2px; }
   .detail-kopf .d-datum { font-weight: 500; font-size: 0.95rem; margin-top: 10px; }
   .detail-kopf .d-zeit { color: var(--grau); font-size: 0.9rem; }
@@ -374,7 +414,13 @@
     letter-spacing: 0.14em; color: var(--grau);
   }
 
-  .knopfreihe { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+  /* Kursblatt und Menüblatt teilen sich die ganze Breite der Zählerleiste
+     darüber, jeder Knopf die Hälfte. */
+  .knopfreihe {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px; margin-top: 24px;
+  }
+  .knopfreihe button { width: 100%; }
 
   /* Über der Bestellungstabelle steht ihre Bezeichnung und rechts daneben
      der Handgriff, mit dem die Réception eine Bestellung nachträgt. */
@@ -479,7 +525,6 @@
   @media (max-width: 560px) {
     button.knopf { min-height: 44px; }
     button.knopf.voll { width: 100%; }
-    .knopfreihe button { flex: 1 1 150px; }
     .formularknoepfe { justify-content: center; }
   }
 
@@ -580,6 +625,10 @@
         <div class="filterbereich" id="filter-bereich">
           <button type="button" class="knopf leise" id="btn-filter"
                   aria-expanded="false" aria-controls="filter-feld">Filter</button>
+          <button type="button" class="knopf leise" id="btn-sortierung"
+                  aria-label="Sortierung: früheste Termine zuunterst" title="Sortierung umkehren">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="6 13 12 19 18 13"/></svg>
+          </button>
           <span class="filter-lage" id="filter-lage"></span>
           <div class="filter-feld" id="filter-feld" hidden>
             <label for="filter-zukunft">
@@ -597,9 +646,11 @@
         <div class="leer-liste" id="liste-leer" style="display:none"></div>
       </section>
 
-      <!-- rechte Spalte: Detail -->
-      <section aria-labelledby="legende-detail">
-        <div class="legende" id="legende-detail">Details</div>
+      <!-- rechte Spalte: Detail. Die Legende steht nur über den Formularen
+           («Neuer Termin», «Bestellung ändern» usw.); über dem gewählten
+           Termin spricht der Titel für sich. -->
+      <section id="detail-bereich" aria-label="Details zum gewählten Termin">
+        <div class="legende" id="legende-detail" style="display:none">Details</div>
 
         <div id="detail-leer" class="detail-leer">
           Links einen Termin auswählen, um Bestellungen und Gästelink zu sehen.
@@ -607,11 +658,18 @@
 
         <div id="detail-ansicht" style="display:none">
           <div class="detail-kopf">
-            <div class="d-titel" id="d-titel"></div>
+            <div class="titelzeile">
+              <div class="d-titel" id="d-titel"></div>
+              <button type="button" class="bearbeiten-link" id="btn-bearbeiten" aria-label="Termin bearbeiten">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3z"/><path d="M13.5 6.5l3 3"/></svg>
+                Bearbeiten
+              </button>
+            </div>
             <div class="d-firma" id="d-firma"></div>
             <div class="d-datum" id="d-datum"></div>
             <div class="d-zeit" id="d-zeit"></div>
             <div class="d-erwartet" id="d-erwartet"></div>
+            <div class="d-erwartet" id="d-sprache"></div>
             <div class="spur" id="d-spur"></div>
           </div>
 
@@ -622,19 +680,11 @@
             <span class="kopiert" id="kopiert-text"></span>
           </div>
 
-          <div class="linkzeile">
-            <span class="linkname">Kursblatt</span>
-            <span class="gastlink" id="d-kursblattlink"></span>
-            <button type="button" class="knopf" id="btn-kursblatt-kopieren">Kursblatt-Link kopieren</button>
-            <span class="kopiert" id="kopiert-kursblatt"></span>
-          </div>
-
           <div class="zaehler" id="d-zaehler"></div>
 
           <div class="knopfreihe">
             <button type="button" class="knopf" id="btn-kursblatt">Kursblatt drucken</button>
             <button type="button" class="knopf" id="btn-menueblatt">Menüblatt drucken</button>
-            <button type="button" class="knopf" id="btn-bearbeiten">Bearbeiten</button>
           </div>
 
           <div class="tabellenkopf">
@@ -663,6 +713,17 @@
 
             <label class="feldlabel" for="f-zeit">Essenszeit</label>
             <input type="time" id="f-zeit">
+
+            <label class="feldlabel" for="f-sprache">Sprache</label>
+            <select id="f-sprache">
+              <option value="de">Deutsch</option>
+              <option value="fr">Französisch</option>
+              <option value="en">Englisch</option>
+            </select>
+            <div class="feldhinweis">
+              Sprache des Kursblatts und der Menüwahl für die Teilnehmenden.
+              Das Menüblatt für die Küche bleibt deutsch.
+            </div>
 
             <label class="feldlabel" for="f-erwartet">Erwartete Teilnehmeranzahl</label>
             <input type="number" id="f-erwartet" min="0" max="999" step="1"
@@ -786,12 +847,12 @@ function mockBauen() {
   const klassen = [
     { id: "1", titel: "SORBA EDV AG Lernende 2. Jahr", firma: "SORBA EDV AG",
       datum: tagVerschoben(14), essenszeit: "12:00", code: "K7HMP3RA",
-      status: "offen", bemerkung: "", erwartet: 12,
+      status: "offen", bemerkung: "", erwartet: 12, sprache: "de",
       erstellt: stempel(6, 9), erstelltVon: "Vreni Bühler",
       geaendert: stempel(2, 14), geaendertVon: "Martin Kaufmann" },
     { id: "2", titel: "Baukader Führungsseminar", firma: "Campus Sursee",
       datum: tagVerschoben(3), essenszeit: "11:45", code: "TQ4X9BND",
-      status: "offen", bemerkung: "", erwartet: 0,
+      status: "offen", bemerkung: "", erwartet: 0, sprache: "fr",
       erstellt: stempel(4, 11), erstelltVon: "Martin Kaufmann",
       geaendert: stempel(4, 11), geaendertVon: "Martin Kaufmann" },
     { id: "3", titel: "Polierkurs Modul 4", firma: "Implenia Schweiz AG",
@@ -896,6 +957,7 @@ function mockBauen() {
         status: daten.status || "offen",
         bemerkung: "",
         erwartet: Number(daten.erwartet) || 0,
+        sprache: daten.sprache || "de",
         erstellt: new Date().toISOString(),
         erstelltVon: "Testperson (Mock-Modus)",
         geaendert: new Date().toISOString(),
@@ -907,7 +969,7 @@ function mockBauen() {
       await warten();
       const k = klassen.find(x => String(x.id) === String(id));
       if (!k) throw new Error("Klasse nicht gefunden (Mock).");
-      ["titel", "firma", "datum", "essenszeit", "status"].forEach(f => {
+      ["titel", "firma", "datum", "essenszeit", "status", "sprache"].forEach(f => {
         if (daten[f] !== undefined) k[f] = daten[f];
       });
       if (daten.erwartet !== undefined) k.erwartet = Number(daten.erwartet) || 0;
@@ -994,6 +1056,9 @@ let gewaehlteBestellungen = [];
    schauen will, blendet die beiden anderen Zeiträume über «Filter» dazu. */
 let zeigeZukunft = false;
 let zeigeVergangene = false;
+/* Von Haus aus steht der früheste Termin zuunterst (Pfeil nach unten). Der
+   Knopf neben dem Filter kehrt die Reihenfolge um. */
+let fruehesteOben = false;
 let suchtext = "";
 let bearbeiteId = null;    // id der Klasse beim Bearbeiten, null beim Neuanlegen
 /* Dasselbe für die Bestellungen: id beim Berichtigen, null beim Nachtragen.
@@ -1052,12 +1117,13 @@ function sichtbareKlassen() {
   return alleKlassen.filter(k => passtZuZeitraum(k) && passtZuSuche(k));
 }
 
-/* Termine nach Kurstag zusammenfassen, durchgehend absteigend: der am
-   weitesten in der Zukunft liegende Tag steht zuoberst, der am weitesten
-   zurückliegende zuunterst, der heutige dazwischen an seinem Platz. Eine
-   einzige Richtung für alle Tage, damit die Liste beim Ein- und Ausblenden
-   von Zeiträumen nicht die Sortierung wechselt. Tage ohne Datum kommen
-   ganz zum Schluss. */
+/* Termine nach Kurstag zusammenfassen, durchgehend in einer Richtung: von
+   Haus aus absteigend, der am weitesten in der Zukunft liegende Tag
+   zuoberst, der am weitesten zurückliegende zuunterst, der heutige
+   dazwischen an seinem Platz. Der Sortierknopf kehrt das um. Eine einzige
+   Richtung für alle Tage, damit die Liste beim Ein- und Ausblenden von
+   Zeiträumen nicht die Sortierung wechselt. Tage ohne Datum kommen in
+   beiden Richtungen ganz zum Schluss. */
 function nachTagen(klassen) {
   const tage = {};
   klassen.forEach(k => {
@@ -1065,7 +1131,8 @@ function nachTagen(klassen) {
     (tage[datum] || (tage[datum] = [])).push(k);
   });
 
-  const reihenfolge = Object.keys(tage).filter(d => d).sort().reverse();
+  const reihenfolge = Object.keys(tage).filter(d => d).sort();
+  if (!fruehesteOben) reihenfolge.reverse();
   if (tage[""]) reihenfolge.push("");
 
   return reihenfolge.map(datum => ({
@@ -1192,6 +1259,10 @@ async function listeLaden(behalteAuswahl) {
 /* ---------- Detailbereich ---------- */
 
 function detailUmschalten(welche) {
+  /* Die Legende trägt nur bei den Formularen einen Titel; über dem Termin
+     selbst und über dem Leerhinweis bleibt sie weg. */
+  el("legende-detail").style.display =
+    (welche === "formular" || welche === "bestellung") ? "block" : "none";
   el("detail-leer").style.display = welche === "leer" ? "block" : "none";
   el("detail-ansicht").style.display = welche === "ansicht" ? "block" : "none";
   el("detail-formular").style.display = welche === "formular" ? "block" : "none";
@@ -1209,7 +1280,7 @@ function detailLeerZeigen() {
    der Auswahl wird dorthin gescrollt, sonst scheint der Klick nichts zu tun. */
 function detailInSichtBringen() {
   if (window.matchMedia("(min-width: 800px)").matches) return;
-  const ziel = el("legende-detail");
+  const ziel = el("detail-bereich");
   if (ziel && ziel.scrollIntoView) ziel.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
@@ -1252,12 +1323,16 @@ function ansichtKopfZeichnen() {
   erwartet.textContent = k.erwartet ? "Erwartete Teilnehmeranzahl: " + k.erwartet : "";
   erwartet.style.display = k.erwartet ? "block" : "none";
 
+  /* Deutsch ist die Regel und wird nicht eigens erwähnt; nur eine andere
+     Sprache steht im Kopf, damit sie beim Drucken des Kursblatts auffällt. */
+  const sprache = Hilfe.spracheNormieren(k.sprache);
+  el("d-sprache").textContent = sprache === "de" ? "" : "Sprache: " + Hilfe.spracheName(sprache);
+  el("d-sprache").style.display = sprache === "de" ? "none" : "block";
+
   spurZeichnen(k);
 
   el("d-link").textContent = Hilfe.gastLink(k.code);
-  el("d-kursblattlink").textContent = Hilfe.kursblattLink(k.code);
   el("kopiert-text").textContent = "";
-  el("kopiert-kursblatt").textContent = "";
 
   zaehlerZeichnen(gewaehlteBestellungen);
 }
@@ -1389,6 +1464,7 @@ function formularOeffnen(klasse) {
   el("f-datum").value = klasse ? (klasse.datum || "") : Hilfe.heute();
   el("f-zeit").value = klasse ? (klasse.essenszeit || "") : "12:00";
   el("f-erwartet").value = (klasse && klasse.erwartet) ? String(klasse.erwartet) : "";
+  el("f-sprache").value = Hilfe.spracheNormieren(klasse && klasse.sprache);
 
   el("btn-speichern").textContent = klasse ? "Änderungen speichern" : "Termin speichern";
   el("btn-speichern").disabled = false;
@@ -1442,7 +1518,8 @@ async function formularSpeichern(ereignis) {
     firma: el("f-firma").value.trim(),
     datum: el("f-datum").value,
     essenszeit: el("f-zeit").value,
-    erwartet: erwartet
+    erwartet: erwartet,
+    sprache: el("f-sprache").value
   };
 
   const knopf = el("btn-speichern");
@@ -1841,9 +1918,14 @@ function linkKopieren(text, rueckmeldungsfeld) {
 
 /* ---------- Drucken ---------- */
 
-function blattOeffnen(seite) {
+/* Das Kursblatt bekommt die Sprache des Termins im Link mit, weil es ohne
+   Anmeldung über Flow B lädt und die SharePoint-Spalte dort nicht kennt.
+   Das Menüblatt für die Küche bleibt deutsch und braucht den Zusatz nicht. */
+function blattOeffnen(seite, mitSprache) {
   if (!gewaehlteKlasse) return;
-  window.open(seite + "?klasse=" + encodeURIComponent(gewaehlteKlasse.code || ""), "_blank");
+  let url = seite + "?klasse=" + encodeURIComponent(gewaehlteKlasse.code || "");
+  if (mitSprache) url += Hilfe.spracheZusatz(gewaehlteKlasse.sprache);
+  window.open(url, "_blank");
 }
 
 
@@ -1868,6 +1950,15 @@ function filterKlappen(auf) {
   el("btn-filter").setAttribute("aria-expanded", auf ? "true" : "false");
 }
 
+/* Pfeil und Beschriftung des Sortierknopfs an den Zustand angleichen. */
+function sortierungSpiegeln() {
+  const knopf = el("btn-sortierung");
+  knopf.classList.toggle("aufsteigend", fruehesteOben);
+  knopf.setAttribute("aria-label", fruehesteOben
+    ? "Sortierung: früheste Termine zuoberst"
+    : "Sortierung: früheste Termine zuunterst");
+}
+
 
 /* ---------- Ereignisse ---------- */
 
@@ -1878,6 +1969,12 @@ el("suche").addEventListener("input", ev => {
 
 el("btn-filter").addEventListener("click", () => {
   filterKlappen(el("filter-feld").hidden);
+});
+
+el("btn-sortierung").addEventListener("click", () => {
+  fruehesteOben = !fruehesteOben;
+  sortierungSpiegeln();
+  listeZeichnen();
 });
 
 ["filter-zukunft", "filter-vergangen"].forEach(id => {
@@ -1924,10 +2021,7 @@ el("btn-loeschen").addEventListener("click", klasseLoeschen);
 el("btn-kopieren").addEventListener("click", () => {
   linkKopieren(Hilfe.gastLink(gewaehlteKlasse && gewaehlteKlasse.code), "kopiert-text");
 });
-el("btn-kursblatt-kopieren").addEventListener("click", () => {
-  linkKopieren(Hilfe.kursblattLink(gewaehlteKlasse && gewaehlteKlasse.code), "kopiert-kursblatt");
-});
-el("btn-kursblatt").addEventListener("click", () => blattOeffnen("kursblatt.html"));
+el("btn-kursblatt").addEventListener("click", () => blattOeffnen("kursblatt.html", true));
 el("btn-menueblatt").addEventListener("click", () => blattOeffnen("menueblatt.html"));
 el("btn-abmelden").addEventListener("click", () => Anmeldung.abmelden());
 el("btn-erneut").addEventListener("click", () => location.reload());
@@ -1957,6 +2051,7 @@ async function starten() {
   el("btn-abmelden").style.display = "";
 
   filterSpiegeln();
+  sortierungSpiegeln();
   detailUmschalten("leer");
   ansichtZeigen("app");
   await listeLaden(false);

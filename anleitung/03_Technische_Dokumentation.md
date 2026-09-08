@@ -27,8 +27,8 @@
 
 Kursteilnehmende am Campus Sursee wählen ihr Mittagsmenü im Restaurant BAULÜÜT über eine Webseite statt auf einem Papierblatt.
 
-1. Die Réception legt in der Verwaltung einen «Termin» an: Kursname, Firma, Datum, Essenszeit und, wenn bekannt, die erwartete Teilnehmeranzahl. Ein achtstelliger Zugangscode entsteht automatisch.
-2. Die Teilnehmenden erhalten den Gästelink oder ein Blatt mit QR-Code. Den Link auf das Kursblatt kann die Réception auch der Kursleitung schicken, er verlangt keine Anmeldung.
+1. Die Réception legt in der Verwaltung einen «Termin» an: Kursname, Firma, Datum, Essenszeit, Sprache der Teilnehmenden (Deutsch, Französisch oder Englisch) und, wenn bekannt, die erwartete Teilnehmeranzahl. Ein achtstelliger Zugangscode entsteht automatisch.
+2. Die Teilnehmenden erhalten den Gästelink oder ein Blatt mit QR-Code, beides in der Sprache des Termins. Die Adresse des Kursblatts kann die Réception auch der Kursleitung schicken, es verlangt keine Anmeldung.
 3. Am Tag des Mittagessens wählen sie **bis 10:00 Uhr** Vorspeise und Hauptgang, geben Namen und allfällige Allergien an. Danach ist weder Bestellen noch Ändern möglich, beides läuft über die Réception.
 4. Die Küche erhält das gedruckte Menüblatt mit allen Bestellungen.
 
@@ -107,12 +107,17 @@ SharePoint-Site **«Reception»**: `https://campussursee.sharepoint.com/sites/ho
 | `Code` | Text | achtstelliger Zugangscode, Alphabet ohne 0, O, 1 und I |
 | `Status` | Choice | `offen` oder `geschlossen`. Von der Verwaltung nur noch beim Anlegen auf `offen` gesetzt, siehe unten |
 | `Teilnehmer` | Zahl | erwartete Teilnehmeranzahl, darf leer sein. Reiner Massstab, schränkt nichts ein |
+| `Sprache` | Text | `de`, `fr` oder `en`. Sprache von Kursblatt und Gästeseite. Leer oder unbekannt gilt als `de` |
 | `Suppe`, `Salat`, `Menu1`, `Menu2`, `Dessert` | Text bzw. Notiz | Rückfallwerte, falls Lunchgate nichts liefert |
 | `Menu1Preis`, `Menu2Preis`, `Bemerkung` | | derzeit von der Webseite nicht benutzt |
 
 > **Spalte `Teilnehmer` (seit 04.09.2026).** Zahlenspalte, Vorgabewert leer, nicht erforderlich. Fehlt sie in der Liste, läuft die Verwaltung weiter: Der Aufruf mit Feldauswahl scheitert dann mit HTTP 400, `alleElemente` in `graph.js` wiederholt ihn ohne Auswahl, und `erwartet` bleibt 0; die Verwaltung zeigt dann nur die tatsächlichen Bestellungen. **Speichern** schlägt in diesem Fall allerdings fehl, weil Graph ein unbekanntes Feld ablehnt. Die Spalte ist also anzulegen, bevor die neue Fassung veröffentlicht wird.
 >
 > Leer und `0` sind bewusst nicht dasselbe: Leer heisst «noch nicht bekannt» und die Verwaltung zeigt gar keinen Massstab; eine `0` hiesse «niemand wird erwartet». Ein geleertes Formularfeld schreibt deshalb `null` in die Spalte, nicht `0`.
+
+> **Spalte `Sprache` (seit 08.09.2026).** Textspalte (eine Zeile), Vorgabewert leer, nicht erforderlich. Die Verwaltung schreibt `de`, `fr` oder `en`; `Hilfe.spracheNormieren()` in `graph.js` macht aus allem anderen `de`, auch aus einer leeren Spalte bei älteren Terminen. Wie bei `Teilnehmer` gilt: Fehlt die Spalte, **liest** die Verwaltung weiter, **speichern** schlägt fehl. Sie ist vor der Veröffentlichung anzulegen.
+>
+> Kursblatt und Gästeseite laden ohne Anmeldung über Flow B und sehen die Spalte nicht. Die Sprache reist deshalb im Link mit: `admin.html` öffnet `kursblatt.html?klasse=CODE&sprache=fr`, und das Kursblatt setzt denselben Zusatz in den QR-Code und den Gästelink (`Hilfe.gastLinkMitSprache`). Für Deutsch bleibt der Zusatz weg, damit bestehende Links unverändert gültig bleiben. Liefert Flow B eines Tages ein Feld `sprache`, nehmen beide Seiten es als Rückfall, wenn im Link nichts steht.
 
 > **Zum `Status`.** Die Verwaltung setzt ihn beim Anlegen einmalig auf `offen` und fasst ihn danach nicht mehr an; die Marke «Bestellung offen» und der Punkt in der Liste sind seit dem 04.09.2026 entfernt, siehe `05_Entscheide_und_Verlauf.md`, Abschnitt 5d. Flow B liest die Spalte weiterhin und meldet der Gästeseite `offen: false`, wenn dort `geschlossen` steht. Wer einen Termin vorzeitig schliessen will, tut das direkt in der SharePoint-Liste.
 
@@ -201,7 +206,10 @@ Hilfe.datumKurz(ymd)        // "28.08.2026"
 Hilfe.zeitstempelKurz(iso)  // "28.08.2026, 14:23", für die Spur in der Verwaltung
 Hilfe.neuerCode()           // acht Zeichen, ohne 0/O/1/I
 Hilfe.gastLink(code)        // vollständiger Gästelink
-Hilfe.kursblattLink(code)   // vollständiger Kursblatt-Link
+Hilfe.gastLinkMitSprache(code, sprache) // dito mit &sprache=fr, für Deutsch ohne Zusatz
+Hilfe.spracheNormieren(wert) // "de" | "fr" | "en", alles andere -> "de"
+Hilfe.spracheName(wert)     // "Deutsch" | "Französisch" | "Englisch"
+Hilfe.spracheZusatz(wert)   // "" | "&sprache=fr" | "&sprache=en"
 Hilfe.annahmeschlussStunde() // 10
 Hilfe.annahmeschlussText()   // "10:00"
 ```
@@ -231,6 +239,8 @@ DELETE /v1.0/sites/{siteId}/lists/{listId}/items/{id}
 
 Der Grund ist fachlich: Die Réception soll den Link der Kursleitung schicken können, damit diese das Blatt selbst ausdruckt. Eine Weiterleitung auf `login.microsoftonline.com` wäre für eine Person ohne Konto im Mandanten eine Sackgasse.
 
+Die Sprache des Blattes kommt aus dem Link (`&sprache=fr`), siehe Abschnitt 4; ohne Zusatz ist das Blatt deutsch. Die Verwaltung setzt den Zusatz beim Öffnen über «Kursblatt drucken» aus dem Termin zusammen.
+
 Preisgegeben werden Kursname, Firma, Datum und Essenszeit, und nur an jemanden, der den achtstelligen Code bereits kennt. Genau diese Angaben stehen ohnehin auf dem Aushang, und derselbe Code öffnet über die Gästeseite bereits mehr. Bestellungen sind über diesen Weg nicht erreichbar; Flow B liefert sie nicht.
 
 Der Weg über Microsoft Graph bleibt als Rückfall bestehen, falls Flow B einmal nicht antwortet, wird aber nie von selbst eingeschlagen. Stattdessen erscheint die Fehlerkarte «Kursblatt nicht abrufbar» mit dem Knopf **«Mit Konto anmelden»**; erst der Klick löst `Auth.anmeldungSicherstellen()` und `Graph.klasseNachCode()` aus. Die Umleitungsadresse für `kursblatt.html` muss deshalb in der App-Registrierung eingetragen bleiben.
@@ -250,6 +260,8 @@ Umgebung `Default-2553fb74-5dcc-4072-8bb5-399d18f72af9`, alle Flows laufen unter
 | **Aufraeumen Menuewahl** | täglich 03:00, löscht Klassen und Bestellungen älter als 30 Tage | Zeitplan, Flow-ID `063e1fa8-494b-4274-9402-608e88d59889` |
 
 Die Aufruf-Adressen samt Signatur stehen in `frontend\konfig.js` und im Kopf von `index.html`. Sie gehören nicht in dieses Dokument.
+
+Flow B kennt die Spalte `Sprache` derzeit nicht; Kursblatt und Gästeseite nehmen die Sprache aus dem Link. Wird Flow B einmal um ein Feld `"sprache":"fr"` erweitert, greift es auf beiden Seiten als Rückfall, wenn der Link keinen Zusatz trägt. `datumText` aus Flow B ist deutsch; die Seiten bilden den Wochentag in der eigenen Sprache aus `datum` neu.
 
 **Antwort von Flow B**
 

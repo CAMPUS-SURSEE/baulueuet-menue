@@ -1330,7 +1330,10 @@ function ansichtKopfZeichnen() {
 
   spurZeichnen(k);
 
-  el("d-link").textContent = Hilfe.gastLink(k.code);
+  /* Der Gästelink trägt die Sprache des Termins mit (&sprache=fr), weil die
+     Gästeseite ohne Anmeldung lädt und die SharePoint-Spalte nicht sieht.
+     Für Deutsch bleibt der Link unverändert. */
+  el("d-link").textContent = Hilfe.gastLinkMitSprache(k.code, k.sprache);
   el("kopiert-text").textContent = "";
 
   zaehlerZeichnen(gewaehlteBestellungen);
@@ -2018,7 +2021,8 @@ el("btn-bestellung-loeschen").addEventListener("click", bestellungEntfernen);
 el("detail-formular").addEventListener("submit", formularSpeichern);
 el("btn-loeschen").addEventListener("click", klasseLoeschen);
 el("btn-kopieren").addEventListener("click", () => {
-  linkKopieren(Hilfe.gastLink(gewaehlteKlasse && gewaehlteKlasse.code), "kopiert-text");
+  linkKopieren(Hilfe.gastLinkMitSprache(gewaehlteKlasse && gewaehlteKlasse.code,
+    gewaehlteKlasse && gewaehlteKlasse.sprache), "kopiert-text");
 });
 el("btn-kursblatt").addEventListener("click", () => blattOeffnen("kursblatt.html", true));
 el("btn-menueblatt").addEventListener("click", () => blattOeffnen("menueblatt.html"));

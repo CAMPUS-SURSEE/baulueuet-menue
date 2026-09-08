@@ -262,7 +262,7 @@ Umgebung `Default-2553fb74-5dcc-4072-8bb5-399d18f72af9`, alle Flows laufen unter
 
 Die Aufruf-Adressen samt Signatur stehen in `frontend\konfig.js` und im Kopf von `index.html`. Sie gehören nicht in dieses Dokument.
 
-Flow B kennt die Spalte `Sprache` derzeit nicht; Kursblatt und Gästeseite nehmen die Sprache aus dem Link. Wird Flow B einmal um ein Feld `"sprache":"fr"` erweitert, greift es auf beiden Seiten als Rückfall, wenn der Link keinen Zusatz trägt. `datumText` aus Flow B ist deutsch; die Seiten bilden den Wochentag in der eigenen Sprache aus `datum` neu.
+Flow B kennt die Spalte `Sprache` derzeit nicht; Kursblatt und Gästeseite nehmen die Sprache aus dem Link, den die Verwaltung mit `&sprache=fr` zusammensetzt. Ein von Hand gekürzter Link (`?klasse=CODE` allein) ist deshalb deutsch. **Offen:** Flow B um ein Feld `"sprache"` erweitern, das den Wert der Spalte `Sprache` der Klasse liefert (im Antwort-Body der Response-Aktion, z. B. `"sprache": "@{items('Auf_alle_anwenden')?['Sprache']}"`). Beide Seiten werten das Feld bereits aus, sobald es kommt; dann ist auch der nackte Link in der Kurssprache. `datumText` aus Flow B ist deutsch; die Seiten bilden den Wochentag in der eigenen Sprache aus `datum` neu.
 
 **Antwort von Flow B**
 

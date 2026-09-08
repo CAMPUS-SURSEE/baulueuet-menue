@@ -96,7 +96,7 @@ Sie haben zwei Wege. Sie dürfen auch beide gleichzeitig benutzen.
 
 ### Weg A: Link verschicken
 
-Beim Termin steht die Zeile **Gäste** mit dem Link, zum Beispiel `https://menue.campus-sursee.ch/?klasse=M2VJ8KWS`. Er führt direkt ins Bestellformular und ist für die Teilnehmenden gedacht.
+Beim Termin steht die Zeile **Gäste** mit dem Link, zum Beispiel `https://menue.campus-sursee.ch/?klasse=M2VJ8KWS`. Er führt direkt ins Bestellformular und ist für die Teilnehmenden gedacht. Bei einem französischen oder englischen Kurs endet der Link zusätzlich auf `&sprache=fr` beziehungsweise `&sprache=en`; dieser Zusatz sorgt dafür, dass die Menüwahl in der Kurssprache erscheint. Kopieren Sie den Link deshalb immer vollständig aus der Verwaltung und kürzen Sie ihn nicht.
 
 1. Wählen Sie den Termin links in der Liste aus.
 2. Klicken Sie auf «Link kopieren». Daneben erscheint kurz das Wort «Kopiert».

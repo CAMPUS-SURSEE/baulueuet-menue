@@ -45,7 +45,7 @@ Solange Sie nichts angeklickt haben, steht rechts nur: «Links einen Termin ausw
 
 **Wie die Liste aufgebaut ist.** Über jeder Gruppe steht der Kurstag, zum Beispiel «Freitag, 04.09.2026»; der heutige Tag ist zusätzlich orange mit «heute» angeschrieben. Darunter stehen alle Termine dieses Tages, nach Essenszeit sortiert. Rechts an jeder Zeile steht die Anzahl Bestellungen, zum Beispiel «5 / 18 Best.»: fünf Bestellungen liegen vor, achtzehn Teilnehmende werden erwartet. Ist keine Teilnehmeranzahl hinterlegt, steht dort nur «5 Best.».
 
-**Die Sortierung.** Von Haus aus steht der Kurstag, der am weitesten in der Zukunft liegt, zuoberst und der am weitesten zurückliegende zuunterst; der Pfeilknopf neben «Filter» zeigt dann nach unten. Ein Klick darauf kehrt die Reihenfolge um, der Pfeil zeigt nach oben und der früheste Kurstag steht zuoberst. Ein zweiter Klick stellt die ursprüngliche Reihenfolge wieder her.
+**Die Sortierung.** Von Haus aus steht der Kurstag, der am weitesten in der Zukunft liegt, zuoberst und der am weitesten zurückliegende zuunterst; der Pfeilknopf neben «Filter» zeigt dann nach oben, weil die neuesten Termine oben stehen. Ein Klick darauf kehrt die Reihenfolge um: der früheste Kurstag steht zuoberst, die neuesten Termine zuunterst, und der Pfeil zeigt nach unten. Ein zweiter Klick stellt die ursprüngliche Reihenfolge wieder her.
 
 **Der Filter.** Von Haus aus zeigt die Liste **nur die heutigen Termine**. Das ist der Alltagsfall. Klicken Sie auf «Filter», öffnet sich ein kleines Feld mit zwei Kästchen:
 

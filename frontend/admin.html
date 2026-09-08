@@ -216,9 +216,10 @@
     margin: 14px 0 20px;
   }
   #btn-filter.aktiv { border-color: var(--schwarz); color: var(--schwarz); font-weight: 600; }
-  /* Der Sortierknopf neben dem Filter zeigt nur einen Pfeil: nach unten,
-     wenn der früheste Termin zuunterst steht, nach oben, wenn er zuoberst
-     steht. Der Text steht für die Sprachausgabe im aria-label. */
+  /* Der Sortierknopf neben dem Filter zeigt nur einen Pfeil in die
+     Richtung, in der die Zeit läuft: nach unten, wenn die neuesten Termine
+     zuunterst stehen, nach oben, wenn sie zuoberst stehen. Der Text steht
+     für die Sprachausgabe im aria-label. */
   #btn-sortierung {
     display: inline-flex; align-items: center; justify-content: center;
     padding: 8px 10px; line-height: 0;
@@ -229,7 +230,7 @@
     stroke-linecap: round; stroke-linejoin: round;
     transition: transform 0.15s;
   }
-  #btn-sortierung.aufsteigend svg { transform: rotate(180deg); }
+  #btn-sortierung.absteigend svg { transform: rotate(180deg); }
   .filter-lage { font-size: 0.8rem; color: var(--grau); }
   .filter-feld {
     position: absolute;
@@ -626,7 +627,7 @@
           <button type="button" class="knopf leise" id="btn-filter"
                   aria-expanded="false" aria-controls="filter-feld">Filter</button>
           <button type="button" class="knopf leise" id="btn-sortierung"
-                  aria-label="Sortierung: früheste Termine zuunterst" title="Sortierung umkehren">
+                  aria-label="Sortierung: neueste Termine zuoberst" title="Sortierung umkehren">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="6 13 12 19 18 13"/></svg>
           </button>
           <span class="filter-lage" id="filter-lage"></span>
@@ -1055,8 +1056,9 @@ let gewaehlteBestellungen = [];
    schauen will, blendet die beiden anderen Zeiträume über «Filter» dazu. */
 let zeigeZukunft = false;
 let zeigeVergangene = false;
-/* Von Haus aus steht der früheste Termin zuunterst (Pfeil nach unten). Der
-   Knopf neben dem Filter kehrt die Reihenfolge um. */
+/* Von Haus aus stehen die neuesten Termine zuoberst (Pfeil nach oben). Der
+   Knopf neben dem Filter kehrt die Reihenfolge um; dann zeigt der Pfeil nach
+   unten, weil die Zeit in der Liste nach unten läuft. */
 let fruehesteOben = false;
 let suchtext = "";
 let bearbeiteId = null;    // id der Klasse beim Bearbeiten, null beim Neuanlegen
@@ -1955,10 +1957,10 @@ function filterKlappen(auf) {
 /* Pfeil und Beschriftung des Sortierknopfs an den Zustand angleichen. */
 function sortierungSpiegeln() {
   const knopf = el("btn-sortierung");
-  knopf.classList.toggle("aufsteigend", fruehesteOben);
+  knopf.classList.toggle("absteigend", !fruehesteOben);
   knopf.setAttribute("aria-label", fruehesteOben
-    ? "Sortierung: früheste Termine zuoberst"
-    : "Sortierung: früheste Termine zuunterst");
+    ? "Sortierung: neueste Termine zuunterst"
+    : "Sortierung: neueste Termine zuoberst");
 }
 
 

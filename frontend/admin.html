@@ -423,6 +423,41 @@
   }
   .knopfreihe button { width: 100%; }
 
+  /* Geteilter Knopf «Kursblatt drucken | DE»: ein Rahmen, innen links der
+     eigentliche Knopf und rechts das Klappfeld mit der Sprache. Beide
+     Hälften sind ohne eigenen Rand, damit sie wie ein Knopf wirken. */
+  .knopf.geteilt {
+    display: flex; align-items: stretch;
+    font-size: 0.88rem;
+    padding: 0; overflow: hidden;
+    border: 1px solid var(--schwarz);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--schwarz);
+    cursor: default;
+  }
+  .knopf.geteilt button {
+    flex: 1 1 auto; min-width: 0; width: auto;
+    font: inherit; font-weight: 600;
+    padding: 10px 14px;
+    border: none; background: none; color: inherit;
+    cursor: pointer;
+  }
+  .knopf.geteilt button:active { opacity: 0.7; }
+  .knopf.geteilt select {
+    flex: 0 0 auto; width: auto;
+    font: inherit; font-weight: 600;
+    padding: 0 26px 0 12px;
+    border: none; border-left: 1px solid var(--schwarz);
+    border-radius: 0;
+    background: #fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23111111' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>") no-repeat right 8px center / 12px 12px;
+    color: var(--schwarz);
+    cursor: pointer;
+    -webkit-appearance: none; appearance: none;
+  }
+  .knopf.geteilt button:focus-visible,
+  .knopf.geteilt select:focus-visible { outline: 2px solid var(--orange); outline-offset: -2px; }
+
   /* Über der Bestellungstabelle steht ihre Bezeichnung und rechts daneben
      der Handgriff, mit dem die Réception eine Bestellung nachträgt. */
   .tabellenkopf {
@@ -525,6 +560,7 @@
      die übliche Mindesthöhe, die Hauptschaltfläche die volle Breite. */
   @media (max-width: 560px) {
     button.knopf { min-height: 44px; }
+    .knopf.geteilt { min-height: 44px; }
     button.knopf.voll { width: 100%; }
     .formularknoepfe { justify-content: center; }
   }
@@ -670,7 +706,6 @@
             <div class="d-datum" id="d-datum"></div>
             <div class="d-zeit" id="d-zeit"></div>
             <div class="d-erwartet" id="d-erwartet"></div>
-            <div class="d-erwartet" id="d-sprache"></div>
             <div class="spur" id="d-spur"></div>
           </div>
 
@@ -684,7 +719,19 @@
           <div class="zaehler" id="d-zaehler"></div>
 
           <div class="knopfreihe">
-            <button type="button" class="knopf" id="btn-kursblatt">Kursblatt drucken</button>
+            <!-- Geteilter Knopf: links öffnet das Kursblatt, rechts steht die
+                 Sprache, in der es erscheinen soll. Vorgabe ist Deutsch; für
+                 einen Kurs mit gemischten Teilnehmenden lässt sich das Blatt
+                 nacheinander in mehreren Sprachen drucken. -->
+            <div class="knopf geteilt">
+              <button type="button" id="btn-kursblatt">Kursblatt drucken</button>
+              <label class="unsichtbar" for="kursblatt-sprache">Sprache des Kursblatts</label>
+              <select id="kursblatt-sprache" title="Sprache des Kursblatts">
+                <option value="de" selected>DE</option>
+                <option value="en">EN</option>
+                <option value="fr">FR</option>
+              </select>
+            </div>
             <button type="button" class="knopf" id="btn-menueblatt">Menüblatt drucken</button>
           </div>
 
@@ -714,17 +761,6 @@
 
             <label class="feldlabel" for="f-zeit">Essenszeit</label>
             <input type="time" id="f-zeit">
-
-            <label class="feldlabel" for="f-sprache">Sprache</label>
-            <select id="f-sprache">
-              <option value="de">Deutsch</option>
-              <option value="fr">Französisch</option>
-              <option value="en">Englisch</option>
-            </select>
-            <div class="feldhinweis">
-              Sprache des Kursblatts und der Menüwahl für die Teilnehmenden.
-              Das Menüblatt für die Küche bleibt deutsch.
-            </div>
 
             <label class="feldlabel" for="f-erwartet">Erwartete Teilnehmeranzahl</label>
             <input type="number" id="f-erwartet" min="0" max="999" step="1"
@@ -848,12 +884,12 @@ function mockBauen() {
   const klassen = [
     { id: "1", titel: "SORBA EDV AG Lernende 2. Jahr", firma: "SORBA EDV AG",
       datum: tagVerschoben(14), essenszeit: "12:00", code: "K7HMP3RA",
-      status: "offen", erwartet: 12, sprache: "de",
+      status: "offen", erwartet: 12,
       erstellt: stempel(6, 9), erstelltVon: "Vreni Bühler",
       geaendert: stempel(2, 14), geaendertVon: "Martin Kaufmann" },
     { id: "2", titel: "Baukader Führungsseminar", firma: "Campus Sursee",
       datum: tagVerschoben(3), essenszeit: "11:45", code: "TQ4X9BND",
-      status: "offen", erwartet: 0, sprache: "fr",
+      status: "offen", erwartet: 0,
       erstellt: stempel(4, 11), erstelltVon: "Martin Kaufmann",
       geaendert: stempel(4, 11), geaendertVon: "Martin Kaufmann" },
     { id: "3", titel: "Polierkurs Modul 4", firma: "Implenia Schweiz AG",
@@ -957,7 +993,6 @@ function mockBauen() {
         code: daten.code || "",
         status: daten.status || "offen",
         erwartet: Number(daten.erwartet) || 0,
-        sprache: daten.sprache || "de",
         erstellt: new Date().toISOString(),
         erstelltVon: "Testperson (Mock-Modus)",
         geaendert: new Date().toISOString(),
@@ -969,7 +1004,7 @@ function mockBauen() {
       await warten();
       const k = klassen.find(x => String(x.id) === String(id));
       if (!k) throw new Error("Klasse nicht gefunden (Mock).");
-      ["titel", "firma", "datum", "essenszeit", "status", "sprache"].forEach(f => {
+      ["titel", "firma", "datum", "essenszeit", "status"].forEach(f => {
         if (daten[f] !== undefined) k[f] = daten[f];
       });
       if (daten.erwartet !== undefined) k.erwartet = Number(daten.erwartet) || 0;
@@ -1324,19 +1359,17 @@ function ansichtKopfZeichnen() {
   erwartet.textContent = k.erwartet ? "Erwartete Teilnehmeranzahl: " + k.erwartet : "";
   erwartet.style.display = k.erwartet ? "block" : "none";
 
-  /* Deutsch ist die Regel und wird nicht eigens erwähnt; nur eine andere
-     Sprache steht im Kopf, damit sie beim Drucken des Kursblatts auffällt. */
-  const sprache = Hilfe.spracheNormieren(k.sprache);
-  el("d-sprache").textContent = sprache === "de" ? "" : "Sprache: " + Hilfe.spracheName(sprache);
-  el("d-sprache").style.display = sprache === "de" ? "none" : "block";
-
   spurZeichnen(k);
 
-  /* Der Gästelink trägt die Sprache des Termins mit (&sprache=fr), weil die
-     Gästeseite ohne Anmeldung lädt und die SharePoint-Spalte nicht sieht.
-     Für Deutsch bleibt der Link unverändert. */
-  el("d-link").textContent = Hilfe.gastLinkMitSprache(k.code, k.sprache);
+  /* Der Gästelink bleibt ohne Sprachzusatz: die Gästeseite öffnet deutsch
+     und lässt die Teilnehmenden die Sprache selbst umstellen. Nur der
+     QR-Code auf dem Kursblatt trägt die dort gewählte Sprache mit. */
+  el("d-link").textContent = Hilfe.gastLink(k.code);
   el("kopiert-text").textContent = "";
+
+  /* Die Sprachwahl fürs Kursblatt hängt nicht am Termin und beginnt bei
+     jedem Termin wieder bei Deutsch. */
+  el("kursblatt-sprache").value = "de";
 
   zaehlerZeichnen(gewaehlteBestellungen);
 }
@@ -1468,7 +1501,6 @@ function formularOeffnen(klasse) {
   el("f-datum").value = klasse ? (klasse.datum || "") : Hilfe.heute();
   el("f-zeit").value = klasse ? (klasse.essenszeit || "") : "12:00";
   el("f-erwartet").value = (klasse && klasse.erwartet) ? String(klasse.erwartet) : "";
-  el("f-sprache").value = Hilfe.spracheNormieren(klasse && klasse.sprache);
 
   el("btn-speichern").textContent = klasse ? "Änderungen speichern" : "Termin speichern";
   el("btn-speichern").disabled = false;
@@ -1522,8 +1554,7 @@ async function formularSpeichern(ereignis) {
     firma: el("f-firma").value.trim(),
     datum: el("f-datum").value,
     essenszeit: el("f-zeit").value,
-    erwartet: erwartet,
-    sprache: el("f-sprache").value
+    erwartet: erwartet
   };
 
   const knopf = el("btn-speichern");
@@ -1922,13 +1953,14 @@ function linkKopieren(text, rueckmeldungsfeld) {
 
 /* ---------- Drucken ---------- */
 
-/* Das Kursblatt bekommt die Sprache des Termins im Link mit, weil es ohne
-   Anmeldung über Flow B lädt und die SharePoint-Spalte dort nicht kennt.
-   Das Menüblatt für die Küche bleibt deutsch und braucht den Zusatz nicht. */
-function blattOeffnen(seite, mitSprache) {
+/* Das Kursblatt bekommt die im geteilten Knopf gewählte Sprache im Link
+   mit (&sprache=fr); es setzt denselben Zusatz in seinen QR-Code, damit die
+   Teilnehmenden in derselben Sprache auf der Gästeseite landen. Das
+   Menüblatt für die Küche bleibt deutsch und braucht keinen Zusatz. */
+function blattOeffnen(seite, sprache) {
   if (!gewaehlteKlasse) return;
   let url = seite + "?klasse=" + encodeURIComponent(gewaehlteKlasse.code || "");
-  if (mitSprache) url += Hilfe.spracheZusatz(gewaehlteKlasse.sprache);
+  if (sprache) url += Hilfe.spracheZusatz(sprache);
   window.open(url, "_blank");
 }
 
@@ -2023,10 +2055,11 @@ el("btn-bestellung-loeschen").addEventListener("click", bestellungEntfernen);
 el("detail-formular").addEventListener("submit", formularSpeichern);
 el("btn-loeschen").addEventListener("click", klasseLoeschen);
 el("btn-kopieren").addEventListener("click", () => {
-  linkKopieren(Hilfe.gastLinkMitSprache(gewaehlteKlasse && gewaehlteKlasse.code,
-    gewaehlteKlasse && gewaehlteKlasse.sprache), "kopiert-text");
+  linkKopieren(Hilfe.gastLink(gewaehlteKlasse && gewaehlteKlasse.code), "kopiert-text");
 });
-el("btn-kursblatt").addEventListener("click", () => blattOeffnen("kursblatt.html", true));
+el("btn-kursblatt").addEventListener("click", () => {
+  blattOeffnen("kursblatt.html", el("kursblatt-sprache").value);
+});
 el("btn-menueblatt").addEventListener("click", () => blattOeffnen("menueblatt.html"));
 el("btn-abmelden").addEventListener("click", () => Anmeldung.abmelden());
 el("btn-erneut").addEventListener("click", () => location.reload());

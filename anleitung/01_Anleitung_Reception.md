@@ -69,14 +69,15 @@ Legen Sie pro Kurs und pro Essenstag einen Termin an. Isst derselbe Kurs an drei
 3. **«Firma»** ausfüllen. Der Auftraggeber oder die Trägerfirma, zum Beispiel «Implenia Schweiz AG». Darf leer bleiben, hilft aber später beim Suchen.
 4. **«Datum»** prüfen. Das ist der Tag, an dem der Kurs zu Mittag isst. Vorgeschlagen wird der heutige Tag, meist müssen Sie ihn also anpassen. Das Datum entscheidet, wann die Teilnehmenden wählen dürfen und unter welchem Kurstag der Termin links in der Liste steht.
 5. **«Essenszeit»** prüfen. Das ist die Uhrzeit des Mittagessens. Vorgeschlagen wird 12:00. Die Zeit erscheint auf dem Kursblatt und auf dem Menüblatt als Hinweis für Küche und Teilnehmende. Sie steuert nicht, wann die Wahl möglich ist.
-6. **«Sprache»** wählen: Deutsch, Französisch oder Englisch. Vorgeschlagen wird Deutsch. Die Sprache bestimmt, in welcher Sprache das Kursblatt und die Menüwahl auf dem Handy der Teilnehmenden erscheinen. Das Menüblatt für die Küche bleibt in jedem Fall deutsch, und auch die Menütexte selbst (Tagessuppe, Menü 1 usw.) kommen deutsch aus der Küche.
-7. **«Erwartete Teilnehmeranzahl»** ausfüllen, wenn die Zahl bekannt ist, zum Beispiel `18`. Diese Zahl ist nur ein Massstab: Sie sehen später auf einen Blick «5 / 18 Best.» und wissen damit sofort, wie viele Bestellungen noch fehlen. Sie schränkt nichts ein, es dürfen also auch mehr Leute bestellen. Lassen Sie das Feld leer, solange die Zahl nicht feststeht; dann steht in der Liste nur die Anzahl Bestellungen. Nachtragen können Sie sie jederzeit über «Bearbeiten».
-8. Klicken Sie auf «Termin speichern». Mit «Abbrechen» verwerfen Sie die Eingaben.
+6. **«Erwartete Teilnehmeranzahl»** ausfüllen, wenn die Zahl bekannt ist, zum Beispiel `18`. Diese Zahl ist nur ein Massstab: Sie sehen später auf einen Blick «5 / 18 Best.» und wissen damit sofort, wie viele Bestellungen noch fehlen. Sie schränkt nichts ein, es dürfen also auch mehr Leute bestellen. Lassen Sie das Feld leer, solange die Zahl nicht feststeht; dann steht in der Liste nur die Anzahl Bestellungen. Nachtragen können Sie sie jederzeit über «Bearbeiten».
+7. Klicken Sie auf «Termin speichern». Mit «Abbrechen» verwerfen Sie die Eingaben.
+
+Eine Sprache müssen Sie beim Termin nicht wählen. Sie entscheiden erst beim Drucken des Kursblatts, ob es deutsch, englisch oder französisch sein soll, siehe Abschnitt 4, Weg B; die Teilnehmenden können die Sprache auf dem Handy zudem selbst umstellen.
 
 Den Zugangscode müssen Sie nicht eingeben. Er entsteht beim Speichern automatisch und besteht aus acht Zeichen ohne die verwechselbaren Zeichen 0, O, 1 und I.
 
 Nach dem Speichern ist der neue Termin links ausgewählt und rechts sehen Sie sofort seine Details:
-Titel, Firma, Datum, «Mittagessen um … Uhr», «Erwartete Teilnehmeranzahl: 18», bei einem fremdsprachigen Kurs «Sprache: Französisch» oder «Sprache: Englisch», der Gästelink und die Zählerleiste.
+Titel, Firma, Datum, «Mittagessen um … Uhr», «Erwartete Teilnehmeranzahl: 18», der Gästelink und die Zählerleiste.
 
 Liegt der neue Termin nicht am heutigen Tag, blendet die Liste den passenden Zeitraum von selbst ein; Sie müssen den Filter dafür nicht von Hand umstellen.
 
@@ -96,20 +97,20 @@ Sie haben zwei Wege. Sie dürfen auch beide gleichzeitig benutzen.
 
 ### Weg A: Link verschicken
 
-Beim Termin steht die Zeile **Gäste** mit dem Link, zum Beispiel `https://menue.campus-sursee.ch/?klasse=M2VJ8KWS`. Er führt direkt ins Bestellformular und ist für die Teilnehmenden gedacht. Bei einem französischen oder englischen Kurs endet der Link zusätzlich auf `&sprache=fr` beziehungsweise `&sprache=en`; dieser Zusatz sorgt dafür, dass die Menüwahl in der Kurssprache erscheint. Kopieren Sie den Link deshalb immer vollständig aus der Verwaltung und kürzen Sie ihn nicht.
+Beim Termin steht die Zeile **Gäste** mit dem Link, zum Beispiel `https://menue.campus-sursee.ch/?klasse=M2VJ8KWS`. Er führt direkt ins Bestellformular und ist für die Teilnehmenden gedacht. Die Menüwahl öffnet sich deutsch; oben auf der Seite können die Teilnehmenden mit den Schaltern «DE», «EN» und «FR» jederzeit auf Englisch oder Französisch umstellen. Wollen Sie den Link gleich in einer anderen Sprache verschicken, hängen Sie `&sprache=en` beziehungsweise `&sprache=fr` an, also zum Beispiel `https://menue.campus-sursee.ch/?klasse=M2VJ8KWS&sprache=fr`.
 
 1. Wählen Sie den Termin links in der Liste aus.
 2. Klicken Sie auf «Link kopieren». Daneben erscheint kurz das Wort «Kopiert».
 3. Fügen Sie den Link in ein E-Mail ein, mit Tastenkombination Strg + V.
 
-**Soll die Kursleitung das Blatt selbst ausdrucken**, öffnen Sie es mit «Kursblatt drucken» (Weg B) und kopieren Sie die Adresse aus der Adresszeile des neuen Tabs. Diesen Link dürfen Sie bedenkenlos nach aussen geben: Er verlangt keine Anmeldung. Wer ihn öffnet, sieht dasselbe Blatt, das Sie auch drucken würden: Kursname, Firma, Datum, Essenszeit und den QR-Code, in der Sprache des Termins. Preisgegeben wird dabei nichts, was nicht ohnehin auf dem Aushang stünde, und der Link funktioniert nur mit dem achtstelligen Code dieses einen Termins.
+**Soll die Kursleitung das Blatt selbst ausdrucken**, öffnen Sie es mit «Kursblatt drucken» (Weg B) und kopieren Sie die Adresse aus der Adresszeile des neuen Tabs. Diesen Link dürfen Sie bedenkenlos nach aussen geben: Er verlangt keine Anmeldung. Wer ihn öffnet, sieht dasselbe Blatt, das Sie auch drucken würden: Kursname, Firma, Datum, Essenszeit und den QR-Code, in der Sprache, die Sie beim Öffnen gewählt haben. Preisgegeben wird dabei nichts, was nicht ohnehin auf dem Aushang stünde, und der Link funktioniert nur mit dem achtstelligen Code dieses einen Termins.
 
 Klappt das Kopieren einmal nicht, meldet die Seite «Kopieren nicht möglich, bitte von Hand markieren.». Markieren Sie den Link dann mit der Maus und kopieren Sie ihn mit Strg + C.
 
 ### Weg B: Kursblatt drucken und aufhängen
 
-1. Wählen Sie den Termin aus und klicken Sie auf «Kursblatt drucken».
-2. Es öffnet sich ein neuer Browser-Tab mit dem fertigen Blatt: BAULÜÜT-Logo, Kursname, Firma, Datum, Essenszeit, ein grosser QR-Code und darunter der Link als Text. Das Blatt ist in der Sprache, die Sie beim Termin gewählt haben; der QR-Code führt die Teilnehmenden dann ebenfalls auf die Menüwahl in dieser Sprache.
+1. Wählen Sie den Termin aus. Der Knopf «Kursblatt drucken» hat an seinem rechten Ende ein kleines Klappfeld mit der Sprache, vorgeschlagen ist «DE». Lassen Sie es für einen deutschsprachigen Kurs stehen; für einen englischen oder französischen Kurs stellen Sie es auf «EN» oder «FR». Klicken Sie dann auf «Kursblatt drucken».
+2. Es öffnet sich ein neuer Browser-Tab mit dem fertigen Blatt: BAULÜÜT-Logo, Kursname, Firma, Datum, Essenszeit, ein grosser QR-Code und darunter der Link als Text. Das Blatt ist in der gewählten Sprache; der QR-Code führt die Teilnehmenden ebenfalls auf die Menüwahl in dieser Sprache. Für einen gemischten Kurs können Sie das Blatt nacheinander in mehreren Sprachen öffnen und drucken; die Auswahl im Klappfeld wird nicht gespeichert und steht beim nächsten Termin wieder auf «DE».
 3. Klicken Sie unten auf dem Blatt nochmals auf «Kursblatt drucken». Der Druckdialog öffnet sich. Der Knopf selbst wird nicht mitgedruckt.
 4. Hängen Sie das Blatt im Kurszimmer auf oder legen Sie es auf die Tische.
 
@@ -212,7 +213,7 @@ Steht statt der Menükarte der Satz «Die Tagesmenüs sind zurzeit nicht abrufba
 
 1. Wählen Sie den Termin links aus.
 2. Klicken Sie rechts auf den grauen Schriftzug «Bearbeiten» mit dem Stift, gleich neben dem Kurstitel. Über dem Formular steht jetzt «Termin bearbeiten».
-3. Sie sehen dieselben Felder wie beim Anlegen: «Titel», «Firma», «Datum», «Essenszeit», «Sprache» und «Erwartete Teilnehmeranzahl».
+3. Sie sehen dieselben Felder wie beim Anlegen: «Titel», «Firma», «Datum», «Essenszeit» und «Erwartete Teilnehmeranzahl».
 4. Klicken Sie auf «Änderungen speichern» oder auf «Abbrechen».
 
 Am häufigsten werden Sie hier die **erwartete Teilnehmeranzahl** nachtragen oder korrigieren, sobald die Kursleitung die endgültige Zahl meldet. Leeren Sie das Feld, wenn die Zahl doch nicht feststeht; dann verschwindet der Massstab wieder und in der Liste steht nur noch die Anzahl Bestellungen.
@@ -282,7 +283,7 @@ Nein. Sie gilt für alle Kurse gleich. Soll die Zeit grundsätzlich eine andere 
 Öffnen Sie das Kursblatt mit «Kursblatt drucken» und schicken Sie ihr die Adresse aus dem neuen Tab, siehe Abschnitt 4, Weg A. Sie braucht dafür kein Konto und keine Anmeldung.
 
 **Ein Kurs spricht Französisch oder Englisch.**
-Wählen Sie beim Anlegen oder über «Bearbeiten» im Feld «Sprache» die passende Sprache. Kursblatt und Menüwahl erscheinen dann in dieser Sprache. Die Menütexte selbst bleiben deutsch, weil sie so aus der Küche kommen; das Menüblatt für die Küche bleibt ebenfalls deutsch.
+Stellen Sie das Klappfeld am rechten Ende von «Kursblatt drucken» auf «FR» oder «EN» und öffnen Sie das Blatt. Es erscheint in dieser Sprache, und der QR-Code darauf führt auf die Menüwahl in derselben Sprache. Ein gemischter Kurs bekommt einfach zwei Blätter, eines je Sprache. Auf dem Handy können die Teilnehmenden die Sprache mit den Schaltern «DE», «EN» und «FR» oben auf der Seite ausserdem selbst umstellen. Die Menütexte selbst bleiben deutsch, weil sie so aus der Küche kommen; das Menüblatt für die Küche bleibt ebenfalls deutsch.
 
 **Ein Termin taucht in der Liste nicht auf.**
 Drei Gründe kommen infrage:

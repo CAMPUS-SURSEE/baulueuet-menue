@@ -89,11 +89,12 @@ const Hilfe = (function () {
   }
 
   /* ---------- Sprache ----------
-     Ein Termin trägt die Sprache seiner Teilnehmenden: Deutsch, Französisch
-     oder Englisch. Kursblatt und Gästeseite erscheinen in dieser Sprache;
-     das Menüblatt für die Küche bleibt deutsch. Gespeichert wird der
-     zweibuchstabige Code in der Spalte `Sprache`. Alles, was nicht fr oder
-     en ist, gilt als Deutsch, auch eine leere Spalte bei älteren Terminen. */
+     Kursblatt und Gästeseite gibt es auf Deutsch, Französisch und Englisch;
+     das Menüblatt für die Küche bleibt deutsch. Die Sprache hängt nicht am
+     Termin: die Réception wählt sie beim Öffnen des Kursblatts, und die
+     Teilnehmenden können sie auf der Gästeseite selbst umstellen. Sie wird
+     nirgends gespeichert, sondern reist nur als zweibuchstabiger Code im
+     Link mit. Alles, was nicht fr oder en ist, gilt als Deutsch. */
   const SPRACHEN = { de: "Deutsch", fr: "Französisch", en: "Englisch" };
 
   function spracheNormieren(wert) {
@@ -105,9 +106,9 @@ const Hilfe = (function () {
     return SPRACHEN[spracheNormieren(wert)];
   }
 
-  /* Anhängsel für Links auf Kursblatt und Gästeseite. Beide laden ohne
-     Anmeldung über Flow B und sehen die SharePoint-Spalte nicht; die
-     Sprache reist deshalb im Link mit. Für Deutsch bleibt der Link kurz. */
+  /* Anhängsel für Links auf Kursblatt und Gästeseite. Die Sprache reist
+     im Link mit, damit der QR-Code eines französischen Kursblatts auch die
+     französische Gästeseite öffnet. Für Deutsch bleibt der Link kurz. */
   function spracheZusatz(wert) {
     const s = spracheNormieren(wert);
     return s === "de" ? "" : "&sprache=" + s;
@@ -158,7 +159,7 @@ const Graph = (function () {
   const LISTE_KLASSEN = "/sites/" + KONFIG.siteId + "/lists/" + KONFIG.listeKlassen;
   const LISTE_BESTELLUNGEN = "/sites/" + KONFIG.siteId + "/lists/" + KONFIG.listeBestellungen;
 
-  const FELDER_KLASSE = "Title,Firma,Datum,Essenszeit,Code,Status,Teilnehmer,Sprache,Suppe,Salat,Menu1,Menu2,Dessert";
+  const FELDER_KLASSE = "Title,Firma,Datum,Essenszeit,Code,Status,Teilnehmer,Suppe,Salat,Menu1,Menu2,Dessert";
   const FELDER_BESTELLUNG = "Title,KlasseID,KlasseCode,Vorname,Nachname,Vorspeise,Hauptgang,Bemerkung";
 
   async function anfrage(pfad, optionen) {
@@ -271,9 +272,6 @@ const Graph = (function () {
          Spalte in SharePoint ganz, greift in `alleElemente` der Rückfall
          ohne Feldauswahl und der Wert bleibt hier schlicht 0. */
       erwartet:   Number(k.Teilnehmer) || 0,
-      /* Sprache der Teilnehmenden, siehe Hilfe.spracheNormieren. Leer oder
-         fehlend heisst Deutsch; so bleiben ältere Termine unverändert. */
-      sprache:    Hilfe.spracheNormieren(k.Sprache),
       erstellt:      k.erstellt,
       erstelltVon:   k.erstelltVon || "",
       geaendert:     k.geaendert,
@@ -296,7 +294,6 @@ const Graph = (function () {
     if (daten.essenszeit !== undefined) felder.Essenszeit = daten.essenszeit;
     if (daten.code       !== undefined) felder.Code       = daten.code;
     if (daten.status     !== undefined) felder.Status     = daten.status;
-    if (daten.sprache    !== undefined) felder.Sprache    = Hilfe.spracheNormieren(daten.sprache);
     /* null räumt die Zahlenspalte wieder aus. Das ist nicht dasselbe wie 0:
        leer heisst «noch nicht bekannt», 0 hiesse «niemand wird erwartet». */
     if (daten.erwartet   !== undefined) {
@@ -451,10 +448,7 @@ const Graph = (function () {
         datum:      d.datum  || "",
         essenszeit: d.essenszeit || "",
         code:       suche,
-        status:     d.offen === false ? "geschlossen" : "offen",
-        /* Flow B liefert die Sprache nur, wenn er dafür erweitert wurde;
-           sonst bleibt sie leer und die Seite nimmt sie aus dem Link. */
-        sprache:    d.sprache || ""
+        status:     d.offen === false ? "geschlossen" : "offen"
       };
     } catch (e) {
       return null;

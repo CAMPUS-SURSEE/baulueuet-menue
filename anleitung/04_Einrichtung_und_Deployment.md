@@ -23,7 +23,7 @@ Dieses Dokument beschreibt, wie das System eingerichtet wird und wie eine Änder
 | Baustein | Zustand | Wer |
 |---|---|---|
 | SharePoint-Listen «Klassen» und «Bestellungen» | vorhanden | ICT |
-| Spalten `Teilnehmer` und `Sprache` in der Liste «Klassen» | vorhanden (`Sprache` am 08.09.2026 über Graph angelegt; gleichzeitig `Menu1Preis`, `Menu2Preis`, `Bemerkung` entfernt) | ICT |
+| Spalte `Teilnehmer` in der Liste «Klassen» | vorhanden (am 08.09.2026 über Graph zudem `Sprache` angelegt und `Menu1Preis`, `Menu2Preis`, `Bemerkung` entfernt; `Sprache` ist seit dem 09.09.2026 unbenutzt und darf bleiben oder weg) | ICT |
 | Power Automate Flows B, C und Aufräum-Flow | vorhanden und in Betrieb | ICT |
 | Cloudflare-Pages-Projekt auf `menue.campus-sursee.ch` | vorhanden | ICT |
 | App-Registrierung in Entra ID | angelegt, Client-ID eingetragen | ICT |
@@ -40,12 +40,10 @@ Dieses Dokument beschreibt, wie das System eingerichtet wird und wie eine Änder
 > Termin dann aber nicht mehr: Graph weist das unbekannte Feld ab. Die Spalte ist
 > deshalb anzulegen, bevor die neue Fassung live geht, nicht danach.
 
-> **Vor dem Veröffentlichen der Fassung vom 08.09.2026: Spalte `Sprache` anlegen.**
-> In der SharePoint-Liste «Klassen» eine Spalte vom Typ **Text (eine Zeile)** mit
-> dem internen Namen `Sprache` erstellen, ohne Vorgabewert und nicht erforderlich.
-> Die Verwaltung schreibt `de`, `fr` oder `en` hinein; leer gilt als Deutsch, ältere
-> Termine brauchen also keine Nacharbeit. Auch hier gilt: Ohne die Spalte lässt sich
-> kein Termin mehr speichern.
+> **Spalte `Sprache` wird seit der Fassung vom 09.09.2026 nicht mehr gebraucht.**
+> Die Fassung vom 08.09.2026 hatte sie verlangt; seit die Sprache beim Drucken des
+> Kursblatts gewählt wird statt am Termin, liest und schreibt die Verwaltung die
+> Spalte nicht mehr. Sie darf in der Liste stehen bleiben oder entfernt werden.
 
 ---
 
@@ -177,14 +175,13 @@ Seit der Anbindung an Git ist dieses Repository der massgebende Stand: Was in `f
 - [ ] `https://menue.campus-sursee.ch/admin.html` öffnet sich, landet auf `/admin` und die Anmeldung gelingt
       *Dieser eine Schritt belegt auf einmal, dass Umleitungsadresse, Graph-Berechtigung und Benutzerzuweisung stimmen.*
 - [ ] Spalte `Teilnehmer` in der Liste «Klassen» vorhanden (Zahl, darf leer sein)
-- [ ] Spalte `Sprache` in der Liste «Klassen» vorhanden (Text, darf leer sein)
 - [ ] Testtermin angelegt, Zugangscode wurde automatisch erzeugt
 - [ ] Beim Testtermin «Erwartete Teilnehmeranzahl» gesetzt; die Liste links zeigt «0 / *n* Best.», danach das Feld wieder geleert und gespeichert
 - [ ] In den Details des Testtermins steht die kleine Zeile «Erstellt … von …» mit dem eigenen Namen
 - [ ] Gästelink kopiert, Gästeseite zeigt den Kurs und die Tagesmenüs
 - [ ] Eine Testbestellung abgegeben, sie erscheint in der Verwaltung
 - [ ] **Kursblatt-Adresse in einem privaten Fenster geöffnet**, ohne Anmeldung: Das Blatt erscheint samt QR-Code
-- [ ] Testtermin auf «Französisch» gestellt, «Kursblatt drucken» geklickt: Blatt ist französisch, die Adresse endet auf `&sprache=fr`, der Link unter dem QR-Code ebenfalls; Gästeseite über diesen Link ist französisch
+- [ ] Klappfeld neben «Kursblatt drucken» auf «FR» gestellt und geklickt: Blatt ist französisch, die Adresse endet auf `&sprache=fr`, der Link unter dem QR-Code ebenfalls; Gästeseite über diesen Link ist französisch, und die Schalter «DE / EN / FR» oben auf der Gästeseite stellen sie um
 - [ ] in `admin.html` steht der Testtermin unter seinem Kurstag; «Filter» blendet zukünftige und vergangene Termine ein
 - [ ] Kursblatt gedruckt, **QR-Code mit einer echten Handykamera gescannt** und der Link führt zum richtigen Kurs
 - [ ] Menüblatt gedruckt, Namen, Vorspeisen, Hauptgänge und Bemerkungen stimmen
@@ -220,7 +217,7 @@ Vorgehen beim Anheben:
 
 Falls die Webseite je vollständig neu aufgesetzt werden muss:
 
-1. **SharePoint:** Listen «Klassen» und «Bestellungen» mit den Spalten aus `03_Technische_Dokumentation.md`, Abschnitt 4, einschliesslich `Teilnehmer` und `Sprache`. Die internen Feldnamen müssen genau stimmen, sonst greift `graph.js` ins Leere. Neue Listen-IDs in `konfig.js` eintragen.
+1. **SharePoint:** Listen «Klassen» und «Bestellungen» mit den Spalten aus `03_Technische_Dokumentation.md`, Abschnitt 4, einschliesslich `Teilnehmer`. Die internen Feldnamen müssen genau stimmen, sonst greift `graph.js` ins Leere. Neue Listen-IDs in `konfig.js` eintragen.
 2. **Power Automate:** Flow B und Flow C neu bauen, Aufbau und Lunchgate-Anbindung siehe `03_Technische_Dokumentation.md`, Abschnitt 7. Neue Aufruf-Adressen in `konfig.js` und im Kopf von `index.html` eintragen. Den Aufräum-Flow nicht vergessen.
 3. **Entra ID:** App-Registrierung nach Abschnitt 2 dieses Dokuments.
 4. **Cloudflare Pages:** neues Projekt aus dem Git-Repository anlegen, Framework-Vorlage «None», Build command leer lassen. Der ausgelieferte Ordner kommt aus `wrangler.toml`; der Projektname muss dem Feld `name` darin entsprechen. Anschliessend unter **Custom domains** die Domäne `menue.campus-sursee.ch` verbinden.

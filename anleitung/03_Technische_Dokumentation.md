@@ -27,8 +27,8 @@
 
 Kursteilnehmende am Campus Sursee wählen ihr Mittagsmenü im Restaurant BAULÜÜT über eine Webseite statt auf einem Papierblatt.
 
-1. Die Réception legt in der Verwaltung einen «Termin» an: Kursname, Firma, Datum, Essenszeit, Sprache der Teilnehmenden (Deutsch, Französisch oder Englisch) und, wenn bekannt, die erwartete Teilnehmeranzahl. Ein achtstelliger Zugangscode entsteht automatisch.
-2. Die Teilnehmenden erhalten den Gästelink oder ein Blatt mit QR-Code, beides in der Sprache des Termins. Die Adresse des Kursblatts kann die Réception auch der Kursleitung schicken, es verlangt keine Anmeldung.
+1. Die Réception legt in der Verwaltung einen «Termin» an: Kursname, Firma, Datum, Essenszeit und, wenn bekannt, die erwartete Teilnehmeranzahl. Ein achtstelliger Zugangscode entsteht automatisch.
+2. Die Teilnehmenden erhalten den Gästelink oder ein Blatt mit QR-Code. Das Kursblatt öffnet die Réception wahlweise deutsch, englisch oder französisch; der QR-Code führt in dieselbe Sprache, und auf der Gästeseite lässt sie sich umstellen. Die Adresse des Kursblatts kann die Réception auch der Kursleitung schicken, es verlangt keine Anmeldung.
 3. Am Tag des Mittagessens wählen sie **bis 10:00 Uhr** Vorspeise und Hauptgang, geben Namen und allfällige Allergien an. Danach ist weder Bestellen noch Ändern möglich, beides läuft über die Réception.
 4. Die Küche erhält das gedruckte Menüblatt mit allen Bestellungen.
 
@@ -107,7 +107,6 @@ SharePoint-Site **«Reception»**: `https://campussursee.sharepoint.com/sites/ho
 | `Code` | Text | achtstelliger Zugangscode, Alphabet ohne 0, O, 1 und I |
 | `Status` | Choice | `offen` oder `geschlossen`. Von der Verwaltung nur noch beim Anlegen auf `offen` gesetzt, siehe unten |
 | `Teilnehmer` | Zahl | erwartete Teilnehmeranzahl, darf leer sein. Reiner Massstab, schränkt nichts ein |
-| `Sprache` | Text | `de`, `fr` oder `en`. Sprache von Kursblatt und Gästeseite. Leer oder unbekannt gilt als `de` |
 | `Suppe`, `Salat`, `Menu1`, `Menu2`, `Dessert` | Text bzw. Notiz | Rückfallwerte, falls Lunchgate nichts liefert |
 
 > Die früheren Spalten `Menu1Preis`, `Menu2Preis` und `Bemerkung` wurden am 08.09.2026 aus der Liste entfernt; keine Seite und kein Flow der Webseite hat sie gelesen. Die Liste entspricht seither genau dieser Tabelle.
@@ -116,9 +115,9 @@ SharePoint-Site **«Reception»**: `https://campussursee.sharepoint.com/sites/ho
 >
 > Leer und `0` sind bewusst nicht dasselbe: Leer heisst «noch nicht bekannt» und die Verwaltung zeigt gar keinen Massstab; eine `0` hiesse «niemand wird erwartet». Ein geleertes Formularfeld schreibt deshalb `null` in die Spalte, nicht `0`.
 
-> **Spalte `Sprache` (seit 08.09.2026).** Textspalte (eine Zeile), Vorgabewert leer, nicht erforderlich. Die Verwaltung schreibt `de`, `fr` oder `en`; `Hilfe.spracheNormieren()` in `graph.js` macht aus allem anderen `de`, auch aus einer leeren Spalte bei älteren Terminen. Wie bei `Teilnehmer` gilt: Fehlt die Spalte, **liest** die Verwaltung weiter, **speichern** schlägt fehl. Sie ist vor der Veröffentlichung anzulegen.
+> **Spalte `Sprache` (08.09.2026 angelegt, seit 09.09.2026 unbenutzt).** Die Sprache hängt nicht mehr am Termin. `graph.js` liest und schreibt die Spalte nicht mehr, sie steht auch nicht mehr in `FELDER_KLASSE`. Die Spalte darf in der Liste stehen bleiben oder entfernt werden; beides ist für die Webseite gleich.
 >
-> Kursblatt und Gästeseite laden ohne Anmeldung über Flow B und sehen die Spalte nicht. Die Sprache reist deshalb im Link mit: `admin.html` öffnet `kursblatt.html?klasse=CODE&sprache=fr`, und das Kursblatt setzt denselben Zusatz in den QR-Code und den Gästelink (`Hilfe.gastLinkMitSprache`). Für Deutsch bleibt der Zusatz weg, damit bestehende Links unverändert gültig bleiben. Liefert Flow B eines Tages ein Feld `sprache`, nehmen beide Seiten es als Rückfall, wenn im Link nichts steht.
+> Stattdessen wählt die Réception die Sprache beim Öffnen des Kursblatts im geteilten Knopf «Kursblatt drucken | DE» (`#kursblatt-sprache` in `admin.html`, Vorgabe `de`, wird nicht gespeichert). `admin.html` öffnet `kursblatt.html?klasse=CODE&sprache=fr`, und das Kursblatt setzt denselben Zusatz in den QR-Code und den Gästelink (`Hilfe.gastLinkMitSprache`). Für Deutsch bleibt der Zusatz weg, damit bestehende Links unverändert gültig bleiben. Dasselbe Blatt lässt sich so für einen Kurs nacheinander in mehreren Sprachen drucken. Auf der Gästeseite stehen im Kopf die Schalter DE / EN / FR; ein Wechsel setzt alle Texte neu und schreibt `&sprache=` per `history.replaceState` in die Adresse, damit ein Neuladen die Sprache behält. Der Gästelink in der Verwaltung trägt keinen Sprachzusatz.
 
 > **Zum `Status`.** Die Verwaltung setzt ihn beim Anlegen einmalig auf `offen` und fasst ihn danach nicht mehr an; die Marke «Bestellung offen» und der Punkt in der Liste sind seit dem 04.09.2026 entfernt, siehe `05_Entscheide_und_Verlauf.md`, Abschnitt 5d. Flow B liest die Spalte weiterhin und meldet der Gästeseite `offen: false`, wenn dort `geschlossen` steht. Wer einen Termin vorzeitig schliessen will, tut das direkt in der SharePoint-Liste.
 
@@ -240,7 +239,7 @@ DELETE /v1.0/sites/{siteId}/lists/{listId}/items/{id}
 
 Der Grund ist fachlich: Die Réception soll den Link der Kursleitung schicken können, damit diese das Blatt selbst ausdruckt. Eine Weiterleitung auf `login.microsoftonline.com` wäre für eine Person ohne Konto im Mandanten eine Sackgasse.
 
-Die Sprache des Blattes kommt aus dem Link (`&sprache=fr`), siehe Abschnitt 4; ohne Zusatz ist das Blatt deutsch. Die Verwaltung setzt den Zusatz beim Öffnen über «Kursblatt drucken» aus dem Termin zusammen.
+Die Sprache des Blattes kommt aus dem Link (`&sprache=fr`), siehe Abschnitt 4; ohne Zusatz ist das Blatt deutsch. Die Verwaltung setzt den Zusatz beim Öffnen über «Kursblatt drucken» aus dem Klappfeld neben dem Knopf zusammen.
 
 Preisgegeben werden Kursname, Firma, Datum und Essenszeit, und nur an jemanden, der den achtstelligen Code bereits kennt. Genau diese Angaben stehen ohnehin auf dem Aushang, und derselbe Code öffnet über die Gästeseite bereits mehr. Bestellungen sind über diesen Weg nicht erreichbar; Flow B liefert sie nicht.
 
@@ -262,7 +261,7 @@ Umgebung `Default-2553fb74-5dcc-4072-8bb5-399d18f72af9`, alle Flows laufen unter
 
 Die Aufruf-Adressen samt Signatur stehen in `frontend\konfig.js` und im Kopf von `index.html`. Sie gehören nicht in dieses Dokument.
 
-Flow B kennt die Spalte `Sprache` derzeit nicht; Kursblatt und Gästeseite nehmen die Sprache aus dem Link, den die Verwaltung mit `&sprache=fr` zusammensetzt. Ein von Hand gekürzter Link (`?klasse=CODE` allein) ist deshalb deutsch. **Offen:** Flow B um ein Feld `"sprache"` erweitern, das den Wert der Spalte `Sprache` der Klasse liefert (im Antwort-Body der Response-Aktion, z. B. `"sprache": "@{items('Auf_alle_anwenden')?['Sprache']}"`). Beide Seiten werten das Feld bereits aus, sobald es kommt; dann ist auch der nackte Link in der Kurssprache. `datumText` aus Flow B ist deutsch; die Seiten bilden den Wochentag in der eigenen Sprache aus `datum` neu.
+Flow B liefert keine Sprache und muss das auch nicht: Kursblatt und Gästeseite nehmen sie aus dem Link (`&sprache=fr`), und die Gästeseite lässt sie umstellen. Ein Link ohne Zusatz (`?klasse=CODE` allein) öffnet deutsch. `datumText` aus Flow B ist deutsch; die Seiten bilden den Wochentag in der eigenen Sprache aus `datum` neu.
 
 **Antwort von Flow B**
 

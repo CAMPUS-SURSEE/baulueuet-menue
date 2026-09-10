@@ -226,11 +226,12 @@ const el = id => document.getElementById(id);
 
 
 /* ---------- Sprache ----------
-   Das Kursblatt erscheint in der Sprache der Teilnehmenden: Deutsch,
-   Französisch oder Englisch. Die Sprache steht am Termin in SharePoint;
-   weil das Blatt ohne Anmeldung über Flow B lädt, reist sie im Link mit
-   (`&sprache=fr`). Fehlt sie dort, gilt, was der Klassensatz mitbringt,
-   sonst Deutsch. Die Tagesmenüs selbst kommen deutsch aus Lunchgate. */
+   Das Kursblatt gibt es auf Deutsch, Französisch und Englisch. Die Sprache
+   hängt nicht am Termin: die Verwaltung wählt sie beim Öffnen im geteilten
+   Knopf «Kursblatt drucken | DE», und sie reist im Link mit (`&sprache=fr`).
+   So lässt sich dasselbe Blatt für einen Kurs nacheinander in mehreren
+   Sprachen drucken. Ohne Zusatz ist das Blatt deutsch. Die Tagesmenüs
+   selbst kommen deutsch aus Lunchgate. */
 
 const TEXTE = {
   de: {
@@ -301,9 +302,7 @@ const TEXTE = {
 let sprache = Hilfe.spracheNormieren(params.get("sprache"));
 let T = TEXTE[sprache];
 
-/* Die feststehenden Texte der Seite auf die gewählte Sprache setzen. Wird
-   beim Start aufgerufen und nochmals, falls der Klassensatz eine andere
-   Sprache mitbringt als der Link. */
+/* Die feststehenden Texte der Seite auf die Sprache aus dem Link setzen. */
 function spracheAnwenden(neu) {
   sprache = Hilfe.spracheNormieren(neu);
   T = TEXTE[sprache];
@@ -351,8 +350,7 @@ function blattdaten(klasse) {
     klasse:     klasse.titel,
     firma:      klasse.firma,
     datum:      klasse.datum,
-    essenszeit: klasse.essenszeit,
-    sprache:    klasse.sprache || ""
+    essenszeit: klasse.essenszeit
   };
 }
 
@@ -399,18 +397,14 @@ async function ladeKlasse(mitKonto) {
       return;
     }
 
-    /* Der Link hat Vorrang: die Verwaltung setzt ihn aus dem Termin
-       zusammen. Bringt nur der Klassensatz eine Sprache mit (Graph, oder
-       ein erweiterter Flow B), gilt diese. */
-    if (!params.get("sprache") && daten.sprache) spracheAnwenden(daten.sprache);
-
     el("kopf-klasse").textContent = daten.klasse || "";
     el("kopf-firma").textContent = daten.firma || "";
     el("kopf-datum").textContent = datumInSprache(daten.datum) || daten.datum || "";
     el("kopf-zeit").textContent = daten.essenszeit ? T.essenszeit(daten.essenszeit) : "";
 
-    /* Die Gästeseite bekommt dieselbe Sprache mit, damit die Teilnehmenden
-       nach dem Scannen nicht auf Deutsch landen. */
+    /* Der QR-Code und der Link darunter tragen dieselbe Sprache wie das
+       Blatt, damit die Teilnehmenden nach dem Scannen in dieser Sprache auf
+       der Gästeseite landen. Dort können sie sie noch umstellen. */
     const ziel = Hilfe.gastLinkMitSprache(code || "MOCK", sprache);
     if (typeof qrcode === "undefined") {
       el("qr-rahmen").textContent = T.qrFehlt;

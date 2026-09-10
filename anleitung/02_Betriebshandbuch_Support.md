@@ -445,8 +445,7 @@ Meldungen, die im Betrieb auftauchen können und oben nicht bereits behandelt si
 | «Kein Termin gefunden.» | Verwaltung, linke Spalte | Der Suchtext passt auf keinen Termin im eingestellten Zeitraum. | Kein Fehler. Liegen Treffer ausserhalb, steht darunter «… Termine liegen ausserhalb des Filters, alle anzeigen»; ein Klick blendet sie ein. |
 | «Erwartete Teilnehmeranzahl: bitte eine ganze Zahl von 0 bis 999 eingeben.» | Verwaltung, Formular | Im Feld steht etwas anderes als eine ganze Zahl in diesem Bereich. | Eingabe korrigieren oder Feld leeren. |
 | «Field 'Teilnehmer' is not recognized» oder ähnlich beim Speichern | Verwaltung, Formular | Die Spalte `Teilnehmer` fehlt in der SharePoint-Liste «Klassen». | Spalte anlegen (Zahl, darf leer sein), siehe `03_Technische_Dokumentation.md`, Abschnitt 4. |
-| «Field 'Sprache' is not recognized» oder ähnlich beim Speichern | Verwaltung, Formular | Die Spalte `Sprache` fehlt in der SharePoint-Liste «Klassen». | Spalte anlegen (Text, darf leer sein), siehe `03_Technische_Dokumentation.md`, Abschnitt 4. |
-| Kursblatt oder Gästeseite erscheinen deutsch, obwohl beim Termin Französisch oder Englisch steht | Kursblatt, Gästeseite | Die Sprache reist im Link mit (`&sprache=fr`). Ein alter Link ohne diesen Zusatz oder ein von Hand gekürzter Link zeigt Deutsch. | Kursblatt aus der Verwaltung über «Kursblatt drucken» neu öffnen; der QR-Code darauf enthält den Zusatz. |
+| Kursblatt oder Gästeseite erscheinen deutsch, obwohl ein französisches oder englisches Blatt gewünscht war | Kursblatt, Gästeseite | Die Sprache reist im Link mit (`&sprache=fr`). Das Klappfeld neben «Kursblatt drucken» stand auf «DE», oder der Link wurde von Hand gekürzt. | Klappfeld auf «FR» oder «EN» stellen und das Kursblatt neu öffnen; der QR-Code darauf enthält den Zusatz. Auf der Gästeseite lässt sich die Sprache oben mit «DE / EN / FR» jederzeit umstellen. |
 
 ---
 
@@ -510,7 +509,7 @@ Für die Störungssuche besonders nützlich: die Ausgabe der Aktion «Lunchgate�
 
 Site «Reception»: `https://campussursee.sharepoint.com/sites/hot-reze`, dort **Websiteinhalte**, dann die Liste «Klassen» oder «Bestellungen».
 
-- **Liste «Klassen»:** Spalten `Title`, `Firma`, `Datum`, `Essenszeit`, `Code`, `Status` («offen» oder «geschlossen»), `Teilnehmer`, `Sprache`, `Suppe`, `Salat`, `Menu1`, `Menu2`, `Dessert`.
+- **Liste «Klassen»:** Spalten `Title`, `Firma`, `Datum`, `Essenszeit`, `Code`, `Status` («offen» oder «geschlossen»), `Teilnehmer`, `Suppe`, `Salat`, `Menu1`, `Menu2`, `Dessert`. Die Spalte `Sprache` vom 08.09.2026 wird seit dem 09.09.2026 nicht mehr gelesen oder geschrieben und darf stehen bleiben oder entfernt werden.
 - **Liste «Bestellungen»:** Spalten `Title`, `KlasseID`, `KlasseCode`, `Vorname`, `Nachname`, `Vorspeise` («Suppe», «Salat» oder «Keine»), `Hauptgang` («Menü 1» oder «Menü 2»), `Bemerkung`, `Created`.
 - **Achtung:** Die Liste «Bestellungen» hat **keine** eigene Datumsspalte. Die Zuordnung zum Kurstag läuft immer über `KlasseID`. Wer nach einem Tag suchen will, sucht zuerst die Klasse und dann deren ID.
 - Zum Suchen eignet sich die Spalte `KlasseCode`, weil sie den Code im Klartext enthält.

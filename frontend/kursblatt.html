@@ -228,7 +228,7 @@ const el = id => document.getElementById(id);
 /* ---------- Sprache ----------
    Das Kursblatt gibt es auf Deutsch, Französisch und Englisch. Die Sprache
    hängt nicht am Termin: die Verwaltung wählt sie beim Öffnen im geteilten
-   Knopf «Kursblatt drucken | DE», und sie reist im Link mit (`&sprache=fr`).
+   Knopf «Kursblatt drucken | DE», und sie reist im Link mit (`&fr`, `&en`).
    So lässt sich dasselbe Blatt für einen Kurs nacheinander in mehreren
    Sprachen drucken. Ohne Zusatz ist das Blatt deutsch. Die Tagesmenüs
    selbst kommen deutsch aus Lunchgate. */
@@ -299,7 +299,16 @@ const TEXTE = {
   }
 };
 
-let sprache = Hilfe.spracheNormieren(params.get("sprache"));
+/* Sprache aus dem Link: `&fr` oder `&en` als blosser Schlüssel ohne Wert,
+   damit der Link so kurz wie möglich bleibt; ohne Zusatz Deutsch. Die
+   ältere Form `&sprache=fr` wird weiterhin verstanden. */
+function spracheAusLink() {
+  if (params.has("fr")) return "fr";
+  if (params.has("en")) return "en";
+  return params.get("sprache") || "de";
+}
+
+let sprache = Hilfe.spracheNormieren(spracheAusLink());
 let T = TEXTE[sprache];
 
 /* Die feststehenden Texte der Seite auf die Sprache aus dem Link setzen. */

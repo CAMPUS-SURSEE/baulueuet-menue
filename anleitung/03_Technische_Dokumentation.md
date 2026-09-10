@@ -117,7 +117,7 @@ SharePoint-Site **«Reception»**: `https://campussursee.sharepoint.com/sites/ho
 
 > **Spalte `Sprache` (08.09.2026 angelegt, seit 09.09.2026 unbenutzt).** Die Sprache hängt nicht mehr am Termin. `graph.js` liest und schreibt die Spalte nicht mehr, sie steht auch nicht mehr in `FELDER_KLASSE`. Die Spalte darf in der Liste stehen bleiben oder entfernt werden; beides ist für die Webseite gleich.
 >
-> Stattdessen wählt die Réception die Sprache beim Öffnen des Kursblatts im geteilten Knopf «Kursblatt drucken | DE» (`#kursblatt-sprache` in `admin.html`, Vorgabe `de`, wird nicht gespeichert). `admin.html` öffnet `kursblatt.html?klasse=CODE&sprache=fr`, und das Kursblatt setzt denselben Zusatz in den QR-Code und den Gästelink (`Hilfe.gastLinkMitSprache`). Für Deutsch bleibt der Zusatz weg, damit bestehende Links unverändert gültig bleiben. Dasselbe Blatt lässt sich so für einen Kurs nacheinander in mehreren Sprachen drucken. Auf der Gästeseite stehen im Kopf die Schalter DE / EN / FR; ein Wechsel setzt alle Texte neu und schreibt `&sprache=` per `history.replaceState` in die Adresse, damit ein Neuladen die Sprache behält. Der Gästelink in der Verwaltung trägt keinen Sprachzusatz.
+> Stattdessen wählt die Réception die Sprache beim Öffnen des Kursblatts im geteilten Knopf «Kursblatt drucken | DE» (`#kursblatt-sprache` in `admin.html`, Vorgabe `de`, wird nicht gespeichert). `admin.html` öffnet `kursblatt.html?klasse=CODE&fr`, und das Kursblatt setzt denselben Zusatz in den QR-Code und den Gästelink (`Hilfe.gastLinkMitSprache`). Der Zusatz ist bewusst ein blosser Schlüssel ohne Wert (`&fr`, `&en`), damit der Link und der QR-Code so kurz wie möglich bleiben; die ältere Form `&sprache=fr` vom 08.09.2026 verstehen beide Seiten weiterhin (`spracheAusLink()`). Für Deutsch bleibt der Zusatz weg, damit bestehende Links unverändert gültig bleiben. Dasselbe Blatt lässt sich so für einen Kurs nacheinander in mehreren Sprachen drucken. Auf der Gästeseite stehen im Kopf die Schalter DE / EN / FR; ein Wechsel setzt alle Texte neu und schreibt `&fr` bzw. `&en` per `history.replaceState` in die Adresse, damit ein Neuladen die Sprache behält. Der Gästelink in der Verwaltung trägt keinen Sprachzusatz.
 
 > **Zum `Status`.** Die Verwaltung setzt ihn beim Anlegen einmalig auf `offen` und fasst ihn danach nicht mehr an; die Marke «Bestellung offen» und der Punkt in der Liste sind seit dem 04.09.2026 entfernt, siehe `05_Entscheide_und_Verlauf.md`, Abschnitt 5d. Flow B liest die Spalte weiterhin und meldet der Gästeseite `offen: false`, wenn dort `geschlossen` steht. Wer einen Termin vorzeitig schliessen will, tut das direkt in der SharePoint-Liste.
 
@@ -206,10 +206,10 @@ Hilfe.datumKurz(ymd)        // "28.08.2026"
 Hilfe.zeitstempelKurz(iso)  // "28.08.2026, 14:23", für die Spur in der Verwaltung
 Hilfe.neuerCode()           // acht Zeichen, ohne 0/O/1/I
 Hilfe.gastLink(code)        // vollständiger Gästelink
-Hilfe.gastLinkMitSprache(code, sprache) // dito mit &sprache=fr, für Deutsch ohne Zusatz
+Hilfe.gastLinkMitSprache(code, sprache) // dito mit &fr oder &en, für Deutsch ohne Zusatz
 Hilfe.spracheNormieren(wert) // "de" | "fr" | "en", alles andere -> "de"
 Hilfe.spracheName(wert)     // "Deutsch" | "Französisch" | "Englisch"
-Hilfe.spracheZusatz(wert)   // "" | "&sprache=fr" | "&sprache=en"
+Hilfe.spracheZusatz(wert)   // "" | "&fr" | "&en"
 Hilfe.annahmeschlussStunde() // 10
 Hilfe.annahmeschlussText()   // "10:00"
 ```
@@ -239,7 +239,7 @@ DELETE /v1.0/sites/{siteId}/lists/{listId}/items/{id}
 
 Der Grund ist fachlich: Die Réception soll den Link der Kursleitung schicken können, damit diese das Blatt selbst ausdruckt. Eine Weiterleitung auf `login.microsoftonline.com` wäre für eine Person ohne Konto im Mandanten eine Sackgasse.
 
-Die Sprache des Blattes kommt aus dem Link (`&sprache=fr`), siehe Abschnitt 4; ohne Zusatz ist das Blatt deutsch. Die Verwaltung setzt den Zusatz beim Öffnen über «Kursblatt drucken» aus dem Klappfeld neben dem Knopf zusammen.
+Die Sprache des Blattes kommt aus dem Link (`&fr`, `&en`), siehe Abschnitt 4; ohne Zusatz ist das Blatt deutsch. Die Verwaltung setzt den Zusatz beim Öffnen über «Kursblatt drucken» aus dem Klappfeld neben dem Knopf zusammen.
 
 Preisgegeben werden Kursname, Firma, Datum und Essenszeit, und nur an jemanden, der den achtstelligen Code bereits kennt. Genau diese Angaben stehen ohnehin auf dem Aushang, und derselbe Code öffnet über die Gästeseite bereits mehr. Bestellungen sind über diesen Weg nicht erreichbar; Flow B liefert sie nicht.
 
@@ -261,7 +261,7 @@ Umgebung `Default-2553fb74-5dcc-4072-8bb5-399d18f72af9`, alle Flows laufen unter
 
 Die Aufruf-Adressen samt Signatur stehen in `frontend\konfig.js` und im Kopf von `index.html`. Sie gehören nicht in dieses Dokument.
 
-Flow B liefert keine Sprache und muss das auch nicht: Kursblatt und Gästeseite nehmen sie aus dem Link (`&sprache=fr`), und die Gästeseite lässt sie umstellen. Ein Link ohne Zusatz (`?klasse=CODE` allein) öffnet deutsch. `datumText` aus Flow B ist deutsch; die Seiten bilden den Wochentag in der eigenen Sprache aus `datum` neu.
+Flow B liefert keine Sprache und muss das auch nicht: Kursblatt und Gästeseite nehmen sie aus dem Link (`&fr`, `&en`), und die Gästeseite lässt sie umstellen. Ein Link ohne Zusatz (`?klasse=CODE` allein) öffnet deutsch. `datumText` aus Flow B ist deutsch; die Seiten bilden den Wochentag in der eigenen Sprache aus `datum` neu.
 
 **Antwort von Flow B**
 

@@ -108,10 +108,12 @@ const Hilfe = (function () {
 
   /* Anhängsel für Links auf Kursblatt und Gästeseite. Die Sprache reist
      im Link mit, damit der QR-Code eines französischen Kursblatts auch die
-     französische Gästeseite öffnet. Für Deutsch bleibt der Link kurz. */
+     französische Gästeseite öffnet. Bewusst nur `&fr` oder `&en`, ohne
+     Wert, damit der Link und damit der QR-Code so kurz wie möglich bleiben.
+     Für Deutsch fällt der Zusatz ganz weg. */
   function spracheZusatz(wert) {
     const s = spracheNormieren(wert);
-    return s === "de" ? "" : "&sprache=" + s;
+    return s === "de" ? "" : "&" + s;
   }
 
   function gastLinkMitSprache(code, sprache) {

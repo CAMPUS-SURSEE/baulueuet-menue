@@ -404,7 +404,7 @@ const el = id => document.getElementById(id);
 
 // ===== Sprache ===========================================================
 /* Die Seite gibt es auf Deutsch, Französisch und Englisch. Beim Öffnen
-   gilt die Sprache aus dem Link (`&sprache=fr`), so wie sie das Kursblatt
+   gilt die Sprache aus dem Link (`&fr`, `&en`), so wie sie das Kursblatt
    in den QR-Code setzt; ohne Zusatz Deutsch. Die Teilnehmenden können sie
    über die Schalter DE / EN / FR im Kopf jederzeit umstellen; der Wechsel
    wird in die Adresse geschrieben, damit ein Neuladen die Sprache behält.
@@ -541,7 +541,16 @@ function spracheNormieren(wert) {
   return TEXTE[s] ? s : "de";
 }
 
-let sprache = spracheNormieren(params.get("sprache"));
+/* Sprache aus dem Link: `&fr` oder `&en` als blosser Schlüssel ohne Wert,
+   damit der Link so kurz wie möglich bleibt; ohne Zusatz Deutsch. Die
+   ältere Form `&sprache=fr` wird weiterhin verstanden. */
+function spracheAusLink() {
+  if (params.has("fr")) return "fr";
+  if (params.has("en")) return "en";
+  return params.get("sprache") || "de";
+}
+
+let sprache = spracheNormieren(spracheAusLink());
 let T = TEXTE[sprache];
 
 /* Die feststehenden Texte auf die gewählte Sprache setzen. Läuft beim Start
@@ -593,11 +602,14 @@ function spracheWechseln(neu) {
   if (spracheNormieren(neu) === sprache) return;
   spracheAnwenden(neu);
   try {
-    const adresse = new URL(location.href);
-    if (sprache === "de") adresse.searchParams.delete("sprache");
-    else adresse.searchParams.set("sprache", sprache);
-    history.replaceState(null, "", adresse.toString());
-  } catch (e) { /* ältere Browser ohne URL oder History: nicht kritisch */ }
+    /* Der Zusatz ist ein blosser Schlüssel (`&fr`), kein `fr=`; deshalb
+       wird die Adresse von Hand zusammengesetzt statt über searchParams. */
+    const rest = new URLSearchParams(location.search);
+    ["sprache", "fr", "en"].forEach(k => rest.delete(k));
+    let suche = rest.toString();
+    if (sprache !== "de") suche += (suche ? "&" : "") + sprache;
+    history.replaceState(null, "", location.pathname + (suche ? "?" + suche : "") + location.hash);
+  } catch (e) { /* ältere Browser ohne URLSearchParams oder History: nicht kritisch */ }
   ansichtNachzeichnen();
 }
 

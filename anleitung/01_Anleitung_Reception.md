@@ -97,7 +97,7 @@ Sie haben zwei Wege. Sie dürfen auch beide gleichzeitig benutzen.
 
 ### Weg A: Link verschicken
 
-Beim Termin steht die Zeile **Gäste** mit dem Link, zum Beispiel `https://menue.campus-sursee.ch/?klasse=M2VJ8KWS`. Er führt direkt ins Bestellformular und ist für die Teilnehmenden gedacht. Die Menüwahl öffnet sich deutsch; oben auf der Seite können die Teilnehmenden mit den Schaltern «DE», «EN» und «FR» jederzeit auf Englisch oder Französisch umstellen. Wollen Sie den Link gleich in einer anderen Sprache verschicken, hängen Sie `&sprache=en` beziehungsweise `&sprache=fr` an, also zum Beispiel `https://menue.campus-sursee.ch/?klasse=M2VJ8KWS&sprache=fr`.
+Beim Termin steht die Zeile **Gäste** mit dem Link, zum Beispiel `https://menue.campus-sursee.ch/?klasse=M2VJ8KWS`. Er führt direkt ins Bestellformular und ist für die Teilnehmenden gedacht. Die Menüwahl öffnet sich deutsch; oben auf der Seite können die Teilnehmenden mit den Schaltern «DE», «EN» und «FR» jederzeit auf Englisch oder Französisch umstellen. Wollen Sie den Link gleich in einer anderen Sprache verschicken, hängen Sie `&en` beziehungsweise `&fr` an, also zum Beispiel `https://menue.campus-sursee.ch/?klasse=M2VJ8KWS&fr`.
 
 1. Wählen Sie den Termin links in der Liste aus.
 2. Klicken Sie auf «Link kopieren». Daneben erscheint kurz das Wort «Kopiert».

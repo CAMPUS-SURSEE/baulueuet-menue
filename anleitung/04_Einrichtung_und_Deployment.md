@@ -181,7 +181,7 @@ Seit der Anbindung an Git ist dieses Repository der massgebende Stand: Was in `f
 - [ ] Gästelink kopiert, Gästeseite zeigt den Kurs und die Tagesmenüs
 - [ ] Eine Testbestellung abgegeben, sie erscheint in der Verwaltung
 - [ ] **Kursblatt-Adresse in einem privaten Fenster geöffnet**, ohne Anmeldung: Das Blatt erscheint samt QR-Code
-- [ ] Klappfeld neben «Kursblatt drucken» auf «FR» gestellt und geklickt: Blatt ist französisch, die Adresse endet auf `&sprache=fr`, der Link unter dem QR-Code ebenfalls; Gästeseite über diesen Link ist französisch, und die Schalter «DE / EN / FR» oben auf der Gästeseite stellen sie um
+- [ ] Klappfeld neben «Kursblatt drucken» auf «FR» gestellt und geklickt: Blatt ist französisch, die Adresse endet auf `&fr`, der Link unter dem QR-Code ebenfalls; Gästeseite über diesen Link ist französisch, und die Schalter «DE / EN / FR» oben auf der Gästeseite stellen sie um
 - [ ] in `admin.html` steht der Testtermin unter seinem Kurstag; «Filter» blendet zukünftige und vergangene Termine ein
 - [ ] Kursblatt gedruckt, **QR-Code mit einer echten Handykamera gescannt** und der Link führt zum richtigen Kurs
 - [ ] Menüblatt gedruckt, Namen, Vorspeisen, Hauptgänge und Bemerkungen stimmen

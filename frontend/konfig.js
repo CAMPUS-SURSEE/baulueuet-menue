@@ -18,6 +18,12 @@ const KONFIG = {
   listeKlassen: "966a62ea-0ec5-4054-80a2-9a52d7b32483",
   listeBestellungen: "19bef1ed-a806-4a5b-bdb5-c869f7d2a582",
 
+  /* ID der Liste «Firmen» (Firmenverzeichnis mit dauerhaftem Firmen-QR-Code).
+     Bleibt sie leer, sucht die Verwaltung die Liste beim Start über ihren
+     Anzeigenamen «Firmen» auf der Site und bietet an, sie anzulegen. Wer die
+     ID hier einträgt, spart diesen zusätzlichen Aufruf. */
+  listeFirmen: "6f61962a-5763-4650-ba1d-d45b30a9b6f6",
+
   /* ---- Gästeseite ---- */
   gastBasis: "https://menue.campus-sursee.ch/",
 

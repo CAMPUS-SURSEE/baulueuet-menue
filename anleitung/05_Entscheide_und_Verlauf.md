@@ -1,6 +1,6 @@
 # Entscheide und Verlauf
 
-**Stand:** 04.09.2026
+**Stand:** 14.09.2026
 
 Warum das System so gebaut ist, wie es gebaut ist. Dieses Dokument beantwortet die Fragen, die sich sonst in einem Jahr niemand mehr beantworten kann.
 
@@ -172,6 +172,87 @@ verlassen können. Die Ausnahme gehört an den Schalter, nicht in die Konfigurat
 
 ---
 
+## 5g. Dauerhafter Firmen-QR-Code und Firmenverzeichnis
+
+Firmen wie SORBA sind eine ganze Woche am Campus. Bisher hatte jeder Kurstag seinen
+eigenen QR-Code, also jeden Morgen ein neues Blatt. Gewünscht war ein Code, den die
+Firma einmal bekommt und immer wieder verwendet.
+
+Seit dem 14.09.2026 steht eine solche Firma mit einem **dauerhaften Schlüssel** in der
+neuen SharePoint-Liste «Firmen» (`SORBA-K7M2`) und hat damit einen dauerhaften Gästelink
+(`/?firma=SORBA-K7M2`). Die Gästeseite bildet daraus am Kurstag selbst den Klassencode
+des heutigen Tages (`SORBA-K7M2-260914`) und ruft Flow B unverändert damit auf.
+
+**a) Der Schlüssel hat einen Zufallsanteil.** Naheliegend wäre `SORBA` gewesen, kurz und
+sprechend. Dann liesse sich der Code jeder Firma aber aus ihrem Namen erraten, und mit
+dem Code kommt man an jedem Kurstag auf deren Menüwahl. Vier Zufallszeichen kosten nichts
+und schliessen das. Sie trennen nebenbei gleichnamige Firmen. Der Preis: Der Schlüssel
+lässt sich nicht mehr aus dem Kopf rekonstruieren, und das Verzeichnis ist der einzige
+Ort, an dem er steht. Deshalb ist es auch die einzige Ablage, welche die 30-Tage-Aufräumung
+überlebt: Wären Firmen wie Termine nach dreissig Tagen weg, führten alle gedruckten
+QR-Codes ins Leere.
+
+**b) Die Bildungsregel des Codes steht bewusst zweimal.** In `Hilfe.firmenCode()` in
+`graph.js` für die Verwaltung und in `firmenCode()` im Kopf von `index.html` für die
+Gästeseite. Doppelter Code ist ein Mangel und wird hier trotzdem in Kauf genommen: Die
+Gästeseite lädt `graph.js` nicht, weil sie ohne Anmeldung auskommt und deshalb keine der
+Admin-Dateien lädt. Dasselbe gilt seit jeher für den Annahmeschluss (Abschnitt 5a); die
+Alternative wäre, `graph.js` auf der Gästeseite mitzuladen und damit die klare Trennung
+zwischen anonymem und angemeldetem Teil aufzugeben. Der Fehlerfall ist dafür still: Wird
+die Regel nur an einer Stelle geändert, meldet die Gästeseite «Kein Kurs gefunden», ohne
+dass irgendwo ein Fehler auftaucht. Der Hinweis steht deshalb in
+`06_Hinweise_Quellcode.md` und im Quelltext an beiden Stellen.
+
+**c) Der Code eines Firmen-Termins wird beim Ändern des Datums neu gebildet.** Das bricht
+mit der Regel «ein Code wird nie geändert», die sonst durchgehend gilt und die dafür
+sorgt, dass ein verteilter Link gültig bleibt. Hier geht es nicht anders: Der Kurstag
+steckt im Code. Ein verschobener Termin behielte sonst den Code des alten Tages, und der
+QR-Code der Firma fände ihn am neuen Tag nicht. Betroffen ist nur der Link **dieses einen
+Termins**; der dauerhafte Link der Firma bleibt, und genau ihn haben die Teilnehmenden.
+Verworfen wurde, das Datum eines Firmen-Termins nachträglich zu sperren — das hätte die
+Réception für einen Verschiebungsfall zum Löschen und Neuanlegen gezwungen und dabei die
+Bestellungen verwaisen lassen.
+
+**d) Kein Eingriff in die Flows.** Die naheliegende Lösung wäre gewesen, Flow B einen
+Parameter «Firma» beizubringen und dort den Termin des heutigen Tages zu suchen. Dagegen
+sprach zweierlei. Erstens ist jede Änderung im Power-Automate-Designer teuer und heikel,
+er verliert Ausdrücke still (siehe `03_Technische_Dokumentation.md`, Abschnitt 10).
+Zweitens hätte ein Datumsfilter im Flow genau in die Zeitzonenfalle geführt, die das
+System an anderer Stelle schon einmal gekostet hat: In der Liste «Klassen» stehen zwei
+Schreibweisen für denselben Kurstag, und `utcNow()` im Flow ist nicht die Ortszeit. Der
+Code aus Schlüssel und Kurstag umgeht das vollständig — er entsteht im Browser aus der
+Ortszeit, und der Flow sucht danach wie nach jedem anderen Code. Die Flows, die
+Entra-Registrierung und `_headers` blieben deshalb unverändert; `Sites.ReadWrite.All`
+deckt die neue Liste mit ab.
+
+**e) Die Menütexte werden weiterhin nicht übersetzt.** Die Frage kam bei dieser
+Gelegenheit von der Auftraggeberin. Der Entscheid ist nein, aus zwei Gründen: Eine
+maschinelle Übersetzung von Gerichten und vor allem von Allergenhinweisen ist nicht
+zuverlässig genug für etwas, das jemand isst, und sie brächte in jeden Seitenaufruf einen
+zusätzlichen Fremddienst. Der saubere Weg wäre eine mehrsprachige Erfassung in Lunchgate;
+solange sie fehlt, bleiben die Menütexte deutsch, übersetzt sind nur die Beschriftungen
+der Seiten. Das entspricht dem bisherigen Stand (Abschnitt 7, «Die Sprache reist im Link
+mit»).
+
+**Ehrlich benannt, was diese Lösung nicht kann:**
+
+- **Der Termin muss trotzdem für jeden Kurstag erfasst sein.** Der dauerhafte Code
+  erspart das Verteilen von Links und Blättern, nicht das Anlegen des Termins. Fehlt er,
+  sehen die Teilnehmenden «Kein Kurs gefunden» und melden sich an der Réception — genau
+  dort, wo der Termin fehlt. Eine Lösung ohne Termin hätte bedeutet, Kurse automatisch
+  anzulegen, und damit ein zweites System für etwas, das der Empfang ohnehin im Griff hat.
+- **Das Firmenblatt nennt keine Essenszeit**, und auch weder Kurstitel noch Datum. Es
+  kann sie nicht nennen, weil es für alle Kurstage gilt und diese Angaben je Tag
+  wechseln. Die Essenszeit steht erst auf der Gästeseite, nach dem Scannen. Wer sie im
+  Voraus auf Papier braucht, druckt zusätzlich das gewöhnliche Kursblatt des Tages.
+- **Pro Firma und Kurstag ist nur ein Termin mit Firmen-QR-Code möglich**, weil ein
+  QR-Code an einem Tag nur auf einen Kurs zeigen kann. Der zweite Kurs derselben Firma am
+  selben Tag bekommt einen gewöhnlichen Zufallscode. Die Verwaltung prüft das und sagt
+  es; geprüft wird im Browser gegen die geladene Terminliste, nicht in SharePoint.
+- **Der Code ändert beim Verschieben des Datums**, siehe c).
+
+---
+
 ## 6. Warum zuerst alles selbst gebaut und dann auf Bibliotheken umgestellt wurde
 
 Die erste Fassung enthielt einen selbst geschriebenen QR-Encoder (rund 380 Zeilen) und einen selbst geschriebenen OAuth-Ablauf mit PKCE (rund 230 Zeilen). Der Gedanke dahinter: keine Abhängigkeit von fremden Servern, eine sehr enge Content Security Policy, nichts, was zusätzlich ausgeliefert werden muss.
@@ -230,6 +311,11 @@ Diese Punkte sind bekannt und bewusst in Kauf genommen. Sie gehören auf die Lis
 | Veröffentlichung von Hand per Datei-Upload | Kein Verlauf, kein Rückschritt auf eine frühere Fassung | Git-Anbindung an Cloudflare Pages |
 | Verwaiste Bestellungen nach dem Löschen einer Klasse | Bleiben bis zu 30 Tage in der Liste | Aufräum-Flow um verwaiste Einträge erweitern |
 | Eine gelöschte Bestellung ist endgültig weg | Kein Papierkorb, kein Rückgängig in der Verwaltung | SharePoint-Papierkorb der Site nutzen, oder das Löschen durch ein Kennzeichen ersetzen |
+| Der Firmen-QR-Code setzt voraus, dass der Termin des Tages erfasst ist | Fehlt er, sehen die Teilnehmenden «Kein Kurs gefunden» statt der Menüwahl | Termine für wiederkehrende Firmen im Voraus als Serie anlegen |
+| Das Firmenblatt nennt weder Kurstitel noch Datum noch Essenszeit | Wer die Essenszeit auf Papier braucht, muss zusätzlich das Kursblatt des Tages drucken | Essenszeit je Firma hinterlegen, sofern sie tatsächlich konstant ist |
+| Der Code eines Firmen-Termins wird beim Ändern des Datums neu gebildet | Einzige Ausnahme von «ein Code wird nie geändert»; der Link dieses einen Termins wird ungültig | Keiner, ohne das Datum eines solchen Termins zu sperren |
+| Die Bildungsregel des Firmencodes steht in `graph.js` **und** in `index.html` | Wird sie nur an einer Stelle geändert, findet kein QR-Code mehr einen Termin, und zwar ohne Fehlermeldung | Wie beim Annahmeschluss: gemeinsame Datei, die auch die Gästeseite laden dürfte |
+| Nur ein Termin mit Firmen-QR-Code je Firma und Kurstag | Ein zweiter Kurs derselben Firma am selben Tag braucht einen gewöhnlichen Zufallscode | Kurskennzeichen im Code ergänzen; verlängert den Link und den QR-Code |
 
 ---
 
@@ -249,6 +335,7 @@ Diese Punkte sind bekannt und bewusst in Kauf genommen. Sie gehören auf die Lis
 | 10.09.2026 | Sprachzusatz im Link verkürzt: `&fr` und `&en` statt `&sprache=fr`; alte Links bleiben gültig |
 | 08.09.2026 | **Sprache je Termin und Feinschliff der Verwaltung.** Neue Spalte `Sprache` (`de`/`fr`/`en`); Kursblatt und Gästeseite vollständig auf Französisch und Englisch, Sprache reist als `&sprache=` im Link mit. In der Verwaltung: Pfeilknopf neben «Filter» kehrt die Sortierung der Kurstage um; «Bearbeiten» als grauer Textlink mit Stift neben dem Titel statt als Knopf; Legende «Details» über dem Termin entfernt; «Kursblatt drucken» und «Menüblatt drucken» teilen sich die volle Breite; Kursblatt-Linkzeile entfernt. Menüblatt ohne die Fusszeile «… bis 10:00 Uhr an der Réception abzugeben». SharePoint-Liste «Klassen» über Graph auf das Soll gebracht: `Sprache` angelegt, `Menu1Preis`, `Menu2Preis` und `Bemerkung` gelöscht |
 | 04.09.2026, Nachmittag | **Bestellungen in der Verwaltung bearbeitbar.** Die Réception kann jede Bestellung jederzeit ändern, nacherfassen und löschen, auch nach dem Annahmeschluss. Neu in `graph.js`: `bestellungAnlegen` und `bestellungAendern`; `bestellungLoeschen` war vorhanden, aber unbenutzt. Der bisherige Weg über das handschriftlich ergänzte Menüblatt entfällt |
+| 14.09.2026 | **Dauerhafter Firmen-QR-Code und Firmenverzeichnis.** Neue SharePoint-Liste «Firmen» (`Title`, `Schluessel`), neuer Reiter «Firmen» in `admin.html` samt Knopf «Liste jetzt anlegen». Eine Firma bekommt einen dauerhaften Schlüssel und damit einen dauerhaften Gästelink `/?firma=SCHLUESSEL`; die Gästeseite bildet daraus den Klassencode des heutigen Tages (`SCHLUESSEL-JJMMTT`) und ruft Flow B unverändert auf. Im Terminformular wählt die Réception die Firma aus dem Verzeichnis, der Termin bekommt dann diesen Code statt eines Zufallscodes. Neues Firmenblatt `kursblatt.html?firma=…&name=…` ohne Kurstitel, Datum und Essenszeit. Neu in `graph.js`: `firmenSlug`, `neuerFirmenSchluessel`, `firmenCode`, `istFirmenCode`, `firmenSchluesselAusCode`, `firmenLink`, `firmenblattLink` und die sechs Graph-Funktionen für das Verzeichnis. Flows, Entra-Registrierung und `_headers` unverändert |
 
 **Beim Umbau gefundene und behobene Fehler**, festgehalten, weil sie sich wiederholen könnten:
 

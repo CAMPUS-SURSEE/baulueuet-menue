@@ -22,6 +22,15 @@ Es gibt vier Seiten. Die erste brauchen Sie täglich, die anderen öffnen sich a
 | Kursblatt zum Aushängen | `https://menue.campus-sursee.ch/kursblatt.html?klasse=CODE` | Réception zum Drucken, **darf auch der Kursleitung geschickt werden** |
 | Menüblatt für die Küche | `https://menue.campus-sursee.ch/menueblatt.html?klasse=CODE` | Réception, zum Drucken |
 
+Für Firmen, die über mehrere Tage oder Wochen immer wieder bei uns sind, gibt es zusätzlich einen **dauerhaften QR-Code**, der nicht an einem einzelnen Kurstag hängt. Dazu kommen zwei weitere Adressen, beide ohne Anmeldung:
+
+| Seite | Adresse | Für wen |
+|---|---|---|
+| Gästeseite einer Firma | `https://menue.campus-sursee.ch/?firma=SCHLUESSEL` | Teilnehmende, an jedem Kurstag derselben Firma |
+| Firmenblatt zum Aushängen | `https://menue.campus-sursee.ch/kursblatt.html?firma=SCHLUESSEL&name=FIRMA` | Réception zum Drucken, darf auch der Firma geschickt werden |
+
+Wie das im Alltag aussieht, steht in Abschnitt 3a.
+
 **Die 10-Uhr-Regel.** Am Kurstag können die Teilnehmenden bis 10:00 Uhr wählen und ihre Wahl beliebig oft ändern. Ab 10:00 Uhr ist Schluss: Wer dann etwas ändern oder nachträglich bestellen will, wird auf der Seite an die Réception verwiesen. **Für Sie gilt diese Grenze nicht.** In der Verwaltung können Sie jede Bestellung jederzeit ändern, nacherfassen oder löschen, auch nach 10:00 Uhr, siehe Abschnitt 6. Drucken Sie das Menüblatt danach neu aus oder melden Sie die Änderung der Küche.
 
 ---
@@ -35,7 +44,9 @@ Es gibt vier Seiten. Die erste brauchen Sie täglich, die anderen öffnen sich a
 Oben rechts steht Ihr Name und daneben «Abmelden». Abmelden brauchen Sie im Alltag nicht.
 Solange die Anmeldung läuft oder scheitert, sehen Sie stattdessen die Meldung «Anmeldung nicht möglich» mit dem Knopf «Erneut versuchen».
 
-Die Verwaltung ist in zwei Spalten aufgeteilt:
+Zuoberst im Arbeitsbereich stehen zwei Reiter: **«Termine»** und **«Firmen»**. «Termine» ist der Alltag und beim Öffnen immer gewählt; hinter «Firmen» liegt das Firmenverzeichnis mit den dauerhaften QR-Codes, siehe Abschnitt 3a. Ein Klick schaltet um, die Terminliste bleibt dabei erhalten.
+
+Der Reiter «Termine» ist in zwei Spalten aufgeteilt:
 
 - links zuoberst der schwarze Knopf **«Neuer Termin»** über die ganze Spaltenbreite, darunter die Überschrift «Termine», das Suchfeld «Suchen: Titel, Firma oder Code», der Knopf «Filter» und daneben ein kleiner Pfeilknopf für die Sortierung
 - darunter die Terminliste, nach Kurstag gruppiert
@@ -88,6 +99,89 @@ Liegt der neue Termin nicht am heutigen Tag, blendet die Liste den passenden Zei
 > Erstellt 29.08.2026, 09:20 von Vreni Bühler · zuletzt geändert 02.09.2026, 14:20 von Martin Kaufmann
 
 So ist nachvollziehbar, wer den Kurs erfasst und wer ihn zuletzt angefasst hat. Sie müssen dafür nichts eintragen, das System führt es von selbst mit. Wurde seit dem Anlegen nichts geändert, steht nur der erste Teil da. Bei Terminen aus der Zeit vor dieser Änderung kann die Zeile knapper ausfallen oder ganz fehlen.
+
+**Das Feld «Firma» hat zwei Möglichkeiten.** Über dem Textfeld steht ein Klappfeld. Steht dort «— Firma frei eingeben —», ist alles wie bisher: Sie tippen den Firmennamen ein und der Termin bekommt beim Speichern seinen eigenen achtstelligen Zufallscode. Wählen Sie stattdessen eine Firma aus dem Verzeichnis, bekommt der Termin den **dauerhaften Firmen-QR-Code** dieser Firma. Was das heisst, steht im nächsten Abschnitt. Unter dem Feld sagt Ihnen eine graue Zeile jeweils, welchen Code der Termin bekommt.
+
+---
+
+## 3a. Firmen mit dauerhaftem QR-Code
+
+**Wofür das gut ist.** Manche Firmen sind eine ganze Woche oder immer wieder bei uns, zum Beispiel SORBA. Bisher hatte jeder Kurstag seinen eigenen QR-Code, und die Teilnehmenden mussten jeden Morgen ein neues Blatt suchen. Eine Firma kann stattdessen **einen einzigen QR-Code** bekommen, den sie aufklebt oder aufhängt und immer wieder verwendet. Wer ihn scannt, landet automatisch beim Kurs dieser Firma vom **heutigen** Tag.
+
+> **Wichtig: Sie legen trotzdem jeden Kurstag einen Termin an.** Der dauerhafte QR-Code ersetzt nur das Verteilen von Links und Blättern, nicht das Erfassen des Termins. Ohne Termin für den heutigen Tag findet der QR-Code nichts.
+
+### Eine Firma ins Verzeichnis aufnehmen
+
+1. Klicken Sie oben auf den Reiter **«Firmen»**.
+2. Geben Sie links unter **«Neue Firma»** den **Firmennamen** ein, zum Beispiel `SORBA`. Das ist der Name, den die Teilnehmenden später auf dem Firmenblatt sehen.
+3. Klicken Sie auf **«Firma speichern»**.
+
+Die Firma erscheint rechts im **Verzeichnis**, mit ihrem **Schlüssel**, zum Beispiel `SORBA-K7M2`. Den Schlüssel müssen Sie nicht eingeben, er entsteht beim Speichern aus dem Namen und vier Zufallszeichen. Die Zufallszeichen sind Absicht: Sie verhindern, dass zwei ähnlich heissende Firmen denselben Code bekommen, und sie sorgen dafür, dass niemand den Code einer Firma erraten kann.
+
+**Der Schlüssel lässt sich nachträglich nicht mehr ändern.** An ihm hängt der gedruckte QR-Code. Ist ein Name falsch geschrieben, benennen Sie die Firma um (siehe unten); der Schlüssel und damit der gedruckte Code bleiben dabei bestehen.
+
+Auf jeder Firmenkarte im Verzeichnis stehen ausserdem:
+
+- die Anzahl der **kommenden Termine** dieser Firma, zum Beispiel «3 kommende Termine»,
+- der **dauerhafte Gästelink** mit dem Knopf «Link kopieren»,
+- die Knöpfe **«Umbenennen»**, **«Löschen»** und **«Firmenblatt»**.
+
+Zwei Firmen dürfen nicht gleich heissen; sie wären im Klappfeld des Terminformulars nicht auseinanderzuhalten. Die Seite meldet in diesem Fall «Eine Firma mit diesem Namen steht bereits im Verzeichnis.»
+
+> Einmalige Kunden gehören **nicht** ins Verzeichnis. Wer nur ein einziges Mal bei uns ist, wird beim Termin wie bisher als freier Text erfasst.
+
+### Einen Termin für eine Firma aus dem Verzeichnis anlegen
+
+Wie gewohnt über «Neuer Termin», mit einem einzigen Unterschied:
+
+1. Reiter **«Termine»**, Knopf **«Neuer Termin»**.
+2. **«Titel»** ausfüllen, zum Beispiel «SORBA Einführungstag».
+3. Beim Feld **«Firma»** im Klappfeld die Firma auswählen, zum Beispiel «SORBA (SORBA-K7M2)». Der Firmenname füllt sich danach von selbst aus und lässt sich nicht mehr ändern; er kommt aus dem Verzeichnis.
+4. **«Datum»** setzen. Bei einer Firma aus dem Verzeichnis ist das Datum Pflicht, weil der Kurstag im Code steckt. Fehlt es, meldet die Seite: «Ein Termin mit Firmen-QR-Code braucht ein Datum: der Kurstag steckt im Code.»
+5. Essenszeit und erwartete Teilnehmeranzahl wie bisher, dann speichern.
+
+Unter dem Feld «Firma» steht während des Ausfüllens, welchen Code der Termin bekommt, zum Beispiel «Dauerhafter Firmen-QR-Code, Code: SORBA-K7M2-260914». Die sechs Ziffern am Schluss sind der Kurstag: Jahr, Monat, Tag.
+
+In der Terminliste und in den Details trägt ein solcher Termin die kleine Marke **«Firmen-QR»**. In den Details steht unter dem gewohnten Gästelink zusätzlich die Zeile **«Firma»** mit dem dauerhaften Link und dem Knopf «Firmen-Link kopieren».
+
+**Pro Firma und Kurstag ist nur ein Termin mit Firmen-QR-Code möglich.** Das ist keine Schikane, sondern die Folge davon, dass ein QR-Code an einem Tag nur auf einen Kurs zeigen kann. Versuchen Sie es doch, meldet die Seite: «Für … ist am … bereits ein Termin mit Firmen-QR-Code erfasst. Pro Firma und Tag ist nur ein solcher Termin möglich; bitte für den zweiten Kurs «Firma frei eingeben» wählen.» Hat dieselbe Firma am selben Tag zwei Kurse, legen Sie den zweiten mit freiem Firmentext an; er bekommt dann einen gewöhnlichen Zufallscode, und Sie verteilen dafür wie bisher Link oder Kursblatt.
+
+### Das Firmenblatt drucken
+
+Das Firmenblatt ist das Gegenstück zum Kursblatt, nur ohne Kurstitel, ohne Datum und ohne Essenszeit. Diese drei Angaben wechseln ja von Kurstag zu Kurstag, das Blatt aber bleibt.
+
+1. Reiter **«Firmen»**, auf der Karte der Firma das Klappfeld am rechten Ende des Knopfs «Firmenblatt» auf «DE», «EN» oder «FR» stellen.
+2. Auf **«Firmenblatt»** klicken. Es öffnet sich ein neuer Tab mit dem Blatt: BAULÜÜT-Logo, Firmenname, ein grosser QR-Code und darunter der Link als Text.
+3. Unten auf dem Blatt auf **«Firmenblatt drucken»** klicken und ausdrucken.
+4. Das Blatt der Firma geben oder im Kurszimmer aufhängen. Es darf laminiert oder aufgeklebt werden, es gilt dauerhaft.
+
+Auf dem Blatt steht anstelle des gewohnten Hinweises: «Dieses Blatt gilt für alle Kurstage Ihrer Firma. Scannen Sie den QR-Code jeweils am Kurstag, um Ihr Mittagsmenü zu wählen.» Darunter wie beim Kursblatt die Frist bis 10:00 Uhr.
+
+Für eine Firma mit fremdsprachigen Teilnehmenden drucken Sie das Blatt nacheinander in mehreren Sprachen; jedes trägt den QR-Code in seine Sprache. Das Klappfeld wird nicht gespeichert und steht beim nächsten Mal wieder auf «DE».
+
+### Was am Kurstag geschieht
+
+Nichts, was Sie tun müssten, ausser dem Termin selbst. Wer den Firmen-QR-Code scannt, kommt auf dieselbe Menüwahl wie über einen gewöhnlichen Gästelink, samt Kursnamen, Datum und Essenszeit des heutigen Termins. Die 10-Uhr-Regel gilt unverändert.
+
+Ist für heute **kein** Termin dieser Firma erfasst, sehen die Teilnehmenden:
+
+> **Kein Kurs gefunden**
+> Für diese Firma wurde für den heutigen Tag kein Kurs gefunden. Bitte melde dich bei der Réception.
+
+**Was dann zu tun ist**, in dieser Reihenfolge:
+
+1. **Gibt es für heute überhaupt einen Termin dieser Firma?** Wenn nein, legen Sie ihn jetzt an, mit der Firma aus dem Verzeichnis. Der QR-Code der Firma funktioniert danach sofort, die Teilnehmenden müssen die Seite nur neu laden.
+2. **Wurde der Termin mit freiem Firmentext angelegt** statt mit der Firma aus dem Verzeichnis? Dann fehlt ihm die Marke «Firmen-QR». Öffnen Sie ihn über «Bearbeiten», wählen Sie im Klappfeld «Firma» die Firma aus dem Verzeichnis und speichern Sie. Die Seite fragt zurück, weil der Termin dabei einen neuen Code bekommt; bestätigen Sie mit «Code neu bilden». Ein bereits verteilter Link dieses einen Termins gilt danach nicht mehr, der Firmen-QR-Code dafür schon.
+3. **Stimmt das Datum des Termins?** Steht dort der falsche Tag, sucht der QR-Code am heutigen Tag ins Leere. Datum korrigieren und speichern.
+
+### Umbenennen und Löschen
+
+Ein einmal angelegter Termin steht für sich: Firmenname und Code sind an ihm gespeichert, nicht am Verzeichnis.
+
+- **Umbenennen** ändert nur den Eintrag im Verzeichnis und den Namen auf künftig gedruckten Firmenblättern. Der Schlüssel bleibt, der gedruckte QR-Code gilt weiter, und bereits angelegte Termine behalten den bisherigen Firmennamen.
+- **Löschen** entfernt nur den Verzeichniseintrag. Bestehende Termine bleiben vollständig erhalten, samt Firmenname, Code und Bestellungen. Der gedruckte QR-Code der Firma führt aber zu keinem **neuen** Termin mehr, weil sich neue Termine dieser Firma nicht mehr zuordnen lassen. Löschen Sie eine Firma also erst, wenn sie nicht mehr zu uns kommt.
+
+> **Steht im Reiter «Firmen» der Hinweis «Die Liste «Firmen» ist auf der SharePoint-Site noch nicht vorhanden»?** Dann fehlt die Ablage für das Verzeichnis. Mit dem Knopf «Liste jetzt anlegen» legen Sie sie selbst an; gelingt das nicht, melden Sie es den ICT-Services. Bis dahin funktioniert die Terminverwaltung unverändert weiter, im Terminformular steht dann nur «Firma frei eingeben» zur Verfügung.
 
 ---
 
@@ -220,6 +314,8 @@ Am häufigsten werden Sie hier die **erwartete Teilnehmeranzahl** nachtragen ode
 
 Den Zugangscode können Sie nicht ändern. Ein bereits verteilter Link oder QR-Code bleibt also gültig, auch wenn Sie Titel, Firma, Datum oder Essenszeit noch anpassen.
 
+**Eine Ausnahme gilt für Termine mit Firmen-QR-Code**, also solche mit der Marke «Firmen-QR». Bei ihnen steckt der Kurstag im Code. Verschieben Sie einen solchen Termin auf einen anderen Tag, bildet die Seite den Code neu; der bisherige Link dieses Termins gilt danach nicht mehr. Der dauerhafte QR-Code der Firma ist davon nicht betroffen, er führt am neuen Tag wie gewohnt zum Termin. Dasselbe geschieht, wenn Sie im Klappfeld «Firma» von freiem Text auf eine Firma aus dem Verzeichnis wechseln oder umgekehrt; in diesem Fall fragt die Seite vorher zurück. Bereits erfasste Bestellungen bleiben in allen Fällen erhalten.
+
 ### Löschen
 
 1. Wählen Sie den Termin aus und klicken Sie ganz unten auf «Termin löschen».
@@ -301,7 +397,16 @@ Klicken Sie wie gewohnt auf «Kursblatt drucken» oder «Menüblatt drucken». W
 Zugriff erhalten die Mitarbeitenden der Réception, freigeschaltet durch die ICT-Services. Braucht jemand Neues Zugriff oder verlässt jemand den Empfang, melden Sie das den ICT-Services. Die Teilnehmenden brauchen keinen Zugang und keine Anmeldung, für sie genügt der Gästelink.
 
 **Muss ich für jeden Kurstag einen eigenen Termin anlegen?**
-Ja. Ein Termin gilt für genau einen Essenstag.
+Ja. Ein Termin gilt für genau einen Essenstag. Das gilt auch für Firmen mit dauerhaftem QR-Code: Der Code bleibt derselbe, der Termin dahinter muss trotzdem für jeden Kurstag erfasst sein, siehe Abschnitt 3a.
+
+**Eine Firma ist eine ganze Woche bei uns und möchte einen einzigen QR-Code.**
+Nehmen Sie die Firma im Reiter «Firmen» ins Verzeichnis auf und drucken Sie ihr das Firmenblatt. Dessen QR-Code gilt dauerhaft. Legen Sie danach für jeden Kurstag wie gewohnt einen Termin an und wählen Sie dabei im Feld «Firma» die Firma aus dem Klappfeld. Siehe Abschnitt 3a.
+
+**Teilnehmende melden «Kein Kurs gefunden».**
+Sie haben den Firmen-QR-Code gescannt, für heute ist aber kein Termin dieser Firma erfasst. Prüfen Sie der Reihe nach: Gibt es für heute einen Termin dieser Firma? Trägt er die Marke «Firmen-QR» oder wurde die Firma als freier Text eingetippt? Stimmt das Datum? Das Vorgehen steht in Abschnitt 3a unter «Was am Kurstag geschieht».
+
+**Dieselbe Firma hat am selben Tag zwei Kurse.**
+Der erste bekommt den Firmen-QR-Code, der zweite wird mit freiem Firmentext angelegt und bekommt einen gewöhnlichen Zufallscode. Für ihn verteilen Sie wie bisher Link oder Kursblatt. Ein QR-Code kann an einem Tag nur auf einen Kurs zeigen.
 
 **Kann ich das Kursblatt schon eine Woche vorher drucken?**
 Ja. Der QR-Code funktioniert unabhängig vom Datum. Nur wählen können die Teilnehmenden erst am Kurstag, und dann bis 10:00 Uhr.
@@ -310,7 +415,7 @@ Ja. Der QR-Code funktioniert unabhängig vom Datum. Nur wählen können die Teil
 Klicken Sie in der Verwaltung auf «Filter» und setzen Sie das Häkchen bei «Zukünftige Termine», siehe Abschnitt 5. Die Liste links zeigt danach jeden kommenden Kurstag mit seinen Kursen und den bisherigen Bestellungen.
 
 **Kann jemand ohne Link zufällig bestellen?**
-Praktisch nicht. Der Zugangscode hat acht Zeichen und ist zufällig. Ohne den passenden Link erscheint der Hinweis «Ungültiger Link».
+Praktisch nicht. Der Zugangscode hat acht Zeichen und ist zufällig. Ohne den passenden Link erscheint der Hinweis «Ungültiger Link». Auch der Schlüssel einer Firma enthält vier Zufallszeichen und lässt sich deshalb nicht aus dem Firmennamen erraten.
 
 ---
 
@@ -328,7 +433,8 @@ Melden Sie sich bei den ICT-Services, wenn:
 - die Anmeldung auch nach dem Neuladen scheitert oder eine Meldung über fehlende Berechtigung erscheint,
 - Bestellungen fehlen, die nachweislich abgeschickt wurden,
 - ein Termin sich nicht speichern, ändern oder löschen lässt,
-- der QR-Code auf dem Kursblatt nicht erzeugt wird,
+- der QR-Code auf dem Kursblatt oder auf dem Firmenblatt nicht erzeugt wird,
+- der Reiter «Firmen» meldet, die Liste «Firmen» sei nicht vorhanden, und der Knopf «Liste jetzt anlegen» hilft nicht,
 - die Menütexte auf dem Menüblatt mehrere Tage hintereinander fehlen.
 
 Halten Sie dabei bereit: den Namen des Termins, den Zugangscode, das Kursdatum und den genauen Wortlaut der Fehlermeldung. Ein Bildschirmfoto hilft zusätzlich.

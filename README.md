@@ -2,7 +2,7 @@
 
 Kursteilnehmende am Campus Sursee wählen ihr Mittagsmenü über eine Webseite statt auf einem Papierblatt. Die Réception legt pro Kurs eine Klasse an und gibt den Teilnehmenden einen Link oder ein Blatt mit QR-Code. Die Küche erhält die gesammelten Bestellungen ausgedruckt.
 
-**Stand dieser Ablage:** 04.09.2026
+**Stand dieser Ablage:** 14.09.2026
 
 ---
 
@@ -27,8 +27,8 @@ baulueuet-menue/
 ├── wrangler.toml                     Hosting-Einstellungen für Cloudflare Pages
 ├── frontend/                         die Webseite, genau so wie sie gehostet wird
 │   ├── index.html                    Gästeseite, Menüwahl
-│   ├── admin.html                    Verwaltung der Termine, nach Kurstag gruppiert
-│   ├── kursblatt.html                Aushang mit QR-Code, ohne Anmeldung
+│   ├── admin.html                    Verwaltung der Termine und des Firmenverzeichnisses
+│   ├── kursblatt.html                Aushang mit QR-Code, ohne Anmeldung; auch als Firmenblatt
 │   ├── menueblatt.html               Bestellübersicht für die Küche
 │   ├── konfig.js                     alle Kennungen und Adressen an einer Stelle
 │   ├── auth.js                       Anmeldung an Entra ID
@@ -93,9 +93,18 @@ sie würde Pages `_headers` wegen des Unterstrichs ignorieren.
 | Adresse | Wofür | Anmeldung |
 |---|---|---|
 | `https://menue.campus-sursee.ch/?klasse=CODE` | Gäste wählen ihr Menü | nein |
+| `https://menue.campus-sursee.ch/?firma=SCHLUESSEL` | dauerhafter Gästelink einer Firma, führt am Kurstag zum Termin des Tages | nein |
 | `https://menue.campus-sursee.ch/kursblatt.html?klasse=CODE` | Aushang mit QR-Code, darf der Kursleitung geschickt werden | nein |
-| `https://menue.campus-sursee.ch/admin.html` | Verwaltung der Termine | ja |
+| `https://menue.campus-sursee.ch/kursblatt.html?firma=SCHLUESSEL&name=NAME` | Firmenblatt mit dem dauerhaften QR-Code einer Firma | nein |
+| `https://menue.campus-sursee.ch/admin.html` | Verwaltung der Termine und des Firmenverzeichnisses | ja |
 | `https://menue.campus-sursee.ch/menueblatt.html?klasse=CODE` | Bestellübersicht für die Küche | ja |
+
+Firmen, die über Wochen immer wieder am Campus sind, bekommen seit dem 14.09.2026
+einen **dauerhaften QR-Code**: Die Firma steht mit einem festen Schlüssel im
+Verzeichnis, und die Gästeseite bildet daraus am Kurstag selbst den Code des
+heutigen Termins. Die Réception legt trotzdem jeden Kurstag als Termin an und
+wählt dabei die Firma aus dem Verzeichnis. Siehe
+[`anleitung/01_Anleitung_Reception.md`](anleitung/01_Anleitung_Reception.md), Abschnitt 3a.
 
 Cloudflare Pages leitet Adressen mit `.html` auf die Fassung ohne Endung um:
 Aus `/admin.html` wird `/admin`, aus `/kursblatt.html?klasse=CODE` wird
@@ -120,7 +129,7 @@ die Verwaltung zeigt es an.
 
 ## In drei Sätzen, wie es funktioniert
 
-Die Webseite liegt bei Cloudflare Pages und ist reines HTML, es gibt keinen eigenen Server. Die Daten stehen in zwei SharePoint-Listen auf der Site «Reception»; die Verwaltung greift nach Anmeldung mit dem Microsoft-365-Konto direkt darauf zu, Gästeseite und Kursblatt über zwei Power-Automate-Flows, weil Kursteilnehmende und Kursleitung kein Konto haben. Die Tagesmenüs kommen von Lunchgate, abgeholt von einem dieser Flows.
+Die Webseite liegt bei Cloudflare Pages und ist reines HTML, es gibt keinen eigenen Server. Die Daten stehen in drei SharePoint-Listen auf der Site «Reception» («Klassen», «Bestellungen» und das Firmenverzeichnis «Firmen»); die Verwaltung greift nach Anmeldung mit dem Microsoft-365-Konto direkt darauf zu, Gästeseite und Kursblatt über zwei Power-Automate-Flows, weil Kursteilnehmende und Kursleitung kein Konto haben. Die Tagesmenüs kommen von Lunchgate, abgeholt von einem dieser Flows.
 
 ---
 

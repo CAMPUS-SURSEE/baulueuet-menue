@@ -73,19 +73,129 @@ const Hilfe = (function () {
       + String(d.getMinutes()).padStart(2, "0");
   }
 
-  /* 8 Zeichen, ohne 0/O/1/I, damit der Code auf Papier eindeutig lesbar ist.
+  /* Ohne 0/O/1/I, damit ein Code auf Papier eindeutig lesbar ist.
      Gleiches Alphabet wie bisher in der Power App. */
-  function neuerCode() {
-    const zeichen = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    const werte = new Uint32Array(8);
+  const CODE_ZEICHEN = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+  function zufallsText(laenge) {
+    const werte = new Uint32Array(laenge);
     crypto.getRandomValues(werte);
-    let code = "";
-    for (let i = 0; i < 8; i++) code += zeichen[werte[i] % zeichen.length];
-    return code;
+    let text = "";
+    for (let i = 0; i < laenge; i++) text += CODE_ZEICHEN[werte[i] % CODE_ZEICHEN.length];
+    return text;
+  }
+
+  /* 8 Zeichen für einen einmaligen Termin. Ein solcher Code enthält nie einen
+     Bindestrich; daran erkennt `istFirmenCode()` den Unterschied. */
+  function neuerCode() {
+    return zufallsText(8);
   }
 
   function gastLink(code) {
     return KONFIG.gastBasis + "?klasse=" + encodeURIComponent(code || "");
+  }
+
+  /* ---------- Firmenverzeichnis und dauerhafter Firmen-QR-Code ----------
+     Eine Firma bekommt einmal einen Schlüssel («SORBA-K7M2») und damit einen
+     QR-Code, der sich aufkleben lässt und dauerhaft gilt. Der Termincode eines
+     Firmen-Termins entsteht daraus und aus dem Kurstag:
+
+         Schluessel + "-" + JJMMTT      z. B. «SORBA-K7M2-260914»
+
+     ACHTUNG: Diese Bildungsregel steht bewusst ein zweites Mal im Kopf von
+     `index.html`. Die Gästeseite lädt `graph.js` nicht, weil sie ohne
+     Anmeldung auskommt; sie muss aus `?firma=SORBA-K7M2` selbst den Code des
+     heutigen Tages bilden. Wird die Regel hier geändert, ist sie dort
+     mitzuziehen. Gleiches Muster wie beim Annahmeschluss. */
+
+  /* Firmenname -> Rumpf des Schlüssels: Grossbuchstaben, Umlaute aufgelöst,
+     alles übrige entfernt, höchstens 10 Zeichen. «Müller AG» -> «MUELLERAG». */
+  function firmenSlug(name) {
+    let text = String(name || "").toUpperCase();
+    text = text.replace(/Ä/g, "AE").replace(/Ö/g, "OE").replace(/Ü/g, "UE");
+    /* Das scharfe s macht toUpperCase() von selbst zu SS. Alles übrige mit
+       Akzent (É, È, Ê, Ç und so fort) wird zerlegt: aus É wird E und ein
+       eigenes Akzentzeichen. Der Akzent fällt gleich darauf mit allem
+       anderen weg, was kein A-Z und keine Ziffer ist. */
+    if (text.normalize) text = text.normalize("NFD");
+    text = text.replace(/[^A-Z0-9]/g, "");
+    return text ? text.slice(0, 10) : "FIRMA";
+  }
+
+  /* Schlüssel einer neuen Firma. Die vier Zufallszeichen verhindern, dass
+     zwei gleichnamige Firmen denselben QR-Code bekommen, und machen den
+     Schlüssel unratbar. */
+  function neuerFirmenSchluessel(name) {
+    return firmenSlug(name) + "-" + zufallsText(4);
+  }
+
+  /* Derselbe Schlüssel darf im Verzeichnis nur einmal vorkommen: zwei Firmen
+     mit demselben Schlüssel hätten denselben QR-Code und am selben Kurstag
+     denselben Termincode. Bei rund einer Million Möglichkeiten je
+     Namensrumpf ist das unwahrscheinlich, bei zwei gleichnamigen Firmen aber
+     nicht ausgeschlossen. Darum wird gewürfelt, bis der Schlüssel frei ist.
+     `bestehende` ist die Liste der bereits vergebenen Schlüssel; kommt nichts
+     Freies heraus, gibt es "" zurück, und der Aufruf bricht mit einer
+     Meldung ab, statt eine Doppelvergabe zu schreiben. */
+  function freierFirmenSchluessel(name, bestehende) {
+    const belegt = (bestehende || []).map(s => String(s || "").toUpperCase());
+    for (let versuch = 0; versuch < 20; versuch++) {
+      const schluessel = neuerFirmenSchluessel(name);
+      if (belegt.indexOf(schluessel.toUpperCase()) < 0) return schluessel;
+    }
+    return "";
+  }
+
+  /* Schlüssel + Kurstag -> Termincode. Das Datum kommt als «JJJJ-MM-TT» aus
+     dem Formular, also bereits in Ortszeit; es wird nicht über Date
+     umgerechnet, sonst verschöbe die Zeitzone den Tag. */
+  function firmenCode(schluessel, isoDatum) {
+    const s = String(schluessel || "").trim().toUpperCase();
+    const teile = String(isoDatum || "").slice(0, 10).split("-");
+    if (!s || teile.length !== 3 || !teile[0] || !teile[1] || !teile[2]) return "";
+    return s + "-" + teile[0].slice(2) + teile[1] + teile[2];
+  }
+
+  /* Ein Schlüssel aus einem Link. Erlaubt sind nur Grossbuchstaben, Ziffern
+     und Bindestrich; alles andere gilt als ungültiger Link. Kleingeschrieben
+     abgetippt wird er angehoben, damit ein von Hand eingegebener Link
+     trotzdem trägt. Dieselbe Prüfung steht noch einmal in `index.html`, das
+     graph.js nicht lädt. */
+  function firmaNormieren(wert) {
+    const s = String(wert || "").trim().toUpperCase();
+    return /^[A-Z0-9-]+$/.test(s) ? s : "";
+  }
+
+  /* Erkennungsmerkmal: ein Firmencode enthält einen Bindestrich, ein
+     Zufallscode nie. */
+  function istFirmenCode(code) {
+    return String(code || "").indexOf("-") >= 0;
+  }
+
+  /* Alles vor dem letzten Bindestrich ist der Schlüssel; der Teil danach ist
+     der Tag. Der Schlüssel selbst enthält einen Bindestrich, darum der
+     letzte und nicht der erste. */
+  function firmenSchluesselAusCode(code) {
+    const text = String(code || "");
+    const stelle = text.lastIndexOf("-");
+    return stelle > 0 ? text.slice(0, stelle) : "";
+  }
+
+  /* Der dauerhafte Gästelink einer Firma. Er zeigt nicht auf einen Termin,
+     sondern auf die Firma; die Gästeseite sucht damit den Termin des
+     heutigen Tages. */
+  function firmenLink(schluessel, sprache) {
+    return KONFIG.gastBasis + "?firma=" + encodeURIComponent(schluessel || "")
+      + spracheZusatz(sprache);
+  }
+
+  /* Das Firmenblatt zeigt denselben QR-Code zum Aufhängen. Der Firmenname
+     reist im Link mit, weil `kursblatt.html` ohne Anmeldung läuft und das
+     Verzeichnis deshalb nicht lesen kann. */
+  function firmenblattLink(schluessel, name, sprache) {
+    return "kursblatt.html?firma=" + encodeURIComponent(schluessel || "")
+      + "&name=" + encodeURIComponent(name || "")
+      + spracheZusatz(sprache);
   }
 
   /* ---------- Sprache ----------
@@ -144,6 +254,15 @@ const Hilfe = (function () {
     neuerCode: neuerCode,
     gastLink: gastLink,
     gastLinkMitSprache: gastLinkMitSprache,
+    firmenSlug: firmenSlug,
+    neuerFirmenSchluessel: neuerFirmenSchluessel,
+    freierFirmenSchluessel: freierFirmenSchluessel,
+    firmenCode: firmenCode,
+    firmaNormieren: firmaNormieren,
+    istFirmenCode: istFirmenCode,
+    firmenSchluesselAusCode: firmenSchluesselAusCode,
+    firmenLink: firmenLink,
+    firmenblattLink: firmenblattLink,
     spracheNormieren: spracheNormieren,
     spracheName: spracheName,
     spracheZusatz: spracheZusatz,
@@ -324,6 +443,117 @@ const Graph = (function () {
     return anfrage(LISTE_KLASSEN + "/items/" + id, { method: "DELETE" });
   }
 
+  /* ---------- Firmen ----------
+     Das Firmenverzeichnis ist die jüngste der drei Listen und kann auf einer
+     Site fehlen, die noch nach der alten Einrichtung läuft. Deshalb wird sie
+     nicht wie die beiden anderen fest über eine ID in `konfig.js`
+     angesprochen, sondern notfalls über ihren Anzeigenamen gesucht; fehlt sie
+     ganz, liefern die Lesefunktionen eine leere Liste statt eines Fehlers,
+     und die Verwaltung bietet an, sie anzulegen. */
+
+  const FELDER_FIRMA = "Title,Schluessel";
+
+  let firmenListenId = null;      // Zwischenspeicher für die gefundene ID
+  let firmenListeGesucht = false; // damit nicht bei jedem Aufruf gesucht wird
+
+  function firmenPfad(id) {
+    return "/sites/" + KONFIG.siteId + "/lists/" + id;
+  }
+
+  /* Liefert die Listen-ID oder null, wenn es die Liste auf der Site nicht
+     gibt. Vorrang hat die ID aus `konfig.js`.
+
+     Gesucht wird ohne `$filter`: auf Listen wäre er zwar erlaubt, aber die
+     Site trägt nur eine überschaubare Zahl Listen, und im Browser zu
+     vergleichen erspart eine weitere Eigenheit der Abfragesprache. Gelesen
+     werden alle Seiten, falls Graph die Aufzählung aufteilt. */
+  async function firmenListeErmitteln() {
+    if (KONFIG.listeFirmen) return KONFIG.listeFirmen;
+    if (firmenListeGesucht) return firmenListenId;
+    let url = "/sites/" + KONFIG.siteId + "/lists?$select=id,displayName&$top=200";
+    let gefunden = null;
+    while (url && !gefunden) {
+      const seite = await anfrage(url);
+      gefunden = ((seite && seite.value) || []).find(l => l.displayName === "Firmen");
+      url = (seite && seite["@odata.nextLink"]) || null;
+    }
+    firmenListenId = gefunden ? gefunden.id : null;
+    firmenListeGesucht = true;
+    return firmenListenId;
+  }
+
+  /* Legt die Liste «Firmen» mit ihrer einzigen eigenen Spalte an. `Title`
+     bringt SharePoint von selbst mit und trägt den Firmennamen. */
+  async function firmenListeAnlegen() {
+    const antwort = await anfrage("/sites/" + KONFIG.siteId + "/lists", {
+      method: "POST",
+      body: {
+        displayName: "Firmen",
+        list: { template: "genericList" },
+        columns: [{ name: "Schluessel", text: {} }]
+      }
+    });
+    firmenListenId = antwort ? antwort.id : null;
+    firmenListeGesucht = true;
+    return firmenListenId;
+  }
+
+  /* Wirft eine verständliche Meldung, wenn geschrieben werden soll, die Liste
+     aber fehlt. Beim Lesen wird das oben abgefangen. */
+  async function firmenListeNoetig() {
+    const id = await firmenListeErmitteln();
+    if (!id) {
+      throw new Error("Die Liste «Firmen» ist auf der SharePoint-Site noch nicht "
+        + "vorhanden. Sie lässt sich im Bereich «Firmen» anlegen.");
+    }
+    return id;
+  }
+
+  /* Alle Firmen, im Browser nach Namen sortiert. Ohne Liste eine leere
+     Auswahl: die Terminverwaltung soll auch dann benutzbar bleiben. */
+  async function firmenLaden() {
+    const id = await firmenListeErmitteln();
+    if (!id) return [];
+    const roh = await alleElemente(firmenPfad(id), FELDER_FIRMA);
+    /* Wer den Eintrag angelegt hat, führt SharePoint zwar mit, das
+       Verzeichnis zeigt es aber nirgends: eine Firma hat keine Vorgeschichte,
+       die an der Réception zählte. Darum nur Name und Schlüssel. */
+    return roh.map(f => ({
+      id:         f.id,
+      name:       f.Title || "",
+      schluessel: f.Schluessel || ""
+    })).sort((a, b) => (a.name || "").localeCompare(b.name || "", "de-CH"));
+  }
+
+  async function firmaAnlegen(daten) {
+    const id = await firmenListeNoetig();
+    const antwort = await anfrage(firmenPfad(id) + "/items", {
+      method: "POST",
+      body: { fields: { Title: daten.name || "", Schluessel: daten.schluessel || "" } }
+    });
+    return antwort ? antwort.id : null;
+  }
+
+  /* Nur der Name lässt sich ändern. Der Schlüssel bleibt, wie er ist: an ihm
+     hängt der gedruckte QR-Code, und die bereits angelegten Termine tragen
+     ihn in ihrem eigenen Code. */
+  async function firmaAendern(eintragId, daten) {
+    const id = await firmenListeNoetig();
+    const felder = {};
+    if (daten.name !== undefined) felder.Title = daten.name;
+    return anfrage(firmenPfad(id) + "/items/" + eintragId + "/fields", {
+      method: "PATCH",
+      body: felder
+    });
+  }
+
+  /* Löscht nur den Verzeichniseintrag. Bestehende Termine bleiben unberührt:
+     sie tragen Firmenname und Code als eigene Kopie. */
+  async function firmaLoeschen(eintragId) {
+    const id = await firmenListeNoetig();
+    return anfrage(firmenPfad(id) + "/items/" + eintragId, { method: "DELETE" });
+  }
+
   /* ---------- Bestellungen ---------- */
 
   /* Ohne Argument: alle Bestellungen. Mit klasseId: nur die einer Klasse.
@@ -493,6 +723,12 @@ const Graph = (function () {
     klasseAnlegen: klasseAnlegen,
     klasseAendern: klasseAendern,
     klasseLoeschen: klasseLoeschen,
+    firmenListeErmitteln: firmenListeErmitteln,
+    firmenListeAnlegen: firmenListeAnlegen,
+    firmenLaden: firmenLaden,
+    firmaAnlegen: firmaAnlegen,
+    firmaAendern: firmaAendern,
+    firmaLoeschen: firmaLoeschen,
     bestellungen: bestellungen,
     bestellungAnlegen: bestellungAnlegen,
     bestellungAendern: bestellungAendern,

@@ -396,8 +396,18 @@ const MOCK_DATEN = {
 };
 
 const params = new URLSearchParams(location.search);
-const code = (params.get("klasse") || "").trim();
 const mock = params.get("mock") === "1";
+
+/* Zwei Wege führen auf diese Seite:
+   - `?klasse=CODE` aus dem Kursblatt, der Code gilt für einen einzelnen Kurstag.
+   - `?firma=SCHLUESSEL` aus dem dauerhaften Firmen-QR-Code. Dort steht kein
+     Code, weil das Blatt für alle Kurstage der Firma gilt; der Code des
+     heutigen Tages wird hier gebildet (siehe firmenCode).
+   Steht beides im Link, gilt `klasse`. */
+const klassenCode = (params.get("klasse") || "").trim();
+const firmaSchluessel = firmaNormieren(params.get("firma"));
+const firmenModus = !klassenCode && !!firmaSchluessel;
+const code = klassenCode || (firmenModus ? firmenCode(firmaSchluessel) : "");
 
 const el = id => document.getElementById(id);
 
@@ -421,6 +431,8 @@ const TEXTE = {
     ungueltigTitel: "Ungültiger Link",
     ungueltigUnvollstaendig: "Dieser Link ist unvollständig. Bitte verwende den Link, den du erhalten hast.",
     ungueltigNichtGefunden: "Diese Klasse wurde nicht gefunden. Bitte prüfe den Link oder melde dich bei der Réception.",
+    keinKursTitel: "Kein Kurs gefunden",
+    keinKursText: "Für diese Firma wurde für den heutigen Tag kein Kurs gefunden. Bitte melde dich bei der Réception.",
     verbindungTitel: "Verbindungsfehler",
     verbindungText: "Das Menü konnte nicht geladen werden. Bitte prüfe deine Internetverbindung.",
     nochmals: "Nochmals versuchen",
@@ -461,6 +473,8 @@ const TEXTE = {
     ungueltigTitel: "Lien invalide",
     ungueltigUnvollstaendig: "Ce lien est incomplet. Veuillez utiliser le lien que vous avez reçu.",
     ungueltigNichtGefunden: "Cette classe est introuvable. Veuillez vérifier le lien ou vous adresser à la réception.",
+    keinKursTitel: "Aucun cours trouvé",
+    keinKursText: "Aucun cours n’a été trouvé pour cette entreprise pour la journée d’aujourd’hui. Veuillez vous adresser à la réception.",
     verbindungTitel: "Erreur de connexion",
     verbindungText: "Le menu n’a pas pu être chargé. Veuillez vérifier votre connexion Internet.",
     nochmals: "Réessayer",
@@ -501,6 +515,8 @@ const TEXTE = {
     ungueltigTitel: "Invalid link",
     ungueltigUnvollstaendig: "This link is incomplete. Please use the link you received.",
     ungueltigNichtGefunden: "This class could not be found. Please check the link or contact the reception.",
+    keinKursTitel: "No course found",
+    keinKursText: "No course was found for this company for today. Please contact the reception.",
     verbindungTitel: "Connection error",
     verbindungText: "The menu could not be loaded. Please check your internet connection.",
     nochmals: "Try again",
@@ -603,7 +619,9 @@ function spracheWechseln(neu) {
   spracheAnwenden(neu);
   try {
     /* Der Zusatz ist ein blosser Schlüssel (`&fr`), kein `fr=`; deshalb
-       wird die Adresse von Hand zusammengesetzt statt über searchParams. */
+       wird die Adresse von Hand zusammengesetzt statt über searchParams.
+       Gelöscht wird nur die Sprache; `klasse` und `firma` bleiben stehen,
+       sonst verlöre ein Sprachwechsel den Zugang zum Termin. */
     const rest = new URLSearchParams(location.search);
     ["sprache", "fr", "en"].forEach(k => rest.delete(k));
     let suche = rest.toString();
@@ -667,6 +685,32 @@ function heuteIso() {
 }
 
 
+// ===== Firmen-QR-Code ====================================================
+/* Der Firmen-QR-Code hängt an keinem einzelnen Termin, sondern an der Firma;
+   dasselbe Blatt gilt für alle ihre Kurstage. Im Link steht deshalb nur der
+   Firmenschlüssel, zum Beispiel «SORBA-K7M2». */
+
+/* Erlaubt sind nur Grossbuchstaben, Ziffern und Bindestrich. Ein Schlüssel
+   mit anderen Zeichen gilt als ungültiger Link; kleingeschrieben eingetippt
+   wird er angehoben, damit ein abgetippter Link trotzdem trägt. */
+function firmaNormieren(wert) {
+  const s = String(wert || "").trim().toUpperCase();
+  return /^[A-Z0-9-]+$/.test(s) ? s : "";
+}
+
+/* Klassencode eines Firmen-Termins: Schlüssel + «-» + JJMMTT des heutigen
+   Tages in Ortszeit, also «SORBA-K7M2-260914». Dieselbe Regel steht in
+   graph.js für die Verwaltung, die den Termin unter diesem Code anlegt. Sie
+   ist bewusst doppelt, weil die Gästeseite graph.js nicht lädt — wie beim
+   ANNAHMESCHLUSS. Wer sie hier ändert, muss sie dort mitziehen. */
+function firmenCode(schluessel, iso) {
+  const s = String(schluessel || "").trim().toUpperCase();
+  const t = (iso || heuteIso()).split("-");
+  if (!s || t.length !== 3) return "";
+  return s + "-" + t[0].slice(2) + t[1] + t[2];
+}
+
+
 // ===== Annahmeschluss ====================================================
 /* Diese Prüfung läuft im Browser. Sie hält den normalen Weg sauber, ist aber
    keine Sperre im Sinne der Sicherheit: Flow C nimmt eine Bestellung
@@ -727,6 +771,14 @@ function zeigeFehler(titelSchluessel, textSchluessel, retry) {
   zeige("fehler");
 }
 
+/* Flow B kennt den Code nicht. Über den Klassenlink heisst das: falscher
+   Link. Über den Firmen-QR-Code heisst es etwas anderes — der Link stimmt,
+   für heute ist nur kein Kurs dieser Firma angelegt. */
+function zeigeNichtGefunden() {
+  if (firmenModus) zeigeFehler("keinKursTitel", "keinKursText", false);
+  else zeigeFehler("ungueltigTitel", "ungueltigNichtGefunden", false);
+}
+
 function mitUmbruechen(elem, text) {
   elem.textContent = "";
   String(text || "").split("\n").forEach((zeile, i) => {
@@ -738,6 +790,9 @@ function mitUmbruechen(elem, text) {
 let klasse = null;
 
 // ===== Gespeicherte Bestellung (localStorage) ============================
+/* Der Code steht im Schlüssel. Über den Firmen-QR-Code trägt er das Datum
+   des Kurstages, sodass jeder Tag seinen eigenen Eintrag bekommt und die
+   Bestellung von gestern nicht die von heute verdeckt. */
 const SPEICHER_SCHLUESSEL = "bauluut-bestellung-" + (code || "mock");
 
 function ladeGespeichert() {
@@ -811,20 +866,25 @@ async function ladeKlasse() {
     let daten;
     if (mock) {
       await new Promise(r => setTimeout(r, 400));
+      // Flow B fände nichts: über den Firmen-QR-Code heisst das «kein Kurs heute».
+      if (params.get("keinkurs") === "1") {
+        zeigeNichtGefunden();
+        return;
+      }
       daten = MOCK_DATEN;
       daten.datum = params.get("falschertag") === "1" ? "2099-01-01" : heuteIso();
     } else {
       // Kein Custom-Header → «simple request», kein CORS-Preflight
       const antwort = await fetch(FLOW_KLASSE_URL + "&code=" + encodeURIComponent(code));
       if (antwort.status === 404) {
-        zeigeFehler("ungueltigTitel", "ungueltigNichtGefunden", false);
+        zeigeNichtGefunden();
         return;
       }
       if (!antwort.ok) throw new Error("HTTP " + antwort.status);
       daten = await antwort.json();
     }
     if (!daten.ok) {
-      zeigeFehler("ungueltigTitel", "ungueltigNichtGefunden", false);
+      zeigeNichtGefunden();
       return;
     }
     klasse = daten;

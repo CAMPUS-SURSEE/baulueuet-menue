@@ -222,6 +222,22 @@ const params = new URLSearchParams(location.search);
 const code = (params.get("klasse") || "").trim();
 const mock = params.get("mock") === "1";
 
+/* ---------- Firmenblatt ----------
+   Neben dem Kursblatt für einen einzelnen Termin (`?klasse=CODE`) gibt es
+   das Firmenblatt (`?firma=SCHLUESSEL&name=FIRMENNAME`). Sein QR-Code hängt
+   an keinem Termin, sondern an der Firma, und gilt damit für alle ihre
+   Kurstage. Der Firmenname reist im Link mit, weil dieses Blatt ohne
+   Anmeldung kein Verzeichnis lesen kann; fehlt er, steht der Schlüssel da.
+   Steht beides im Link, gilt `klasse`. */
+
+/* Geprüft wird der Schlüssel mit `Hilfe.firmaNormieren()` aus graph.js: das
+   Kursblatt lädt die Datei ohnehin, weil es für die Réception auch den
+   angemeldeten Weg über Graph kennt. Die Gästeseite hat dafür eine eigene
+   Fassung, sie lädt graph.js nicht. */
+const firmaSchluessel = Hilfe.firmaNormieren(params.get("firma"));
+const firmenModus = !code && !!firmaSchluessel;
+const firmaName = (params.get("name") || "").trim();
+
 const el = id => document.getElementById(id);
 
 
@@ -242,6 +258,9 @@ const TEXTE = {
     frist: z => "Bitte wählen Sie bis " + z + " Uhr. Danach sind Änderungen nur noch über die Réception möglich.",
     drucken: "Kursblatt drucken",
     dokument: "Menüwahl",
+    firmaAnleitung: "Dieses Blatt gilt für alle Kurstage Ihrer Firma. Scannen Sie den QR-Code jeweils am Kurstag, um Ihr Mittagsmenü zu wählen.",
+    firmaDrucken: "Firmenblatt drucken",
+    firmaDokument: "Firmenblatt",
     ungueltigTitel: "Ungültiger Link",
     ungueltigUnvollstaendig: "Dieser Link ist unvollständig. Bitte rufen Sie die Seite mit dem Klassencode auf, zum Beispiel kursblatt.html?klasse=ABC123.",
     ungueltigNichtGefunden: "Diese Klasse wurde nicht gefunden. Bitte prüfen Sie den Klassencode.",
@@ -263,6 +282,9 @@ const TEXTE = {
     frist: z => "Veuillez faire votre choix avant " + z + ". Passé ce délai, les modifications ne sont possibles que par l’intermédiaire de la réception.",
     drucken: "Imprimer la fiche de cours",
     dokument: "Choix du menu",
+    firmaAnleitung: "Cette fiche est valable pour tous les jours de cours de votre entreprise. Scannez le code QR le jour du cours pour choisir votre menu de midi.",
+    firmaDrucken: "Imprimer la fiche d’entreprise",
+    firmaDokument: "Fiche d’entreprise",
     ungueltigTitel: "Lien invalide",
     ungueltigUnvollstaendig: "Ce lien est incomplet. Veuillez ouvrir la page avec le code de la classe, par exemple kursblatt.html?klasse=ABC123.",
     ungueltigNichtGefunden: "Cette classe est introuvable. Veuillez vérifier le code de la classe.",
@@ -284,6 +306,9 @@ const TEXTE = {
     frist: z => "Please make your selection by " + z + ". After that, changes are only possible via the reception.",
     drucken: "Print course sheet",
     dokument: "Menu selection",
+    firmaAnleitung: "This sheet applies to all course days of your company. Scan the QR code on the course day to choose your lunch menu.",
+    firmaDrucken: "Print company sheet",
+    firmaDokument: "Company sheet",
     ungueltigTitel: "Invalid link",
     ungueltigUnvollstaendig: "This link is incomplete. Please open the page with the class code, for example kursblatt.html?klasse=ABC123.",
     ungueltigNichtGefunden: "This class could not be found. Please check the class code.",
@@ -318,8 +343,8 @@ function spracheAnwenden(neu) {
   document.documentElement.lang = sprache === "de" ? "de-CH" : sprache === "fr" ? "fr-CH" : "en";
   el("seitentitel").textContent = T.titel;
   el("lade-text").textContent = T.laden;
-  el("anleitung-text").textContent = T.anleitung;
-  el("btn-drucken").textContent = T.drucken;
+  el("anleitung-text").textContent = firmenModus ? T.firmaAnleitung : T.anleitung;
+  el("btn-drucken").textContent = firmenModus ? T.firmaDrucken : T.drucken;
   el("btn-retry").textContent = T.nochmals;
   el("btn-anmelden").textContent = T.anmelden;
 }
@@ -348,6 +373,47 @@ function zeigeFehler(titel, text, retry, anmelden) {
   el("btn-retry").style.display = retry ? "" : "none";
   el("btn-anmelden").style.display = anmelden ? "" : "none";
   zeige("fehler");
+}
+
+/* QR-Code und Linktext unter dem Code setzen. Beide tragen dieselbe Sprache
+   wie das Blatt, damit die Teilnehmenden nach dem Scannen in dieser Sprache
+   auf der Gästeseite landen. Dort können sie sie noch umstellen. */
+function qrZeichnen(ziel) {
+  if (typeof qrcode === "undefined") {
+    el("qr-rahmen").textContent = T.qrFehlt;
+  } else {
+    const qr = qrcode(0, "M");      // 0 = kleinste passende Version automatisch
+    qr.addData(ziel);
+    qr.make();
+    // Die Ruhezone von vier Modulen, welche die Norm verlangt, wird
+    // mitgezeichnet. Ohne sie verweigern Scanner den Code oft, weil unter
+    // dem Symbol gleich der Linktext folgt. Achtung: margin zählt in
+    // SVG-Einheiten, nicht in Modulen; bei cellSize 2 sind vier Module
+    // also 8. Das Symbol selbst misst dadurch im Druck rund 63 mm statt
+    // der vollen 78 mm des Rahmens.
+    el("qr-rahmen").innerHTML = qr.createSvgTag({ scalable: true, cellSize: 2, margin: 8 });
+  }
+  const link = el("qr-link");
+  link.textContent = ziel;
+  link.href = ziel;
+}
+
+/* Das Firmenblatt braucht kein Netz und keinen Flow: Es gibt keinen
+   einzelnen Termin, auf den es sich bezöge. Anstelle von Kurstitel, Datum
+   und Essenszeit steht der Firmenname, und der QR-Code führt auf den
+   dauerhaften Gästelink der Firma. Welcher Kurstag gemeint ist, entscheidet
+   erst der Tag, an dem gescannt wird. */
+function zeigeFirmenblatt() {
+  // Nur über textContent gesetzt: der Name kommt aus dem Link.
+  el("kopf-klasse").textContent = firmaName || firmaSchluessel;
+  ["kopf-firma", "kopf-datum", "kopf-zeit"].forEach(id => { el(id).style.display = "none"; });
+
+  qrZeichnen(KONFIG.gastBasis + "?firma=" + encodeURIComponent(firmaSchluessel)
+             + Hilfe.spracheZusatz(sprache));
+
+  el("frist-text").textContent = T.frist(Hilfe.annahmeschlussText());
+  document.title = T.firmaDokument + " " + (firmaName || firmaSchluessel);
+  zeige("blatt");
 }
 
 /* Aus einem Klassensatz die Anzeigewerte des Blattes machen. Beide Wege,
@@ -411,27 +477,7 @@ async function ladeKlasse(mitKonto) {
     el("kopf-datum").textContent = datumInSprache(daten.datum) || daten.datum || "";
     el("kopf-zeit").textContent = daten.essenszeit ? T.essenszeit(daten.essenszeit) : "";
 
-    /* Der QR-Code und der Link darunter tragen dieselbe Sprache wie das
-       Blatt, damit die Teilnehmenden nach dem Scannen in dieser Sprache auf
-       der Gästeseite landen. Dort können sie sie noch umstellen. */
-    const ziel = Hilfe.gastLinkMitSprache(code || "MOCK", sprache);
-    if (typeof qrcode === "undefined") {
-      el("qr-rahmen").textContent = T.qrFehlt;
-    } else {
-      const qr = qrcode(0, "M");      // 0 = kleinste passende Version automatisch
-      qr.addData(ziel);
-      qr.make();
-      // Die Ruhezone von vier Modulen, welche die Norm verlangt, wird
-      // mitgezeichnet. Ohne sie verweigern Scanner den Code oft, weil unter
-      // dem Symbol gleich der Linktext folgt. Achtung: margin zählt in
-      // SVG-Einheiten, nicht in Modulen; bei cellSize 2 sind vier Module
-      // also 8. Das Symbol selbst misst dadurch im Druck rund 63 mm statt
-      // der vollen 78 mm des Rahmens.
-      el("qr-rahmen").innerHTML = qr.createSvgTag({ scalable: true, cellSize: 2, margin: 8 });
-    }
-    const link = el("qr-link");
-    link.textContent = ziel;
-    link.href = ziel;
+    qrZeichnen(Hilfe.gastLinkMitSprache(code || "MOCK", sprache));
 
     el("frist-text").textContent = T.frist(Hilfe.annahmeschlussText());
 
@@ -449,7 +495,8 @@ el("btn-anmelden").addEventListener("click", () => ladeKlasse(true));
 el("btn-drucken").addEventListener("click", () => window.print());
 
 spracheAnwenden(sprache);
-ladeKlasse(false);
+if (firmenModus) zeigeFirmenblatt();
+else ladeKlasse(false);
 </script>
 </body>
 </html>

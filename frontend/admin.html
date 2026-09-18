@@ -202,6 +202,82 @@
     }
   }
 
+  /* ---------- Reiter ----------
+     Termine und Firmen liegen im selben Arbeitsbereich übereinander; der
+     Reiter darüber schaltet um. Bewusst nur zwei flache Schaltflächen mit
+     einem Strich darunter, damit die Seite ihre ruhige Kopfzeile behält. */
+  .reiter {
+    display: flex; gap: 24px;
+    border-bottom: 1px solid var(--linie);
+    margin-top: 22px;
+  }
+  button.reiterknopf {
+    border: none; background: none; padding: 0 0 10px;
+    margin-bottom: -1px;
+    font: inherit;
+    font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--grau);
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+  }
+  button.reiterknopf:hover { color: var(--schwarz); }
+  button.reiterknopf.aktiv { color: var(--schwarz); border-bottom-color: var(--schwarz); }
+  button.reiterknopf:focus-visible { outline: 2px solid var(--schwarz); outline-offset: 3px; }
+
+  /* Kleine Marke «Firmen-QR» an Terminen mit dauerhaftem Firmen-QR-Code.
+     Gleiche Form wie die Marke «heute» über einem Tagesblock, nur in
+     Schwarz, damit das Orange dem heutigen Tag vorbehalten bleibt. */
+  .merker-firma {
+    display: inline-block;
+    font-size: 0.62rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--schwarz);
+    border: 1px solid var(--linie);
+    border-radius: 8px;
+    padding: 1px 6px;
+    white-space: nowrap;
+    vertical-align: 1px;
+  }
+
+  /* ---------- Firmenverzeichnis ---------- */
+
+  /* Eine Karte je Firma, im selben Rahmen wie eine Terminzeile. Anders als
+     dort ist die Karte kein Knopf, weil sie selbst mehrere Knöpfe trägt. */
+  .firmenkarte {
+    border: 1px solid var(--linie);
+    background: #fff;
+    padding: 16px;
+    margin-top: -1px;
+  }
+  .firmenkarte:first-child { margin-top: 0; border-radius: 10px 10px 0 0; }
+  .firmenkarte:last-child { border-radius: 0 0 10px 10px; }
+  .firmenkarte:only-child { border-radius: 10px; }
+  .firmenkarte .f-kopf {
+    display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px;
+  }
+  .firmenkarte .f-name { font-size: 1rem; font-weight: 600; min-width: 0; }
+  .firmenkarte .f-schluessel {
+    font-size: 0.8rem; color: var(--grau); letter-spacing: 0.06em;
+  }
+  .firmenkarte .f-termine { font-size: 0.8rem; color: var(--grau); margin-left: auto; }
+  .firmenkarte .linkzeile { margin-top: 12px; }
+  .firmenkarte .f-knoepfe {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+    margin-top: 14px;
+  }
+
+  /* Hinweiskarte, solange die Liste «Firmen» auf der Site fehlt. */
+  .hinweiskarte {
+    border: 1px solid var(--linie);
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+  }
+  .hinweiskarte h3 { font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
+  .hinweiskarte p { font-size: 0.9rem; color: var(--grau); }
+  .hinweiskarte button { margin-top: 18px; }
+
   /* ---------- Terminliste ---------- */
 
   /* «Neuer Termin» steht als einzige Schaltfläche über allem anderen: es ist
@@ -650,6 +726,16 @@
   <div id="ansicht-app" style="display:none">
     <div id="fehler-global" class="fehlerfeld"></div>
 
+    <!-- Zwei Reiter über dem ganzen Arbeitsbereich: die gewohnte
+         Terminverwaltung und daneben das Firmenverzeichnis. -->
+    <div class="reiter" role="tablist" aria-label="Bereiche">
+      <button type="button" class="reiterknopf aktiv" id="reiter-termine"
+              role="tab" aria-selected="true" aria-controls="bereich-termine">Termine</button>
+      <button type="button" class="reiterknopf" id="reiter-firmen"
+              role="tab" aria-selected="false" aria-controls="bereich-firmen">Firmen</button>
+    </div>
+
+    <div id="bereich-termine" role="tabpanel" aria-labelledby="reiter-termine">
     <div class="raster">
 
       <!-- linke Spalte: Terminliste -->
@@ -697,6 +783,7 @@
           <div class="detail-kopf">
             <div class="titelzeile">
               <div class="d-titel" id="d-titel"></div>
+              <span class="merker-firma" id="d-firmenmerker" style="display:none">Firmen-QR</span>
               <button type="button" class="bearbeiten-link" id="btn-bearbeiten" aria-label="Termin bearbeiten">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3z"/><path d="M13.5 6.5l3 3"/></svg>
                 Bearbeiten
@@ -714,6 +801,16 @@
             <span class="gastlink" id="d-link"></span>
             <button type="button" class="knopf" id="btn-kopieren">Link kopieren</button>
             <span class="kopiert" id="kopiert-text"></span>
+          </div>
+
+          <!-- Nur bei einem Firmen-Termin: der dauerhafte Link der Firma. Er
+               zeigt nicht auf diesen Termin, sondern auf die Firma, und führt
+               die Teilnehmenden an jedem Kurstag zum Termin des Tages. -->
+          <div class="linkzeile" id="d-firmenzeile" style="display:none">
+            <span class="linkname">Firma</span>
+            <span class="gastlink" id="d-firmenlink"></span>
+            <button type="button" class="knopf" id="btn-firmenlink-kopieren">Firmen-Link kopieren</button>
+            <span class="kopiert" id="firmenlink-kopiert"></span>
           </div>
 
           <div class="zaehler" id="d-zaehler"></div>
@@ -753,8 +850,14 @@
             <label class="feldlabel" for="f-titel">Titel *</label>
             <input type="text" id="f-titel" maxlength="120" autocomplete="off">
 
-            <label class="feldlabel" for="f-firma">Firma</label>
-            <input type="text" id="f-firma" maxlength="120" autocomplete="off">
+            <!-- Firma: entweder eine Firma aus dem Verzeichnis, dann bekommt
+                 der Termin den dauerhaften Firmen-QR-Code, oder freier Text,
+                 dann wie bisher ein einmaliger Zufallscode. -->
+            <label class="feldlabel" for="f-firma-wahl">Firma</label>
+            <select id="f-firma-wahl"></select>
+            <input type="text" id="f-firma" maxlength="120" autocomplete="off"
+                   style="margin-top:6px" aria-label="Firmenname">
+            <div class="feldhinweis" id="f-firma-vorschau"></div>
 
             <label class="feldlabel" for="f-datum">Datum</label>
             <input type="date" id="f-datum">
@@ -820,6 +923,60 @@
       </section>
 
     </div>
+    </div>
+
+    <!-- Firmenverzeichnis: Firmen mit dauerhaftem QR-Code. Der Code einer
+         Firma bleibt derselbe, der Termincode entsteht daraus und aus dem
+         Kurstag. -->
+    <div id="bereich-firmen" role="tabpanel" aria-labelledby="reiter-firmen" style="display:none">
+      <div id="firmen-fehler" class="fehlerfeld"></div>
+
+      <!-- Solange die Liste «Firmen» auf der SharePoint-Site fehlt. -->
+      <div class="hinweiskarte" id="firmen-fehlt" style="display:none">
+        <h3>Die Liste «Firmen» ist auf der SharePoint-Site noch nicht vorhanden</h3>
+        <p>
+          Das Firmenverzeichnis braucht auf der Site «Reception» eine Liste
+          «Firmen» mit der Textspalte «Schluessel». Die Terminverwaltung
+          funktioniert auch ohne sie; im Terminformular steht dann nur
+          «Firma frei eingeben» zur Verfügung.
+        </p>
+        <button type="button" class="knopf" id="btn-firmenliste-anlegen">Liste jetzt anlegen</button>
+      </div>
+
+      <div id="firmen-inhalt" style="display:none">
+        <div class="raster">
+
+          <!-- linke Spalte: neue Firma erfassen, dasselbe Formular dient dem
+               Umbenennen einer bestehenden Firma. -->
+          <section aria-labelledby="legende-firma-neu">
+            <div class="legende" id="legende-firma-neu">Neue Firma</div>
+            <form id="firma-formular" novalidate>
+              <div id="firma-fehler" class="fehlerfeld"></div>
+              <div class="formularfeld">
+                <label class="feldlabel" for="fa-name">Firmenname *</label>
+                <input type="text" id="fa-name" maxlength="120" autocomplete="off">
+                <div class="feldhinweis" id="fa-hinweis">
+                  Der Schlüssel entsteht beim Speichern aus dem Namen und vier
+                  Zufallszeichen. Er lässt sich später nicht mehr ändern, weil
+                  der gedruckte QR-Code daran hängt.
+                </div>
+              </div>
+              <div class="formularknoepfe">
+                <button type="submit" class="knopf voll" id="btn-firma-speichern">Firma speichern</button>
+                <button type="button" class="textknopf" id="btn-firma-abbrechen" style="display:none">Abbrechen</button>
+              </div>
+            </form>
+          </section>
+
+          <!-- rechte Spalte: das Verzeichnis -->
+          <section aria-labelledby="legende-firmen-liste">
+            <div class="legende" id="legende-firmen-liste">Verzeichnis</div>
+            <div id="firmen-liste"></div>
+          </section>
+
+        </div>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -871,6 +1028,13 @@ function mockBauen() {
       + String(d.getDate()).padStart(2, "0");
   }
 
+  /* Kurstag als JJMMTT, für die Codes der Firmen-Termine in der Attrappe.
+     Dieselbe Bildungsregel wie Hilfe.firmenCode(). */
+  function tagKurz(n) {
+    const iso = tagVerschoben(n).split("-");
+    return iso[0].slice(2) + iso[1] + iso[2];
+  }
+
   let naechsteId = 100;
 
   /* Zeitstempel um n Tage in der Vergangenheit, für die Spur «erstellt am». */
@@ -908,8 +1072,31 @@ function mockBauen() {
       datum: tagVerschoben(-9), essenszeit: "12:00", code: "R6ZDF4YT",
       status: "geschlossen", erwartet: 14,
       erstellt: stempel(20, 10), erstelltVon: "Martin Kaufmann",
-      geaendert: stempel(9, 13), geaendertVon: "Vreni Bühler" }
+      geaendert: stempel(9, 13), geaendertVon: "Vreni Bühler" },
+    /* Zwei Termine mit dauerhaftem Firmen-QR-Code, damit sich im Mock-Modus
+       anschauen lässt, wie derselbe aufgeklebte Code an zwei Kurstagen zu
+       zwei Terminen führt. */
+    { id: "6", titel: "SORBA Einführungstag", firma: "SORBA",
+      datum: tagVerschoben(0), essenszeit: "12:00", code: "SORBA-K7M2-" + tagKurz(0),
+      status: "offen", erwartet: 10,
+      erstellt: stempel(5, 9), erstelltVon: "Vreni Bühler",
+      geaendert: stempel(5, 9), geaendertVon: "Vreni Bühler" },
+    { id: "7", titel: "SORBA Vertiefungstag", firma: "SORBA",
+      datum: tagVerschoben(1), essenszeit: "12:00", code: "SORBA-K7M2-" + tagKurz(1),
+      status: "offen", erwartet: 10,
+      erstellt: stempel(5, 9), erstelltVon: "Vreni Bühler",
+      geaendert: stempel(5, 9), geaendertVon: "Vreni Bühler" }
   ];
+
+  /* Firmenverzeichnis der Attrappe. `firmenListeDa` bildet den Fall nach,
+     dass die SharePoint-Liste fehlt; wer ihn sehen will, setzt den Wert hier
+     auf false. */
+  let firmenListeDa = true;
+  const firmen = [
+    { id: "f1", name: "SORBA", schluessel: "SORBA-K7M2" },
+    { id: "f2", name: "Müller AG", schluessel: "MUELLERAG-X4PQ" }
+  ];
+  let naechsteFirmenId = 100;
 
   const bestellungen = [
     { id: "b1", klasseId: "3", vorname: "Anna",   nachname: "Berger",
@@ -1004,7 +1191,9 @@ function mockBauen() {
       await warten();
       const k = klassen.find(x => String(x.id) === String(id));
       if (!k) throw new Error("Klasse nicht gefunden (Mock).");
-      ["titel", "firma", "datum", "essenszeit", "status"].forEach(f => {
+      /* «code» steht hier mit, obwohl er sonst beim Ändern nie mitkommt: bei
+         einem Firmen-Termin wird er mit dem Datum neu gebildet. */
+      ["titel", "firma", "datum", "essenszeit", "status", "code"].forEach(f => {
         if (daten[f] !== undefined) k[f] = daten[f];
       });
       if (daten.erwartet !== undefined) k.erwartet = Number(daten.erwartet) || 0;
@@ -1017,6 +1206,44 @@ function mockBauen() {
       const i = klassen.findIndex(x => String(x.id) === String(id));
       if (i < 0) throw new Error("Klasse nicht gefunden (Mock).");
       klassen.splice(i, 1);
+      return null;
+    },
+    /* Firmenverzeichnis der Attrappe. Dieselben Funktionen wie im Modul
+       Graph, damit ?mock=1 das ganze Verhalten ohne Anmeldung zeigt. */
+    firmenListeErmitteln: async function () {
+      await warten();
+      return firmenListeDa ? "mock-firmen" : null;
+    },
+    firmenListeAnlegen: async function () {
+      await warten();
+      firmenListeDa = true;
+      return "mock-firmen";
+    },
+    firmenLaden: async function () {
+      await warten();
+      if (!firmenListeDa) return [];
+      return kopie(firmen)
+        .sort((a, b) => (a.name || "").localeCompare(b.name || "", "de-CH"));
+    },
+    firmaAnlegen: async function (daten) {
+      await warten();
+      if (!firmenListeDa) throw new Error("Die Liste «Firmen» ist nicht vorhanden (Mock).");
+      const id = "f" + (naechsteFirmenId++);
+      firmen.push({ id: id, name: daten.name || "", schluessel: daten.schluessel || "" });
+      return id;
+    },
+    firmaAendern: async function (id, daten) {
+      await warten();
+      const f = firmen.find(x => String(x.id) === String(id));
+      if (!f) throw new Error("Firma nicht gefunden (Mock).");
+      if (daten.name !== undefined) f.name = daten.name;
+      return f;
+    },
+    firmaLoeschen: async function (id) {
+      await warten();
+      const i = firmen.findIndex(x => String(x.id) === String(id));
+      if (i < 0) throw new Error("Firma nicht gefunden (Mock).");
+      firmen.splice(i, 1);
       return null;
     },
     bestellungen: async function (klasseId) {
@@ -1102,6 +1329,16 @@ let bearbeiteId = null;    // id der Klasse beim Bearbeiten, null beim Neuanlege
    nach dem Annahmeschluss; die Frist gilt nur auf der Gästeseite. */
 let bearbeiteBestellungId = null;
 let kopiertTimer = null;
+/* Firmenverzeichnis. `firmenListeDa` bleibt false, solange die Liste
+   «Firmen» auf der SharePoint-Site fehlt; die Terminverwaltung läuft dann
+   weiter, im Terminformular steht nur «Firma frei eingeben». */
+let alleFirmen = [];
+let firmenListeDa = false;
+/* Wahr, wenn das Laden des Verzeichnisses an einem Fehler scheiterte. Dann
+   ist offen, ob es die Liste gibt; die Hinweiskarte zum Anlegen bleibt
+   deshalb weg und es steht nur die Fehlermeldung da. */
+let firmenFehlgeschlagen = false;
+let bearbeiteFirmaId = null;   // id beim Umbenennen, null beim Anlegen
 
 
 /* ---------- kleine Helfer ---------- */
@@ -1242,8 +1479,15 @@ function zeileZeichnen(k) {
   const links = neu("div", "links");
   links.appendChild(neu("div", "z-titel", k.titel || "Ohne Titel"));
   if (k.firma) links.appendChild(neu("div", "z-firma", k.firma));
-  /* Der Kurstag steht über der Gruppe, in der Zeile bleibt nur die Uhrzeit. */
-  links.appendChild(neu("div", "z-zeit", k.essenszeit ? k.essenszeit + " Uhr" : "ohne Zeit"));
+  /* Der Kurstag steht über der Gruppe, in der Zeile bleibt nur die Uhrzeit.
+     Daneben die Marke, wenn der Termin am dauerhaften QR-Code einer Firma
+     hängt. */
+  const zeitzeile = neu("div", "z-zeit", k.essenszeit ? k.essenszeit + " Uhr" : "ohne Zeit");
+  if (Hilfe.istFirmenCode(k.code)) {
+    zeitzeile.appendChild(document.createTextNode(" "));
+    zeitzeile.appendChild(neu("span", "merker-firma", "Firmen-QR"));
+  }
+  links.appendChild(zeitzeile);
   zeile.appendChild(links);
 
   const rechts = neu("div", "rechts");
@@ -1286,6 +1530,9 @@ async function listeLaden(behalteAuswahl) {
       detailLeerZeigen();
     }
     listeZeichnen();
+    /* Die Firmenkarten zählen die kommenden Termine je Firma; sie stehen
+       erst mit der neuen Terminliste fest. */
+    firmenZeichnen();
   } catch (e) {
     fehlerZeigen(e);
   }
@@ -1366,6 +1613,20 @@ function ansichtKopfZeichnen() {
      QR-Code auf dem Kursblatt trägt die dort gewählte Sprache mit. */
   el("d-link").textContent = Hilfe.gastLink(k.code);
   el("kopiert-text").textContent = "";
+
+  /* Bei einem Firmen-Termin kommt der dauerhafte Link der Firma dazu. Er
+     steckt im aufgeklebten QR-Code und führt an jedem Kurstag zum Termin
+     des Tages. Der Schlüssel kommt aus dem Code des Termins, nicht aus dem
+     Verzeichnis: der Termin steht für sich, auch wenn die Firma dort
+     inzwischen fehlt. */
+  const firmenTermin = Hilfe.istFirmenCode(k.code);
+  el("d-firmenmerker").style.display = firmenTermin ? "" : "none";
+  el("d-firmenzeile").style.display = firmenTermin ? "" : "none";
+  el("firmenlink-kopiert").textContent = "";
+  if (firmenTermin) {
+    el("d-firmenlink").textContent =
+      Hilfe.firmenLink(Hilfe.firmenSchluesselAusCode(k.code));
+  }
 
   /* Die Sprachwahl fürs Kursblatt hängt nicht am Termin und beginnt bei
      jedem Termin wieder bei Deutsch. */
@@ -1491,6 +1752,81 @@ function bestellungenZeichnen(liste) {
 
 /* ---------- Formular ---------- */
 
+/* Das Klappfeld «Firma» entscheidet über die Art des Codes: eine Firma aus
+   dem Verzeichnis gibt dem Termin den dauerhaften Firmen-QR-Code, freier
+   Text wie bisher einen einmaligen Zufallscode.
+
+   Beim Bearbeiten wird der Schlüssel aus dem bestehenden Code gelesen, nicht
+   aus dem Verzeichnis: ein einmal angelegter Termin steht für sich. Fehlt
+   die Firma im Verzeichnis (gelöscht oder Liste nicht vorhanden), kommt ein
+   eigener Eintrag mit dem Schlüssel dazu, damit die Zuordnung sichtbar
+   bleibt und beim Speichern erhalten bleibt. */
+function firmenWahlFuellen(klasse) {
+  const feld = el("f-firma-wahl");
+  leeren(feld);
+
+  const frei = neu("option", null, "— Firma frei eingeben —");
+  frei.value = "";
+  feld.appendChild(frei);
+
+  alleFirmen.forEach(f => {
+    const o = neu("option", null, f.name + " (" + f.schluessel + ")");
+    o.value = f.schluessel;
+    feld.appendChild(o);
+  });
+
+  let wahl = "";
+  const code = klasse ? (klasse.code || "") : "";
+  if (code && Hilfe.istFirmenCode(code)) {
+    wahl = Hilfe.firmenSchluesselAusCode(code);
+    if (!alleFirmen.some(f => f.schluessel === wahl)) {
+      const o = neu("option", null, "Firmen-QR-Code (" + wahl + ")");
+      o.value = wahl;
+      feld.appendChild(o);
+    }
+  }
+  feld.value = wahl;
+  /* Beim Öffnen eines bestehenden Termins bleibt sein Firmenname stehen,
+     auch wenn die Firma im Verzeichnis inzwischen anders heisst: der Termin
+     trägt Name und Code als eigene Kopie. Erst wenn jemand die Firma im
+     Klappfeld wechselt, wird der Name aus dem Verzeichnis übernommen. */
+  firmenWahlAnwenden(!!klasse);
+}
+
+/* Bei gewählter Firma steht der Name aus dem Verzeichnis im Textfeld und
+   lässt sich dort nicht mehr ändern; bei freier Eingabe bleibt das Feld wie
+   bisher offen. `nameBehalten` heisst: den Namen des Termins nicht
+   überschreiben (siehe firmenWahlFuellen). */
+function firmenWahlAnwenden(nameBehalten) {
+  const schluessel = el("f-firma-wahl").value;
+  const textfeld = el("f-firma");
+  if (schluessel) {
+    const firma = alleFirmen.find(f => f.schluessel === schluessel);
+    if (firma && !(nameBehalten === true && textfeld.value.trim())) {
+      textfeld.value = firma.name;
+    }
+    textfeld.readOnly = true;
+  } else {
+    textfeld.readOnly = false;
+  }
+  firmenVorschauZeichnen();
+}
+
+/* Graue Zeile unter dem Feld: welchen Code der Termin bekommt. Sie wird bei
+   jeder Änderung des Datums neu gebildet, weil der Tag im Code steckt. */
+function firmenVorschauZeichnen() {
+  const feld = el("f-firma-vorschau");
+  const schluessel = el("f-firma-wahl").value;
+  if (!schluessel) {
+    feld.textContent = "Einmaliger Termin, Code wird zufällig erzeugt.";
+    return;
+  }
+  const code = Hilfe.firmenCode(schluessel, el("f-datum").value);
+  feld.textContent = code
+    ? "Dauerhafter Firmen-QR-Code, Code: " + code
+    : "Dauerhafter Firmen-QR-Code. Der Code entsteht, sobald ein Datum gesetzt ist.";
+}
+
 function formularOeffnen(klasse) {
   bearbeiteId = klasse ? String(klasse.id) : null;
   bearbeiteBestellungId = null;
@@ -1499,6 +1835,7 @@ function formularOeffnen(klasse) {
   el("f-titel").value = klasse ? (klasse.titel || "") : "";
   el("f-firma").value = klasse ? (klasse.firma || "") : "";
   el("f-datum").value = klasse ? (klasse.datum || "") : Hilfe.heute();
+  firmenWahlFuellen(klasse);
   el("f-zeit").value = klasse ? (klasse.essenszeit || "") : "12:00";
   el("f-erwartet").value = (klasse && klasse.erwartet) ? String(klasse.erwartet) : "";
 
@@ -1549,6 +1886,11 @@ async function formularSpeichern(ereignis) {
     }
   }
 
+  /* Der Firmenname kommt aus dem Textfeld, nicht aus dem Verzeichnis: bei
+     einer Wahl im Klappfeld hat `firmenWahlAnwenden()` ihn dort bereits
+     eingesetzt, bei einem bestehenden Termin steht dort weiterhin der Name,
+     unter dem er angelegt wurde. So ändert ein Umbenennen im Verzeichnis
+     auch dann nichts an einem alten Termin, wenn dieser bearbeitet wird. */
   const satz = {
     titel: titel,
     firma: el("f-firma").value.trim(),
@@ -1556,6 +1898,75 @@ async function formularSpeichern(ereignis) {
     essenszeit: el("f-zeit").value,
     erwartet: erwartet
   };
+
+  /* ---- Code des Termins ----
+     Zielschlüssel ist die Wahl im Klappfeld, alter Schlüssel der des
+     bestehenden Codes. Aus dem Paar ergibt sich, ob und welcher Code
+     geschrieben wird. `neuerCodeWert` bleibt null, solange der Code
+     unangetastet bleibt. */
+  const bestand = bearbeiteId
+    ? alleKlassen.find(k => String(k.id) === String(bearbeiteId)) || null
+    : null;
+  const altCode = bestand ? (bestand.code || "") : "";
+  const altSchluessel = Hilfe.istFirmenCode(altCode)
+    ? Hilfe.firmenSchluesselAusCode(altCode) : "";
+  const zielSchluessel = el("f-firma-wahl").value;
+
+  /* Ohne Kurstag kein Firmencode: der Tag steckt im Code. */
+  if (zielSchluessel && !satz.datum) {
+    fehlerfeld.textContent = "Ein Termin mit Firmen-QR-Code braucht ein Datum: "
+      + "der Kurstag steckt im Code.";
+    fehlerfeld.style.display = "block";
+    el("f-datum").focus();
+    return;
+  }
+
+  let neuerCodeWert = null;
+  if (!bearbeiteId) {
+    neuerCodeWert = zielSchluessel
+      ? Hilfe.firmenCode(zielSchluessel, satz.datum)
+      : Hilfe.neuerCode();
+  } else if (zielSchluessel && zielSchluessel === altSchluessel) {
+    /* Gleiche Firma, nur allenfalls ein anderer Kurstag. */
+    const gebildet = Hilfe.firmenCode(zielSchluessel, satz.datum);
+    if (gebildet && gebildet !== altCode) neuerCodeWert = gebildet;
+  } else if (zielSchluessel !== altSchluessel) {
+    /* Die Art des Codes wechselt: von Freitext auf Firma, von Firma auf
+       Freitext oder von einer Firma auf eine andere. In allen drei Fällen
+       wird der bisherige Link ungültig, darum die Rückfrage. */
+    const gutgeheissen = await frageStellen({
+      titel: zielSchluessel
+        ? "Termin dem Firmen-QR-Code zuordnen?"
+        : "Termin vom Firmen-QR-Code lösen?",
+      text: "Der Termin bekommt einen neuen Code. Der bisherige Link und der "
+          + "bereits gedruckte QR-Code dieses Termins führen danach nicht mehr "
+          + "zu ihm. Bereits erfasste Bestellungen bleiben erhalten.",
+      bestaetigen: "Code neu bilden"
+    });
+    if (!gutgeheissen) return;
+    neuerCodeWert = zielSchluessel
+      ? Hilfe.firmenCode(zielSchluessel, satz.datum)
+      : Hilfe.neuerCode();
+  }
+
+  /* Pro Firma und Kurstag gibt es nur einen Code, also auch nur einen
+     Termin mit Firmen-QR-Code. Ein zweiter Kurs derselben Firma am selben
+     Tag läuft über «Firma frei eingeben». */
+  const wirkCode = (neuerCodeWert !== null) ? neuerCodeWert : altCode;
+  if (wirkCode && Hilfe.istFirmenCode(wirkCode)) {
+    const konflikt = alleKlassen.find(k =>
+      (k.code || "").toUpperCase() === wirkCode.toUpperCase()
+      && String(k.id) !== String(bearbeiteId || ""));
+    if (konflikt) {
+      fehlerfeld.textContent = "Für " + (satz.firma || konflikt.firma || "diese Firma")
+        + " ist am " + (Hilfe.datumKurz(satz.datum) || "diesem Tag")
+        + " bereits ein Termin mit Firmen-QR-Code erfasst. Pro Firma und Tag "
+        + "ist nur ein solcher Termin möglich; bitte für den zweiten Kurs "
+        + "«Firma frei eingeben» wählen.";
+      fehlerfeld.style.display = "block";
+      return;
+    }
+  }
 
   const knopf = el("btn-speichern");
   const beschriftung = knopf.textContent;
@@ -1567,14 +1978,21 @@ async function formularSpeichern(ereignis) {
     if (bearbeiteId) {
       /* Status wird beim Ändern bewusst nicht mitgeschickt: die Verwaltung
          kennt ihn nicht mehr, und was in SharePoint steht, soll stehen
-         bleiben. */
+         bleiben.
+
+         Der Code dagegen schon, aber nur wenn er sich ändern muss. Das ist
+         die bewusste Ausnahme von der Regel, dass ein Code sein Leben lang
+         bleibt: bei einem Firmen-Termin steckt der Kurstag im Code, also
+         zieht eine Datumsänderung ihn nach. Solange nichts davon zutrifft,
+         steht `code` gar nicht im Satz und bleibt unangetastet. */
+      if (neuerCodeWert !== null) satz.code = neuerCodeWert;
       await Daten.klasseAendern(bearbeiteId, satz);
       id = bearbeiteId;
     } else {
       /* Beim Anlegen dagegen schon: Flow B liest die Spalte und meldet der
          Gästeseite «geschlossen», wenn sie leer bleibt. */
       satz.status = "offen";
-      satz.code = Hilfe.neuerCode();
+      satz.code = neuerCodeWert;
       id = await Daten.klasseAnlegen(satz);
     }
 
@@ -1914,11 +2332,287 @@ async function klasseLoeschen() {
 }
 
 
+/* ---------- Firmenverzeichnis ----------
+
+   Eine Firma hat einen Schlüssel («SORBA-K7M2») und damit einen QR-Code, der
+   sich einmal drucken lässt und dauerhaft gilt. Der Code eines Termins dieser
+   Firma entsteht daraus und aus dem Kurstag («SORBA-K7M2-260914»).
+
+   Ein einmal angelegter Termin hängt danach nicht mehr am Verzeichnis:
+   Firmenname und Code stehen als eigene Kopie am Termin. Wer eine Firma
+   umbenennt oder löscht, ändert an bestehenden Terminen nichts. */
+
+function firmenFehlerZeigen(e) {
+  const feld = el("firmen-fehler");
+  feld.textContent = (e && e.message) ? e.message : String(e);
+  feld.style.display = "block";
+}
+
+function firmenFehlerVerbergen() {
+  el("firmen-fehler").style.display = "none";
+}
+
+/* Termine dieser Firma ab heute. Erkannt werden sie am Präfix des Codes,
+   nicht am Firmennamen: der Name kann sich seit dem Anlegen geändert
+   haben, der Code nicht. */
+function kommendeTermine(schluessel) {
+  const praefix = (schluessel || "") + "-";
+  const heute = Hilfe.heute();
+  return alleKlassen.filter(k =>
+    (k.code || "").indexOf(praefix) === 0 && (k.datum || "") >= heute).length;
+}
+
+async function firmenNeuLaden() {
+  firmenFehlerVerbergen();
+  firmenFehlgeschlagen = false;
+  try {
+    const id = await Daten.firmenListeErmitteln();
+    firmenListeDa = !!id;
+    alleFirmen = firmenListeDa ? await Daten.firmenLaden() : [];
+  } catch (e) {
+    /* Ein Fehler auf dem Weg ist etwas anderes als eine fehlende Liste:
+       hier weiss die Verwaltung schlicht nicht, woran sie ist. Dann steht
+       nur die Meldung da, nicht die Einladung, eine Liste anzulegen, die es
+       vielleicht längst gibt. Die Terminverwaltung bleibt benutzbar. */
+    firmenListeDa = false;
+    firmenFehlgeschlagen = true;
+    alleFirmen = [];
+    firmenFehlerZeigen(e);
+  }
+  firmenZeichnen();
+}
+
+function firmenZeichnen() {
+  const fehlt = !firmenListeDa && !firmenFehlgeschlagen;
+  el("firmen-fehlt").style.display = fehlt ? "block" : "none";
+  el("firmen-inhalt").style.display = firmenListeDa ? "block" : "none";
+  if (!firmenListeDa) return;
+
+  const behaelter = el("firmen-liste");
+  leeren(behaelter);
+
+  if (!alleFirmen.length) {
+    behaelter.appendChild(neu("div", "leer-liste",
+      "Noch keine Firma erfasst. Links eine erste Firma anlegen."));
+    return;
+  }
+  alleFirmen.forEach((f, i) => behaelter.appendChild(firmenkarteZeichnen(f, i)));
+}
+
+function firmenkarteZeichnen(f, nummer) {
+  const karte = neu("div", "firmenkarte");
+
+  const kopf = neu("div", "f-kopf");
+  kopf.appendChild(neu("div", "f-name", f.name || "Ohne Namen"));
+  kopf.appendChild(neu("span", "f-schluessel", f.schluessel || ""));
+  const anzahl = kommendeTermine(f.schluessel);
+  kopf.appendChild(neu("span", "f-termine", anzahl === 1
+    ? "1 kommender Termin"
+    : anzahl + " kommende Termine"));
+  karte.appendChild(kopf);
+
+  /* Der dauerhafte Gästelink. Er zeigt auf die Firma, nicht auf einen
+     Termin, und steckt so auch im gedruckten QR-Code. */
+  const link = Hilfe.firmenLink(f.schluessel);
+  const zeile = neu("div", "linkzeile");
+  zeile.appendChild(neu("span", "linkname", "Gäste"));
+  zeile.appendChild(neu("span", "gastlink", link));
+  const kopierKnopf = neu("button", "knopf leise", "Link kopieren");
+  kopierKnopf.type = "button";
+  const rueckmeldung = neu("span", "kopiert");
+  rueckmeldung.id = "firma-kopiert-" + nummer;
+  kopierKnopf.addEventListener("click", () => linkKopieren(link, rueckmeldung.id));
+  zeile.appendChild(kopierKnopf);
+  zeile.appendChild(rueckmeldung);
+  karte.appendChild(zeile);
+
+  const knoepfe = neu("div", "f-knoepfe");
+
+  const umbenennen = neu("button", "knopf leise", "Umbenennen");
+  umbenennen.type = "button";
+  umbenennen.addEventListener("click", () => firmaUmbenennenOeffnen(f));
+  knoepfe.appendChild(umbenennen);
+
+  const loeschen = neu("button", "knopf leise", "Löschen");
+  loeschen.type = "button";
+  loeschen.addEventListener("click", () => firmaEntfernen(f));
+  knoepfe.appendChild(loeschen);
+
+  /* Geteilter Knopf wie beim Kursblatt: links öffnen, rechts die Sprache.
+     Jede Karte braucht ein eigenes Klappfeld, darum die laufende Nummer in
+     der Kennung. */
+  const geteilt = neu("div", "knopf geteilt");
+  const blatt = neu("button", null, "Firmenblatt");
+  blatt.type = "button";
+  const wahlId = "firmenblatt-sprache-" + nummer;
+  const beschriftung = neu("label", "unsichtbar", "Sprache des Firmenblatts");
+  beschriftung.setAttribute("for", wahlId);
+  const wahl = neu("select");
+  wahl.id = wahlId;
+  wahl.title = "Sprache des Firmenblatts";
+  [["de", "DE"], ["en", "EN"], ["fr", "FR"]].forEach(([wert, text]) => {
+    const o = neu("option", null, text);
+    o.value = wert;
+    wahl.appendChild(o);
+  });
+  wahl.value = "de";
+  blatt.addEventListener("click", () => {
+    window.open(Hilfe.firmenblattLink(f.schluessel, f.name, wahl.value), "_blank");
+  });
+  geteilt.appendChild(blatt);
+  geteilt.appendChild(beschriftung);
+  geteilt.appendChild(wahl);
+  knoepfe.appendChild(geteilt);
+
+  karte.appendChild(knoepfe);
+  return karte;
+}
+
+/* Dasselbe Formular legt an und benennt um. Beim Umbenennen bleibt der
+   Schlüssel stehen; er steht im Hinweis darunter. */
+function firmaFormularZuruecksetzen() {
+  bearbeiteFirmaId = null;
+  el("fa-name").value = "";
+  el("firma-fehler").style.display = "none";
+  el("legende-firma-neu").textContent = "Neue Firma";
+  el("btn-firma-speichern").textContent = "Firma speichern";
+  el("btn-firma-speichern").disabled = false;
+  el("btn-firma-abbrechen").style.display = "none";
+  el("fa-hinweis").textContent = "Der Schlüssel entsteht beim Speichern aus dem "
+    + "Namen und vier Zufallszeichen. Er lässt sich später nicht mehr ändern, "
+    + "weil der gedruckte QR-Code daran hängt.";
+}
+
+function firmaUmbenennenOeffnen(f) {
+  bearbeiteFirmaId = String(f.id);
+  el("fa-name").value = f.name || "";
+  el("firma-fehler").style.display = "none";
+  el("legende-firma-neu").textContent = "Firma umbenennen";
+  el("btn-firma-speichern").textContent = "Namen speichern";
+  el("btn-firma-speichern").disabled = false;
+  el("btn-firma-abbrechen").style.display = "";
+  el("fa-hinweis").textContent = "Der Schlüssel «" + (f.schluessel || "")
+    + "» bleibt unverändert; der gedruckte QR-Code gilt weiter. Bereits "
+    + "angelegte Termine behalten den bisherigen Firmennamen.";
+  el("fa-name").focus();
+}
+
+async function firmaSpeichern(ereignis) {
+  ereignis.preventDefault();
+  const fehlerfeld = el("firma-fehler");
+  fehlerfeld.style.display = "none";
+  firmenFehlerVerbergen();
+
+  const name = el("fa-name").value.trim();
+  if (!name) {
+    fehlerfeld.textContent = "Bitte einen Firmennamen eingeben.";
+    fehlerfeld.style.display = "block";
+    el("fa-name").focus();
+    return;
+  }
+
+  /* Zwei Firmen mit demselben Namen wären im Klappfeld des Terminformulars
+     nicht auseinanderzuhalten. Verglichen wird ohne Rücksicht auf
+     Gross- und Kleinschreibung. */
+  const doppelt = alleFirmen.some(f =>
+    String(f.id) !== String(bearbeiteFirmaId || "")
+    && (f.name || "").trim().toLowerCase() === name.toLowerCase());
+  if (doppelt) {
+    fehlerfeld.textContent = "Eine Firma mit diesem Namen steht bereits im Verzeichnis.";
+    fehlerfeld.style.display = "block";
+    el("fa-name").focus();
+    return;
+  }
+
+  const knopf = el("btn-firma-speichern");
+  const beschriftung = knopf.textContent;
+  knopf.disabled = true;
+  knopf.textContent = "Wird gespeichert...";
+
+  try {
+    if (bearbeiteFirmaId) {
+      await Daten.firmaAendern(bearbeiteFirmaId, { name: name });
+    } else {
+      /* Der Schlüssel wird gegen die bereits vergebenen geprüft: zwei Firmen
+         mit demselben Schlüssel hätten denselben QR-Code. */
+      const schluessel = Hilfe.freierFirmenSchluessel(
+        name, alleFirmen.map(f => f.schluessel));
+      if (!schluessel) {
+        throw new Error("Es liess sich kein freier Schlüssel bilden. "
+          + "Bitte die Firma unter einem leicht anderen Namen erfassen.");
+      }
+      await Daten.firmaAnlegen({ name: name, schluessel: schluessel });
+    }
+    firmaFormularZuruecksetzen();
+    await firmenNeuLaden();
+  } catch (e) {
+    fehlerfeld.textContent = (e && e.message) ? e.message : String(e);
+    fehlerfeld.style.display = "block";
+    knopf.textContent = beschriftung;
+  } finally {
+    knopf.disabled = false;
+  }
+}
+
+async function firmaEntfernen(f) {
+  const gutgeheissen = await frageStellen({
+    titel: "Firma «" + (f.name || "ohne Namen") + "» löschen?",
+    text: "Bestehende Termine bleiben erhalten, samt Firmenname und Code. "
+        + "Der gedruckte QR-Code dieser Firma führt aber zu keinem neuen "
+        + "Termin mehr: neue Termine lassen sich ihm nicht mehr zuordnen.",
+    bestaetigen: "Löschen",
+    gefahr: true
+  });
+  if (!gutgeheissen) return;
+
+  firmenFehlerVerbergen();
+  try {
+    await Daten.firmaLoeschen(f.id);
+    if (String(bearbeiteFirmaId) === String(f.id)) firmaFormularZuruecksetzen();
+    await firmenNeuLaden();
+  } catch (e) {
+    firmenFehlerZeigen(e);
+  }
+}
+
+/* Der Knopf auf der Hinweiskarte. Heisst bewusst anders als
+   `Daten.firmenListeAnlegen()`, das er aufruft. */
+async function firmenListeAnlegenKlick() {
+  firmenFehlerVerbergen();
+  const knopf = el("btn-firmenliste-anlegen");
+  knopf.disabled = true;
+  const beschriftung = knopf.textContent;
+  knopf.textContent = "Wird angelegt...";
+  try {
+    await Daten.firmenListeAnlegen();
+    await firmenNeuLaden();
+  } catch (e) {
+    firmenFehlerZeigen(e);
+  } finally {
+    knopf.disabled = false;
+    knopf.textContent = beschriftung;
+  }
+}
+
+/* Reiter «Termine» und «Firmen». Beide Bereiche liegen im Markup
+   übereinander; umgeschaltet wird nur die Sichtbarkeit. */
+function bereichZeigen(welcher) {
+  ["termine", "firmen"].forEach(b => {
+    const offen = (b === welcher);
+    el("bereich-" + b).style.display = offen ? "" : "none";
+    el("reiter-" + b).classList.toggle("aktiv", offen);
+    el("reiter-" + b).setAttribute("aria-selected", offen ? "true" : "false");
+  });
+}
+
+
 /* ---------- Gästelink kopieren ---------- */
 
+/* Kopiert einen beliebigen Link und meldet das im genannten Feld zurück.
+   Der Text kommt vom Aufruf, nicht aus dem ausgewählten Termin: dieselbe
+   Funktion dient dem Gästelink eines Termins und dem Firmenlink im
+   Verzeichnis. */
 function linkKopieren(text, rueckmeldungsfeld) {
-  if (!gewaehlteKlasse) return;
-
   function rueckmeldung(erfolg) {
     const feld = el(rueckmeldungsfeld);
     feld.textContent = erfolg ? "Kopiert" : "Kopieren nicht möglich, bitte von Hand markieren.";
@@ -2055,8 +2749,27 @@ el("btn-bestellung-loeschen").addEventListener("click", bestellungEntfernen);
 el("detail-formular").addEventListener("submit", formularSpeichern);
 el("btn-loeschen").addEventListener("click", klasseLoeschen);
 el("btn-kopieren").addEventListener("click", () => {
-  linkKopieren(Hilfe.gastLink(gewaehlteKlasse && gewaehlteKlasse.code), "kopiert-text");
+  if (!gewaehlteKlasse) return;
+  linkKopieren(Hilfe.gastLink(gewaehlteKlasse.code), "kopiert-text");
 });
+el("btn-firmenlink-kopieren").addEventListener("click", () => {
+  const code = gewaehlteKlasse && gewaehlteKlasse.code;
+  if (!code || !Hilfe.istFirmenCode(code)) return;
+  linkKopieren(Hilfe.firmenLink(Hilfe.firmenSchluesselAusCode(code)), "firmenlink-kopiert");
+});
+
+/* Die Vorschau unter dem Firmenfeld hängt an beidem: an der Wahl der Firma
+   und am Kurstag, weil der Tag im Code steckt. */
+el("f-firma-wahl").addEventListener("change", () => firmenWahlAnwenden(false));
+el("f-datum").addEventListener("change", firmenVorschauZeichnen);
+el("f-datum").addEventListener("input", firmenVorschauZeichnen);
+
+el("reiter-termine").addEventListener("click", () => bereichZeigen("termine"));
+el("reiter-firmen").addEventListener("click", () => bereichZeigen("firmen"));
+el("firma-formular").addEventListener("submit", firmaSpeichern);
+el("btn-firma-abbrechen").addEventListener("click", firmaFormularZuruecksetzen);
+el("btn-firmenliste-anlegen").addEventListener("click", firmenListeAnlegenKlick);
+
 el("btn-kursblatt").addEventListener("click", () => {
   blattOeffnen("kursblatt.html", el("kursblatt-sprache").value);
 });
@@ -2091,8 +2804,14 @@ async function starten() {
   filterSpiegeln();
   sortierungSpiegeln();
   detailUmschalten("leer");
+  bereichZeigen("termine");
+  firmaFormularZuruecksetzen();
   ansichtZeigen("app");
-  await listeLaden(false);
+  /* Termine und Firmen zusammen: das Klappfeld im Terminformular braucht das
+     Verzeichnis, und die Anzahl kommender Termine je Firma braucht die
+     Terminliste. Fehlt die Liste «Firmen», bleibt `alleFirmen` leer und die
+     Terminverwaltung läuft unverändert weiter. */
+  await Promise.all([listeLaden(false), firmenNeuLaden()]);
 }
 
 starten();

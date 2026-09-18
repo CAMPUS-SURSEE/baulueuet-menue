@@ -1,6 +1,6 @@
 # Einrichtung und Veröffentlichung
 
-**Stand:** 04.09.2026
+**Stand:** 14.09.2026
 
 Dieses Dokument beschreibt, wie das System eingerichtet wird und wie eine Änderung live geht. Wer nur eine bestehende Installation betreut, findet die häufigen Fälle in `02_Betriebshandbuch_Support.md`.
 
@@ -23,6 +23,7 @@ Dieses Dokument beschreibt, wie das System eingerichtet wird und wie eine Änder
 | Baustein | Zustand | Wer |
 |---|---|---|
 | SharePoint-Listen «Klassen» und «Bestellungen» | vorhanden | ICT |
+| SharePoint-Liste «Firmen» (Firmenverzeichnis) | **noch anzulegen**, siehe Kasten unten | ICT oder Réception |
 | Spalte `Teilnehmer` in der Liste «Klassen» | vorhanden (am 08.09.2026 über Graph zudem `Sprache` angelegt und `Menu1Preis`, `Menu2Preis`, `Bemerkung` entfernt; `Sprache` ist seit dem 09.09.2026 unbenutzt und darf bleiben oder weg) | ICT |
 | Power Automate Flows B, C und Aufräum-Flow | vorhanden und in Betrieb | ICT |
 | Cloudflare-Pages-Projekt auf `menue.campus-sursee.ch` | vorhanden | ICT |
@@ -39,6 +40,31 @@ Dieses Dokument beschreibt, wie das System eingerichtet wird und wie eine Änder
 > ohne Feldauswahl zurück und zeigt keinen Massstab), **speichern** lässt sich ein
 > Termin dann aber nicht mehr: Graph weist das unbekannte Feld ab. Die Spalte ist
 > deshalb anzulegen, bevor die neue Fassung live geht, nicht danach.
+
+> **Vor dem Veröffentlichen der Fassung vom 14.09.2026: Liste «Firmen» anlegen.**
+> Sie hält das Firmenverzeichnis für den dauerhaften Firmen-QR-Code. Nötig sind der
+> **Anzeigename** `Firmen` und eine einzelne Textspalte mit dem internen Namen
+> `Schluessel`; `Title` bringt SharePoint selbst mit und trägt den Firmennamen.
+>
+> Zwei Wege führen zum Ziel:
+>
+> 1. **Aus der Verwaltung heraus.** In `admin.html` auf den Reiter «Firmen» wechseln und
+>    den Knopf «Liste jetzt anlegen» klicken. Die Seite legt Liste und Spalte über Graph
+>    an. Das ist der einfachere Weg und braucht keine zusätzliche Berechtigung.
+> 2. **Von Hand in SharePoint.** Auf der Site «Reception» unter *Websiteinhalte* eine
+>    leere Liste mit dem Namen `Firmen` erstellen und darin eine Spalte vom Typ
+>    **Einzelne Textzeile** mit dem internen Namen `Schluessel` anlegen. Auf die
+>    Schreibweise achten: gesucht wird der Anzeigename genau als «Firmen».
+>
+> **Die Liste ist nicht zwingend.** Fehlt sie, läuft alles Bisherige unverändert weiter;
+> im Terminformular steht dann nur «Firma frei eingeben» zur Verfügung und der Reiter
+> «Firmen» zeigt die Karte mit dem Knopf zum Anlegen. Anders als bei der Spalte
+> `Teilnehmer` scheitert dadurch **kein** Speichern.
+>
+> Die Listen-ID darf anschliessend in `frontend\konfig.js` unter `listeFirmen`
+> eingetragen werden. Bleibt der Wert leer, sucht die Verwaltung die Liste beim Start
+> einmal über ihren Anzeigenamen; das kostet einen zusätzlichen Graph-Aufruf je Sitzung
+> und ist sonst gleichwertig.
 
 > **Spalte `Sprache` wird seit der Fassung vom 09.09.2026 nicht mehr gebraucht.**
 > Die Fassung vom 08.09.2026 hatte sie verlangt; seit die Sprache beim Drucken des
@@ -99,7 +125,7 @@ Speichern nicht vergessen.
 
 | Berechtigung | Wofür |
 |---|---|
-| `Sites.ReadWrite.All` | Klassen und Bestellungen lesen und schreiben |
+| `Sites.ReadWrite.All` | Klassen, Bestellungen und Firmen lesen und schreiben, dazu das Anlegen der Liste «Firmen» |
 | `User.Read` | Name der angemeldeten Person anzeigen, meist schon vorhanden |
 
 Danach **Administratorzustimmung für Campus Sursee erteilen**.
@@ -116,6 +142,14 @@ clientId:  "9d344eb0-8af8-44d1-ad64-916d564e5975",
 ```
 
 Nur falls je eine neue Registrierung angelegt wird, muss die Anwendungs-ID von deren Übersichtsseite hier ersetzt werden.
+
+Ebenfalls in `konfig.js` steht seit dem 14.09.2026:
+
+```js
+listeFirmen: "",
+```
+
+Das ist die ID der Liste «Firmen». Der Eintrag ist **wahlweise**: Bleibt er leer, sucht die Verwaltung die Liste beim Start über ihren Anzeigenamen «Firmen» und bietet an, sie anzulegen. Wer die ID einträgt, spart diesen zusätzlichen Aufruf. Eine falsche ID ist schlechter als eine leere: Sie führt zu einem Graph-Fehler «Liste oder Eintrag nicht gefunden» statt zur Karte mit dem Knopf «Liste jetzt anlegen».
 
 > Client-ID und Mandanten-ID stehen anschliessend im öffentlich lesbaren Quelltext. Das ist bei Single-Page-Anwendungen so vorgesehen und unbedenklich: Es sind Kennungen, keine Geheimnisse. Der Schutz kommt aus der Anmeldung und aus der Benutzerzuweisung im nächsten Abschnitt.
 
@@ -175,6 +209,11 @@ Seit der Anbindung an Git ist dieses Repository der massgebende Stand: Was in `f
 - [ ] `https://menue.campus-sursee.ch/admin.html` öffnet sich, landet auf `/admin` und die Anmeldung gelingt
       *Dieser eine Schritt belegt auf einmal, dass Umleitungsadresse, Graph-Berechtigung und Benutzerzuweisung stimmen.*
 - [ ] Spalte `Teilnehmer` in der Liste «Klassen» vorhanden (Zahl, darf leer sein)
+- [ ] Liste «Firmen» auf der Site «Reception» vorhanden, mit der Textspalte `Schluessel`; der Reiter «Firmen» in `admin.html` zeigt das Verzeichnis und nicht die Karte «Liste jetzt anlegen»
+- [ ] Testfirma angelegt; der Schlüssel entstand automatisch und hat die Form `NAME-XXXX`
+- [ ] Testtermin mit dieser Firma aus dem Klappfeld angelegt: Der Code lautet `SCHLUESSEL-JJMMTT` und die Zeile trägt die Marke «Firmen-QR»
+- [ ] Firmenblatt geöffnet und gedruckt: ohne Kurstitel, Datum und Essenszeit, QR-Code zeigt auf `…/?firma=SCHLUESSEL`
+- [ ] Diesen Link an einem Tag **ohne** Termin dieser Firma geöffnet: Es erscheint «Kein Kurs gefunden»; am Tag des Testtermins erscheint die Menüwahl
 - [ ] Testtermin angelegt, Zugangscode wurde automatisch erzeugt
 - [ ] Beim Testtermin «Erwartete Teilnehmeranzahl» gesetzt; die Liste links zeigt «0 / *n* Best.», danach das Feld wieder geleert und gespeichert
 - [ ] In den Details des Testtermins steht die kleine Zeile «Erstellt … von …» mit dem eigenen Namen
@@ -217,7 +256,7 @@ Vorgehen beim Anheben:
 
 Falls die Webseite je vollständig neu aufgesetzt werden muss:
 
-1. **SharePoint:** Listen «Klassen» und «Bestellungen» mit den Spalten aus `03_Technische_Dokumentation.md`, Abschnitt 4, einschliesslich `Teilnehmer`. Die internen Feldnamen müssen genau stimmen, sonst greift `graph.js` ins Leere. Neue Listen-IDs in `konfig.js` eintragen.
+1. **SharePoint:** Listen «Klassen» und «Bestellungen» mit den Spalten aus `03_Technische_Dokumentation.md`, Abschnitt 4, einschliesslich `Teilnehmer`. Die internen Feldnamen müssen genau stimmen, sonst greift `graph.js` ins Leere. Neue Listen-IDs in `konfig.js` eintragen. Dazu die Liste «Firmen» mit der Textspalte `Schluessel`, entweder von Hand oder aus der Verwaltung heraus über den Reiter «Firmen»; ihre ID gehört wahlweise unter `listeFirmen`. Ohne sie fehlt nur das Firmenverzeichnis, die Termine laufen weiter. **Achtung:** Aus einem alten Bestand übernommene Termine mit einem Code der Form `SCHLUESSEL-JJMMTT` bleiben gültig, ihre Firma muss aber im Verzeichnis neu erfasst werden — und sie bekommt dabei einen anderen Schlüssel. Gedruckte Firmenblätter sind nach einem Neuaufbau des Verzeichnisses also neu zu drucken.
 2. **Power Automate:** Flow B und Flow C neu bauen, Aufbau und Lunchgate-Anbindung siehe `03_Technische_Dokumentation.md`, Abschnitt 7. Neue Aufruf-Adressen in `konfig.js` und im Kopf von `index.html` eintragen. Den Aufräum-Flow nicht vergessen.
 3. **Entra ID:** App-Registrierung nach Abschnitt 2 dieses Dokuments.
 4. **Cloudflare Pages:** neues Projekt aus dem Git-Repository anlegen, Framework-Vorlage «None», Build command leer lassen. Der ausgelieferte Ordner kommt aus `wrangler.toml`; der Projektname muss dem Feld `name` darin entsprechen. Anschliessend unter **Custom domains** die Domäne `menue.campus-sursee.ch` verbinden.

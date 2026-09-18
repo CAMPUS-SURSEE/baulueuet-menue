@@ -1,7 +1,7 @@
 # Betriebs- und Supporthandbuch: Menüwahl Restaurant BAULÜÜT
 
 **Für:** ICT-Services Campus Sursee
-**Stand:** 04.09.2026
+**Stand:** 14.09.2026
 **Gilt für:** die Webseite `https://menue.campus-sursee.ch` samt SharePoint-Listen, Power-Automate-Flows und Entra-App-Registrierung
 **Verwandte Dokumente:** `ANLEITUNG_ANMELDUNG.md` (Einrichtung der App-Registrierung), `HANDOFF_Menuewahl_BAULUUT_Stand_2026-08-28.md` (Projektstand und Architektur)
 
@@ -19,6 +19,7 @@ Alle Zitate von Fehlermeldungen in diesem Handbuch stammen wortgetreu aus dem Qu
    - [3.3 Berechtigungen auf die SharePoint-Listen](#33-berechtigungen-auf-die-sharepoint-listen)
    - [3.4 Anmeldung abgelaufen, Token-Fehler](#34-anmeldung-abgelaufen-token-fehler)
    - [3.5 Klasse nicht gefunden, Gästelink defekt](#35-klasse-nicht-gefunden-gästelink-defekt)
+   - [3.5a Firmen-QR-Code zeigt «Kein Kurs gefunden»](#35a-firmen-qr-code-zeigt-kein-kurs-gefunden)
    - [3.6 Gast sieht «falscher Tag» statt Formular](#36-gast-sieht-falscher-tag-statt-formular)
    - [3.6a Gast sieht «Menüwahl geschlossen» oder findet den Bearbeiten-Knopf nicht](#36a-gast-sieht-menüwahl-geschlossen-oder-findet-den-bearbeiten-knopf-nicht)
    - [3.6b Kursblatt-Link führt bei Externen zur Microsoft-Anmeldung](#36b-kursblatt-link-führt-bei-externen-zur-microsoft-anmeldung)
@@ -27,6 +28,7 @@ Alle Zitate von Fehlermeldungen in diesem Handbuch stammen wortgetreu aus dem Qu
    - [3.9 QR-Code lässt sich nicht scannen](#39-qr-code-lässt-sich-nicht-scannen)
    - [3.10 Seite bleibt leer, Konsole meldet nichts](#310-seite-bleibt-leer-konsole-meldet-nichts)
    - [3.11 Bestellungen erscheinen nicht in der Verwaltung](#311-bestellungen-erscheinen-nicht-in-der-verwaltung)
+   - [3.11a Reiter «Firmen» meldet, die Liste fehle](#311a-reiter-firmen-meldet-die-liste-fehle)
    - [3.12 Weitere Meldungen im Wortlaut](#312-weitere-meldungen-im-wortlaut)
 4. [Diagnose-Werkzeuge](#4-diagnose-werkzeuge)
 5. [Wiederkehrende Aufgaben](#5-wiederkehrende-aufgaben)
@@ -45,11 +47,12 @@ Kursteilnehmende wählen ihr Mittagsmenü über eine Webseite statt auf Papier. 
 |---|---|---|
 | Webseite | statische Seiten, kein Server, keine Datenbank | Cloudflare Pages, `https://menue.campus-sursee.ch` |
 | `index.html` | Gästeseite, ohne Anmeldung | Cloudflare Pages |
-| `admin.html` | Verwaltung der Termine, nach Kurstag gruppiert, mit Anmeldung | Cloudflare Pages |
-| `kursblatt.html` | Aushang mit QR-Code, **ohne** Anmeldung, lädt über Flow B | Cloudflare Pages |
+| `admin.html` | Verwaltung der Termine, nach Kurstag gruppiert, dazu der Reiter «Firmen», mit Anmeldung | Cloudflare Pages |
+| `kursblatt.html` | Aushang mit QR-Code, **ohne** Anmeldung, lädt über Flow B; mit `?firma=` als Firmenblatt, dann ganz ohne Netzaufruf | Cloudflare Pages |
 | `menueblatt.html` | Bestellübersicht für die Küche, mit Anmeldung | Cloudflare Pages |
 | Liste «Klassen» | ein Eintrag pro Kurs, mit 8-stelligem Code | SharePoint-Site «Reception» (`hot-reze`) |
 | Liste «Bestellungen» | ein Eintrag pro Person | SharePoint-Site «Reception» |
+| Liste «Firmen» | Firmenverzeichnis, ein Eintrag pro Firma mit dauerhaftem Schlüssel | SharePoint-Site «Reception», seit 14.09.2026 |
 | Flow B «API Klasse laden» | GET, liefert Klassendaten und die Tagesmenüs von Lunchgate | Power Automate |
 | Flow C «API Bestellung speichern» | POST, schreibt eine Bestellung | Power Automate |
 | Flow «Aufraeumen Menuewahl» | täglich 03:00, löscht Altbestand | Power Automate |
@@ -60,6 +63,7 @@ Alle IDs, Adressen und Flow-Aufrufadressen stehen an einem Ort: `frontend\konfig
 ### 1.2 Wer redet mit wem
 
 - **Gäste** öffnen `index.html` anonym. Die Seite spricht ausschliesslich mit **Flow B** (Klassendaten und Tagesmenüs) und **Flow C** (Bestellung speichern). Kein Konto, kein Token.
+- **Der dauerhafte Firmen-QR-Code** (`index.html?firma=SCHLUESSEL`) ändert daran nichts: Die Gästeseite bildet aus dem Firmenschlüssel und dem heutigen Datum selbst den Klassencode (`SORBA-K7M2` + `-260914`) und ruft damit **Flow B** auf wie sonst auch. Die Flows wissen von Firmen nichts und wurden dafür nicht angefasst.
 - **Kursleitung** öffnet `kursblatt.html` ebenfalls anonym. Auch diese Seite spricht nur mit **Flow B**. Sie meldet sich nie von selbst an; der Weg über Graph steht allein hinter dem Knopf «Mit Konto anmelden» auf der Fehlerkarte.
 - **Réception** meldet sich auf `admin.html` und `menueblatt.html` mit dem Microsoft-365-Konto an und greift danach **direkt über Microsoft Graph** auf die beiden SharePoint-Listen zu. Die Berechtigung ist delegiert: Das Token kann nur das, was die Person in SharePoint ohnehin darf.
 - **Ausnahme:** `menueblatt.html` holt die Bestellungen über Graph, die Menütexte aber weiterhin über **Flow B**, weil dort die Lunchgate-Anbindung sitzt.
@@ -86,6 +90,7 @@ Im Normalfall ist nichts zu tun. Es gibt keinen Server, der überwacht werden m�
 - **Aufräum-Flow «Aufraeumen Menuewahl»**, täglich um 03:00. Er löscht Klassen und Bestellungen, die älter als 30 Tage sind. Dadurch bleiben die Listen klein, was für die Seiten wichtig ist: Sie holen ganze Listen und filtern im Browser.
 - **Token-Erneuerung.** MSAL erneuert das Zugriffstoken still im Hintergrund, solange die Sitzung gültig ist. Token liegen im `sessionStorage` und sind beim Schliessen des Tabs weg. Eine Abmeldung von Hand ist nicht nötig.
 - **Codeerzeugung.** Der 8-stellige Klassencode entsteht beim Speichern automatisch aus dem Alphabet `ABCDEFGHJKLMNPQRSTUVWXYZ23456789`, ohne 0, O, 1 und I, damit er auf Papier eindeutig lesbar ist. Der Code ist nie ein Eingabefeld und ändert sich beim Bearbeiten nicht.
+- **Codes von Firmen-Terminen.** Wählt die Réception beim Termin eine Firma aus dem Verzeichnis, bekommt der Termin statt eines Zufallscodes den Code `SCHLUESSEL-JJMMTT`, zum Beispiel `SORBA-K7M2-260914`. Er enthält als einziger einen Bindestrich; daran erkennt die Verwaltung ihn. **Einzige Ausnahme von der Regel «Code ändert sich nicht»:** Wird das Datum eines solchen Termins verschoben, bildet die Verwaltung den Code neu, weil der Kurstag darin steckt. Der dauerhafte Code der Firma selbst ändert sich nie.
 - **Tagesmenüs.** Flow B holt sie bei jedem Aufruf frisch von Lunchgate. Fehlt ein Wert, greift ein Fallback auf die entsprechenden Spalten der Klasse in SharePoint.
 
 **Was niemand anfassen muss:**
@@ -235,6 +240,28 @@ beziehungsweise mit `menueblatt.html?klasse=ABC123`. **Ursache:** Die Seite wurd
 > Diese Klasse wurde nicht gefunden. Bitte prüfen Sie den Klassencode.
 
 **Ursache:** Zu diesem Code existiert in der Liste «Klassen» kein Eintrag. Der Vergleich läuft in Grossbuchstaben, Gross- und Kleinschreibung spielt also keine Rolle; Leerzeichen im Code hingegen schon. **Behebung:** Code in `admin.html` nachschlagen und die Adresse neu aufbauen.
+
+### 3.5a Firmen-QR-Code zeigt «Kein Kurs gefunden»
+
+**Symptom:** Wer den dauerhaften QR-Code einer Firma scannt oder den Link `…/?firma=SCHLUESSEL` öffnet, sieht
+
+> **Kein Kurs gefunden**
+> Für diese Firma wurde für den heutigen Tag kein Kurs gefunden. Bitte melde dich bei der Réception.
+
+**Einordnung:** Das ist meist **kein** technischer Fehler, sondern die vorgesehene Antwort, wenn es für heute keinen Termin dieser Firma gibt. Der Firmen-QR-Code hängt an keinem Termin: Die Gästeseite bildet aus dem Schlüssel und dem heutigen Datum den Klassencode `SCHLUESSEL-JJMMTT` und fragt damit Flow B. Findet Flow B dazu nichts, erscheint genau dieser Text. Über einen gewöhnlichen Klassenlink erschiene an derselben Stelle «Ungültiger Link».
+
+**Wahrscheinliche Ursachen und Prüfschritte**
+
+| Ursache | Prüfschritt | Behebung |
+|---|---|---|
+| Für heute ist kein Termin dieser Firma erfasst | In `admin.html`, Reiter «Firmen», zeigt die Karte der Firma die Anzahl kommender Termine. In der Terminliste den heutigen Tag ansehen. | Termin anlegen und dabei im Feld «Firma» die Firma aus dem Klappfeld wählen. Danach genügt ein Neuladen auf dem Handy. |
+| Der Termin wurde mit **freiem Firmentext** angelegt statt mit der Firma aus dem Verzeichnis | Der Termin trägt dann in Liste und Details **keine** Marke «Firmen-QR», und sein Code ist ein achtstelliger Zufallscode ohne Bindestrich. | Termin bearbeiten, im Klappfeld «Firma» die Firma wählen, Rückfrage mit «Code neu bilden» bestätigen. Der Termin bekommt dadurch einen neuen Code; bereits erfasste Bestellungen bleiben. |
+| Falsches Datum am Termin | Datum in `admin.html` prüfen. Der Code muss auf den heutigen Tag enden, Format `JJMMTT`. | Datum korrigieren. Der Code wird dabei automatisch neu gebildet. |
+| Falsches Datum oder falsche Zeitzone auf dem Gerät des Gastes | Die Gästeseite bildet den Tagesteil des Codes aus der **lokalen Systemzeit** des Geräts, wie die Datumsprüfung in Abschnitt 3.6. | Systemzeit des Geräts richtigstellen. |
+| Schlüssel im Link verstümmelt | Der Link muss genau `…/?firma=SCHLUESSEL` lauten. Erlaubt sind nur Grossbuchstaben, Ziffern und Bindestrich; alles andere gilt als unvollständiger Link und führt zur Karte «Ungültiger Link». | Link aus dem Reiter «Firmen» über «Link kopieren» neu weitergeben oder das Firmenblatt neu drucken. |
+| Termin älter als 30 Tage, vom Aufräum-Flow entfernt | Nur bei rückblickenden Fragen. Der Verzeichniseintrag der Firma bleibt bestehen, er wird nicht aufgeräumt. | Neuen Termin anlegen. |
+
+**Gegenprobe ohne Daten:** `https://menue.campus-sursee.ch/?mock=1&keinkurs=1` zeigt dieses Bild mit Testdaten. Erscheint es dort korrekt, ist die ausgelieferte Fassung in Ordnung und es fehlt tatsächlich der Termin.
 
 ### 3.6 Gast sieht «falscher Tag» statt Formular
 
@@ -422,6 +449,39 @@ oder der Zähler in der Klassenliste bleibt auf 0.
 
 **Verwandtes Bild:** Die Terminliste selbst ist leer und zeigt «Für heute ist kein Termin eingetragen.». Der Filter steht dann auf «Nur heute», dem Normalfall; über «Filter» lassen sich «Zukünftige Termine» und «Vergangene Termine» dazuschalten. Steht dort «Kein Termin gefunden.», ist das Suchfeld gefüllt; es zu leeren zeigt wieder alle Termine des eingestellten Zeitraums. Liegen Treffer ausserhalb, bietet die Seite darunter selbst an, alle Termine einzublenden.
 
+### 3.11a Reiter «Firmen» meldet, die Liste fehle
+
+**Symptom:** In `admin.html` steht im Reiter «Firmen» statt des Verzeichnisses die Karte
+
+> **Die Liste «Firmen» ist auf der SharePoint-Site noch nicht vorhanden**
+> Das Firmenverzeichnis braucht auf der Site «Reception» eine Liste «Firmen» mit der Textspalte «Schluessel». Die Terminverwaltung funktioniert auch ohne sie; im Terminformular steht dann nur «Firma frei eingeben» zur Verfügung.
+
+darunter der Knopf **«Liste jetzt anlegen»**.
+
+**Einordnung:** Die Terminverwaltung ist davon **nicht** betroffen. Bestehende Termine mit Firmen-QR-Code funktionieren weiter, weil sie Firmenname und Code als eigene Kopie tragen; es lassen sich nur keine neuen Termine einer Firma aus dem Verzeichnis zuordnen.
+
+**Wahrscheinliche Ursachen**
+
+1. Die Liste wurde nie angelegt. Das ist der Normalfall auf einer Site, die vor dem 14.09.2026 eingerichtet wurde.
+2. Die Liste heisst anders. Gesucht wird über den **Anzeigenamen** «Firmen», genau so geschrieben, sofern in `frontend\konfig.js` unter `listeFirmen` keine ID steht.
+3. In `konfig.js` steht unter `listeFirmen` eine ID, die es auf der Site nicht (mehr) gibt. Dann meldet die Verwaltung statt dieser Karte einen Graph-Fehler «Liste oder Eintrag nicht gefunden».
+4. Das angemeldete Konto darf auf der Site «Reception» keine Listen sehen oder anlegen. Dann erscheint im roten Balken des Reiters zusätzlich eine Berechtigungsmeldung, siehe 3.3.
+
+**Prüfschritte**
+
+1. Site «Reception» öffnen (`https://campussursee.sharepoint.com/sites/hot-reze`), **Websiteinhalte**: Gibt es eine Liste «Firmen»?
+2. `frontend\konfig.js` ansehen: Steht unter `listeFirmen` etwas? Leer ist zulässig und der Regelfall.
+3. Roten Balken im Reiter «Firmen» lesen; steht dort eine Graph-Meldung, ist es Fall 3 oder 4.
+
+**Behebung**
+
+- Fall 1: Knopf **«Liste jetzt anlegen»** klicken. Die Verwaltung legt die Liste «Firmen» mit der Textspalte `Schluessel` an; `Title` bringt SharePoint selbst mit und trägt den Firmennamen. Alternativ legt die ICT die Liste von Hand an, siehe `04_Einrichtung_und_Deployment.md`, Abschnitt 1.
+- Fall 2: Liste in SharePoint auf «Firmen» umbenennen oder ihre ID in `konfig.js` unter `listeFirmen` eintragen und neu veröffentlichen.
+- Fall 3: ID in `konfig.js` korrigieren oder leeren; ist sie leer, sucht die Verwaltung die Liste beim Start über den Anzeigenamen.
+- Fall 4: Berechtigung auf der Site klären, siehe 3.3 und 5.1.
+
+> Eine neue Graph-Berechtigung braucht es **nicht**. `Sites.ReadWrite.All` deckt die neue Liste und auch das Anlegen ab. Es ist ebenfalls kein Eingriff in die Flows nötig, sie kennen die Liste «Firmen» nicht.
+
 ### 3.12 Weitere Meldungen im Wortlaut
 
 Meldungen, die im Betrieb auftauchen können und oben nicht bereits behandelt sind.
@@ -445,6 +505,12 @@ Meldungen, die im Betrieb auftauchen können und oben nicht bereits behandelt si
 | «Kein Termin gefunden.» | Verwaltung, linke Spalte | Der Suchtext passt auf keinen Termin im eingestellten Zeitraum. | Kein Fehler. Liegen Treffer ausserhalb, steht darunter «… Termine liegen ausserhalb des Filters, alle anzeigen»; ein Klick blendet sie ein. |
 | «Erwartete Teilnehmeranzahl: bitte eine ganze Zahl von 0 bis 999 eingeben.» | Verwaltung, Formular | Im Feld steht etwas anderes als eine ganze Zahl in diesem Bereich. | Eingabe korrigieren oder Feld leeren. |
 | «Field 'Teilnehmer' is not recognized» oder ähnlich beim Speichern | Verwaltung, Formular | Die Spalte `Teilnehmer` fehlt in der SharePoint-Liste «Klassen». | Spalte anlegen (Zahl, darf leer sein), siehe `03_Technische_Dokumentation.md`, Abschnitt 4. |
+| «Kein Kurs gefunden» als Überschrift | Gästeseite, über `?firma=` | Für den heutigen Tag ist kein Termin dieser Firma erfasst | Meist kein Fehler, siehe 3.5a. |
+| «Die Liste «Firmen» ist auf der SharePoint-Site noch nicht vorhanden» | Verwaltung, Reiter «Firmen» | Das Firmenverzeichnis hat auf der Site noch keine Ablage | Knopf «Liste jetzt anlegen», siehe 3.11a. |
+| «Ein Termin mit Firmen-QR-Code braucht ein Datum: der Kurstag steckt im Code.» | Verwaltung, Terminformular | Im Klappfeld «Firma» steht eine Firma aus dem Verzeichnis, aber kein Datum. | Datum setzen. Kein Systemfehler. |
+| «Für *Firma* ist am *Datum* bereits ein Termin mit Firmen-QR-Code erfasst. …» | Verwaltung, Terminformular | Pro Firma und Kurstag ist nur ein Termin mit Firmen-QR-Code möglich. | Für den zweiten Kurs desselben Tages «Firma frei eingeben» wählen; er bekommt einen Zufallscode. Kein Systemfehler. |
+| «Eine Firma mit diesem Namen steht bereits im Verzeichnis.» | Verwaltung, Reiter «Firmen» | Zwei gleichnamige Firmen wären im Klappfeld des Terminformulars nicht zu unterscheiden. | Namen eindeutig machen, zum Beispiel mit Ortszusatz. |
+| Rückfrage «Termin dem Firmen-QR-Code zuordnen?» beziehungsweise «Termin vom Firmen-QR-Code lösen?» | Verwaltung, Terminformular | keine Störung, sondern die Warnung davor, dass der Termin einen neuen Code bekommt | Mit «Code neu bilden» bestätigen. Bereits erfasste Bestellungen bleiben erhalten. |
 | Kursblatt oder Gästeseite erscheinen deutsch, obwohl ein französisches oder englisches Blatt gewünscht war | Kursblatt, Gästeseite | Die Sprache reist im Link mit (`&fr`, `&en`). Das Klappfeld neben «Kursblatt drucken» stand auf «DE», oder der Link wurde von Hand gekürzt. | Klappfeld auf «FR» oder «EN» stellen und das Kursblatt neu öffnen; der QR-Code darauf enthält den Zusatz. Auf der Gästeseite lässt sich die Sprache oben mit «DE / EN / FR» jederzeit umstellen. |
 
 ---
@@ -462,6 +528,7 @@ https://menue.campus-sursee.ch/menueblatt.html?mock=1
 https://menue.campus-sursee.ch/?mock=1
 https://menue.campus-sursee.ch/?mock=1&falschertag=1
 https://menue.campus-sursee.ch/?mock=1&spaet=1
+https://menue.campus-sursee.ch/?mock=1&keinkurs=1
 ```
 
 Das ist das schnellste Mittel, um Anzeige- von Datenproblemen zu trennen:
@@ -469,7 +536,7 @@ Das ist das schnellste Mittel, um Anzeige- von Datenproblemen zu trennen:
 - **Sieht die Seite im Mock-Modus richtig aus, im Echtbetrieb aber nicht?** Dann liegt es an Daten, Berechtigungen, Flows oder Netzwerk, nicht am Layout.
 - **Ist sie auch im Mock-Modus kaputt?** Dann ist die Veröffentlichung unvollständig oder eine Datei beschädigt.
 
-In der Verwaltung erscheint im Mock-Modus rechts oben «Testperson (Mock-Modus)». Änderungen bleiben nur bis zum Neuladen bestehen und erreichen SharePoint nie. Mit `&falschertag=1` auf der Gästeseite lässt sich gezielt das Bild aus Abschnitt 3.6 nachstellen.
+In der Verwaltung erscheint im Mock-Modus rechts oben «Testperson (Mock-Modus)». Änderungen bleiben nur bis zum Neuladen bestehen und erreichen SharePoint nie. Mit `&falschertag=1` auf der Gästeseite lässt sich gezielt das Bild aus Abschnitt 3.6 nachstellen, mit `&keinkurs=1` jenes aus Abschnitt 3.5a. Im Mock-Modus enthält die Verwaltung auch ein Firmenverzeichnis mit zwei Firmen und zwei Terminen mit Firmen-QR-Code.
 
 ### 4.2 Browser-Konsole
 
@@ -507,12 +574,13 @@ Für die Störungssuche besonders nützlich: die Ausgabe der Aktion «Lunchgate�
 
 ### 4.5 Direkt in die SharePoint-Listen schauen
 
-Site «Reception»: `https://campussursee.sharepoint.com/sites/hot-reze`, dort **Websiteinhalte**, dann die Liste «Klassen» oder «Bestellungen».
+Site «Reception»: `https://campussursee.sharepoint.com/sites/hot-reze`, dort **Websiteinhalte**, dann die Liste «Klassen», «Bestellungen» oder «Firmen».
 
 - **Liste «Klassen»:** Spalten `Title`, `Firma`, `Datum`, `Essenszeit`, `Code`, `Status` («offen» oder «geschlossen»), `Teilnehmer`, `Suppe`, `Salat`, `Menu1`, `Menu2`, `Dessert`. Die Spalte `Sprache` vom 08.09.2026 wird seit dem 09.09.2026 nicht mehr gelesen oder geschrieben und darf stehen bleiben oder entfernt werden.
 - **Liste «Bestellungen»:** Spalten `Title`, `KlasseID`, `KlasseCode`, `Vorname`, `Nachname`, `Vorspeise` («Suppe», «Salat» oder «Keine»), `Hauptgang` («Menü 1» oder «Menü 2»), `Bemerkung`, `Created`.
+- **Liste «Firmen»:** Spalten `Title` (Firmenname) und `Schluessel` (dauerhafter Schlüssel, zum Beispiel `SORBA-K7M2`). Mehr enthält sie nicht. Sie ist die einzige Ablage, die der Aufräum-Flow nicht anfasst; Termine und Bestellungen verschwinden nach 30 Tagen, die Firmen bleiben.
 - **Achtung:** Die Liste «Bestellungen» hat **keine** eigene Datumsspalte. Die Zuordnung zum Kurstag läuft immer über `KlasseID`. Wer nach einem Tag suchen will, sucht zuerst die Klasse und dann deren ID.
-- Zum Suchen eignet sich die Spalte `KlasseCode`, weil sie den Code im Klartext enthält.
+- Zum Suchen eignet sich die Spalte `KlasseCode`, weil sie den Code im Klartext enthält. Alle Termine einer Firma finden sich in der Liste «Klassen» über den Anfang der Spalte `Code`: Er lautet immer `SCHLUESSEL-`, gefolgt vom Kurstag als `JJMMTT`.
 
 Änderungen von Hand in SharePoint sind möglich, aber die Ausnahme. Beim Status ist die Schreibweise entscheidend: exakt «offen» oder «geschlossen», in Kleinschreibung.
 
@@ -575,6 +643,16 @@ Eine fehlerhafte Veröffentlichung lässt sich in Cloudflare Pages über die Lis
 4. «Link kopieren» für den Gästelink, «Kursblatt drucken» für den Aushang mit QR-Code.
 5. Am Kurstag «Menüblatt drucken» für die Küche.
 
+### 5.6 Firma mit dauerhaftem QR-Code aufnehmen (Réception, zur Auskunft)
+
+1. In `admin.html` oben auf den Reiter **«Firmen»** wechseln.
+2. Links unter «Neue Firma» den Firmennamen erfassen und speichern. Der Schlüssel (`SORBA-K7M2`) entsteht dabei automatisch aus dem Namen und vier Zufallszeichen und lässt sich danach nicht mehr ändern.
+3. Auf der Firmenkarte «Firmenblatt» öffnen, Sprache im Klappfeld daneben, und ausdrucken. Dieses Blatt gilt dauerhaft.
+4. **Jeden Kurstag** wie gewohnt einen Termin anlegen und dabei im Feld «Firma» die Firma aus dem Klappfeld wählen. Ohne Termin für den heutigen Tag zeigt der QR-Code «Kein Kurs gefunden», siehe 3.5a.
+5. Umbenennen und Löschen im Verzeichnis verändern bestehende Termine nicht; sie tragen Firmenname und Code als eigene Kopie.
+
+Ausführlich steht das in `01_Anleitung_Reception.md`, Abschnitt 3a.
+
 ---
 
 ## 6. Grenzen und bekannte Schwächen
@@ -588,7 +666,9 @@ Diese Punkte sind bekannt und bewusst in Kauf genommen. Sie gehören ins Gesprä
 5. **Abhängigkeit von einem fremden CDN.** Anmeldung und QR-Code setzen voraus, dass `cdn.jsdelivr.net` erreichbar ist. Fällt der Dienst aus oder wird er im Netz blockiert, sind die beiden Seiten mit Anmeldung (`admin.html`, `menueblatt.html`) nicht benutzbar. Sie melden das im Klartext, statt leer zu bleiben. Die Gästeseite ist nicht betroffen: Sie lädt keine Bibliothek und funktioniert weiter. Das Kursblatt lädt und zeigt seine Angaben ebenfalls weiter, nur der QR-Code fehlt dann; der Gästelink darunter bleibt als Ersatz lesbar. Als Gegengewicht sind beide Bibliotheken auf feste Fassungen genagelt und mit Prüfsumme abgesichert; ein manipuliertes Auslieferungspaket würde nicht geladen.
 6. **Kein serverseitiger Filter.** Die Seiten holen ganze Listen und filtern im Browser, weil serverseitige Filter auf SharePoint-Listenspalten einen Index voraussetzen und sonst sporadisch fehlschlagen. Bei 30 Tagen Aufbewahrung sind das wenige hundert Einträge, das trägt problemlos. Würde die Aufbewahrung stark verlängert, müsste dieser Punkt neu bewertet werden.
 7. **Die Uhrzeit des Annahmeschlusses steht an zwei Stellen im Quellcode.** `KONFIG.annahmeschluss` in `frontend\konfig.js` gilt für die Admin-Seiten, `ANNAHMESCHLUSS` im Kopf von `frontend\index.html` für die Gästeseite. Die Gästeseite lädt `konfig.js` bewusst nicht, weil sie ohne Anmeldung auskommt. Wird die Zeit nur an einer Stelle geändert, widersprechen sich Kursblatt und Gästeseite. Siehe `03_Technische_Dokumentation.md`, Abschnitt 7.1.
-8. **Die Gästeseite merkt sich die Bestellung nur lokal.** Sie speichert die abgesendete Wahl im `localStorage` des Geräts, damit die Bestätigung nach dem Neuladen wieder erscheint und die Wahl bearbeitet werden kann. Auf einem anderen Gerät oder in einem privaten Fenster ist diese Erinnerung weg; eine erneute Bestellung erzeugt dann einen zweiten Eintrag in der Liste. Doppelte Namen auf dem Menüblatt haben in der Regel diese Ursache.
+8. **Der dauerhafte Firmen-QR-Code setzt voraus, dass der Termin erfasst ist.** Er löst das Verteilen von Links und Blättern, nicht das Erfassen. Fehlt der Termin des Tages, zeigt der Code «Kein Kurs gefunden» statt der Menüwahl, siehe 3.5a. Bewusst in Kauf genommen wurde dabei zweierlei: Das Firmenblatt kann keine Essenszeit nennen, weil sie von Kurstag zu Kurstag wechselt, und der Code eines Termins mit Firmen-QR-Code wird beim Ändern des Datums neu gebildet — die einzige Stelle, an der ein einmal vergebener Code je wechselt. Begründung in `05_Entscheide_und_Verlauf.md`, Abschnitt 5g.
+9. **Pro Firma und Kurstag ist nur ein Termin mit Firmen-QR-Code möglich.** Der Code enthält den Kurstag und ist damit je Tag eindeutig; ein zweiter Kurs derselben Firma am selben Tag läuft über einen gewöhnlichen Zufallscode. Die Verwaltung prüft das beim Speichern und weist darauf hin. Die Prüfung läuft im Browser über die geladene Terminliste, nicht in SharePoint; theoretisch könnten zwei Personen gleichzeitig denselben Code anlegen. Praktisch fiele das sofort auf, weil beide Termine dieselbe Marke «Firmen-QR» und denselben Code trügen.
+10. **Die Gästeseite merkt sich die Bestellung nur lokal.** Sie speichert die abgesendete Wahl im `localStorage` des Geräts, damit die Bestätigung nach dem Neuladen wieder erscheint und die Wahl bearbeitet werden kann. Auf einem anderen Gerät oder in einem privaten Fenster ist diese Erinnerung weg; eine erneute Bestellung erzeugt dann einen zweiten Eintrag in der Liste. Doppelte Namen auf dem Menüblatt haben in der Regel diese Ursache.
 
 ---
 
@@ -606,7 +686,7 @@ In dieser Reihenfolge vorgehen:
 
 ### 7.2 Was ein Ticket enthalten muss
 
-- **Klassencode** (8 Zeichen) und Name der Klasse
+- **Klassencode** (8 Zeichen) und Name der Klasse. Bei einem Termin mit Firmen-QR-Code stattdessen der vollständige Code der Form `SCHLUESSEL-JJMMTT` sowie der Firmenschlüssel
 - **Zeitpunkt** mit Datum und Uhrzeit auf die Minute genau, damit sich der Flow-Lauf zuordnen lässt
 - **Konto**, mit dem gearbeitet wurde, oder der Hinweis, dass es die anonyme Gästeseite war
 - **Fehlermeldung im Wortlaut**, samt Überschrift der Fehlerkarte und einem allfälligen `AADSTS`-Code oder HTTP-Statuscode. Ein Bildschirmfoto der ganzen Seite ist besser als eine Umschreibung.

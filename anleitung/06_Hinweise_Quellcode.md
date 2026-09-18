@@ -1,6 +1,6 @@
 # Hinweise zum Quellcode
 
-**Stand:** 04.09.2026
+**Stand:** 14.09.2026
 
 Der Ordner `frontend` enthält **genau das, was bei Cloudflare Pages ausgeliefert wird**. Es gibt keinen Bauprozess, keine Abhängigkeiten zum Installieren und keinen Zwischenschritt: Was hier liegt, ist die laufende Webseite.
 
@@ -10,13 +10,13 @@ Der Ordner `frontend` enthält **genau das, was bei Cloudflare Pages ausgeliefer
 
 | Datei | Aufgabe |
 |---|---|
-| `frontend\index.html` | Gästeseite, Menüwahl. Ohne Anmeldung |
-| `frontend\admin.html` | Verwaltung der Termine, links nach Kurstag gruppiert. Ersetzt die frühere Power-Apps-App |
-| `frontend\kursblatt.html` | Aushang mit QR-Code, Aufruf mit `?klasse=CODE`. **Ohne Anmeldung**, lädt über Flow B |
+| `frontend\index.html` | Gästeseite, Menüwahl. Ohne Anmeldung. Aufruf mit `?klasse=CODE` oder `?firma=SCHLUESSEL` |
+| `frontend\admin.html` | Verwaltung der Termine, links nach Kurstag gruppiert, dazu der Reiter «Firmen». Ersetzt die frühere Power-Apps-App |
+| `frontend\kursblatt.html` | Aushang mit QR-Code, Aufruf mit `?klasse=CODE`. **Ohne Anmeldung**, lädt über Flow B. Mit `?firma=SCHLUESSEL&name=NAME` das Firmenblatt, dann ganz ohne Netzaufruf |
 | `frontend\menueblatt.html` | Bestellübersicht für die Küche, Aufruf mit `?klasse=CODE` |
 | `frontend\konfig.js` | alle Kennungen und Adressen an einer Stelle. **Hier zuerst schauen** |
 | `frontend\auth.js` | Anmeldung an Entra ID, dünner Aufsatz auf MSAL |
-| `frontend\graph.js` | Zugriff auf die SharePoint-Listen, dazu Datums- und Codehilfen |
+| `frontend\graph.js` | Zugriff auf die SharePoint-Listen, dazu Datums-, Sprach- und Codehilfen, einschliesslich der Firmenschlüssel |
 | `frontend\_headers` | Sicherheitsheader und Content Security Policy für Cloudflare Pages |
 | `code\serve.ps1` | kleiner Server zum lokalen Testen |
 
@@ -35,10 +35,12 @@ Danach im Browser öffnen:
 - `http://localhost:8123/index.html?mock=1`
 - `http://localhost:8123/index.html?mock=1&spaet=1` (nach dem Annahmeschluss)
 - `http://localhost:8123/admin.html?mock=1`
+- `http://localhost:8123/index.html?mock=1&keinkurs=1` (Firmen-QR-Code ohne Termin für heute)
 - `http://localhost:8123/kursblatt.html?mock=1`
+- `http://localhost:8123/kursblatt.html?firma=SORBA-K7M2&name=SORBA` (Firmenblatt, braucht keinen Mock-Schalter)
 - `http://localhost:8123/menueblatt.html?mock=1`
 
-`?mock=1` arbeitet mit erfundenen Daten, ohne Anmeldung und ohne Netzwerk. In der Verwaltung funktionieren dabei auch Anlegen, Bearbeiten und Löschen, für Termine wie für Bestellungen, allerdings nur im Arbeitsspeicher. Wer `Daten.bestellungAnlegen`, `bestellungAendern` oder `bestellungLoeschen` ändert, muss die Attrappe in `mockBauen()` mitziehen; sonst läuft der Mock-Modus auseinander mit dem, was gegen SharePoint passiert.
+`?mock=1` arbeitet mit erfundenen Daten, ohne Anmeldung und ohne Netzwerk. In der Verwaltung funktionieren dabei auch Anlegen, Bearbeiten und Löschen, für Termine wie für Bestellungen, allerdings nur im Arbeitsspeicher. Wer `Daten.bestellungAnlegen`, `bestellungAendern` oder `bestellungLoeschen` ändert, muss die Attrappe in `mockBauen()` mitziehen; sonst läuft der Mock-Modus auseinander mit dem, was gegen SharePoint passiert. Dasselbe gilt für das Firmenverzeichnis: `firmenListeErmitteln`, `firmenListeAnlegen`, `firmenLaden`, `firmaAnlegen`, `firmaAendern` und `firmaLoeschen` gibt es in `mockBauen()` ein zweites Mal. Dort liegen auch die Testfirmen, die beiden Termine mit Firmen-QR-Code und der Schalter `firmenListeDa`, mit dem sich der Fall «Liste «Firmen» fehlt» nachstellen lässt.
 
 ---
 
@@ -49,6 +51,11 @@ Danach im Browser öffnen:
 - **Beim QR-Code zählt `margin` in SVG-Einheiten, nicht in Modulen.** Bei `cellSize: 2` sind vier Module Ruhezone `margin: 8`. Ohne Ruhezone verweigern Scanner den Code.
 - **Bibliotheksversionen und `integrity`-Prüfsummen gehören zusammen.** Wird eine Version angehoben, ohne die Prüfsumme mitzuziehen, lädt der Browser die Datei nicht mehr.
 - **Der Annahmeschluss steht an zwei Stellen.** `KONFIG.annahmeschluss` in `konfig.js` und `ANNAHMESCHLUSS` im Kopf von `index.html`. Die Gästeseite lädt `konfig.js` bewusst nicht, weil sie ohne Anmeldung auskommt. Wer die Uhrzeit ändert, muss **beide** anfassen.
+- **Die Bildungsregel des Firmencodes steht an zwei Stellen.** `Hilfe.firmenCode()` in `graph.js` für die Verwaltung und `firmenCode()` im Kopf von `index.html` für die Gästeseite, aus demselben Grund wie beim Annahmeschluss: Die Gästeseite lädt `graph.js` nicht. Wer die Regel ändert, muss **beide** anfassen. Der Fehlerfall ist still: Die Gästeseite meldet dann nur «Kein Kurs gefunden», ohne dass irgendwo ein Fehler auftaucht.
+- **Der Bindestrich gehört nie ins Zufallsalphabet.** `Hilfe.istFirmenCode()` unterscheidet Firmen- und Zufallscode allein daran, ob der Code einen Bindestrich enthält. Käme der Bindestrich je in `CODE_ZEICHEN`, gälte irgendwann ein Zufallscode als Firmencode. Aus demselben Grund schneidet `firmenSchluesselAusCode()` am **letzten** Bindestrich: Der Schlüssel selbst enthält bereits einen.
+- **Der Code eines Firmen-Termins wird beim Ändern des Datums neu gebildet.** Das ist die einzige Ausnahme von der Regel, dass ein Code sein Leben lang bleibt; der Kurstag steckt darin. `formularSpeichern()` in `admin.html` schreibt `code` deshalb nur dann in den gespeicherten Satz, wenn er sich tatsächlich ändern muss — sonst steht das Feld gar nicht erst darin und bleibt unangetastet. Wer dort vereinfacht und `code` immer mitschickt, überschreibt bei jedem Speichern den Code jedes Termins.
+- **Am Schlüssel einer Firma wird nie etwas geändert.** `Graph.firmaAendern()` schreibt bewusst nur `Title`. Am Schlüssel hängt der gedruckte QR-Code, und die bereits angelegten Termine tragen ihn in ihrem eigenen Code. Aus demselben Grund liest `admin.html` den Schlüssel eines Termins immer aus dessen Code und nie aus dem Verzeichnis: Der Termin steht für sich, auch wenn die Firma dort gelöscht wurde.
+- **Die Liste «Firmen» darf fehlen.** Sie wird als einzige nicht fest über eine ID angesprochen; `KONFIG.listeFirmen` darf leer bleiben, dann sucht `graph.js` sie einmal über ihren Anzeigenamen. Fehlt sie ganz, liefern die Lesefunktionen eine leere Liste statt eines Fehlers, damit die Terminverwaltung benutzbar bleibt. Wer daraus einen harten Fehler macht, legt bei jeder Site ohne diese Liste die ganze Verwaltung lahm.
 - **Eine neue Seite mit Anmeldung braucht einen Eintrag in Entra ID.** Jede Seite meldet sich auf ihrer eigenen Adresse an. Fehlt die Umleitungsadresse, scheitert die Anmeldung mit `AADSTS50011`. Siehe `04_Einrichtung_und_Deployment.md`, Abschnitt 2.2.
 - **Rasterspalten brauchen `minmax(0, ...)` und `min-width: 0`.** Ein Feld in einem CSS-Raster wird von sich aus nie schmaler als sein längster nicht umbrechbarer Inhalt, auch dann nicht, wenn die Spalte auf eine feste Breite gesetzt ist. In der Verwaltung hat das eine Klassenzeile mit langem Titel über die Detailspalte hinausgeschoben, sodass sich die beiden Spalten verdeckt haben. Wer in `admin.html` am Raster `.raster` oder an der Liste `.liste` etwas ändert, muss die Null in `minmax(0, ...)` und das `min-width: 0` stehen lassen. Ein Kürzen mit `text-overflow: ellipsis` allein genügt nicht: es greift erst, wenn das Feld überhaupt schmaler werden darf.
 - **Eine neue Spalte in `FELDER_KLASSE` muss in SharePoint existieren, bevor die Fassung live geht.** Beim *Lesen* ist das harmlos: Graph beantwortet ein unbekanntes Feld in `$select` mit HTTP 400, und `alleElemente` in `graph.js` wiederholt die Abfrage ohne Feldauswahl. Beim *Schreiben* gibt es diesen Rückfall nicht, das Speichern schlägt fehl. Gilt derzeit für `Teilnehmer` (erwartete Teilnehmeranzahl, Zahl, darf leer sein).

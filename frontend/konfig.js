@@ -10,7 +10,7 @@ const KONFIG = {
   mandantId: "2553fb74-5dcc-4072-8bb5-399d18f72af9",
 
   // Anwendungs-ID (Client-ID) der App-Registrierung «Menuewahl BAULUUT Admin».
-  // Keine Geheimhaltung nötig, siehe ANLEITUNG_ANMELDUNG.md.
+  // Keine Geheimhaltung nötig, siehe anleitung/04_Einrichtung_und_Deployment.md.
   clientId: "9d344eb0-8af8-44d1-ad64-916d564e5975",
 
   /* ---- SharePoint (Site «Reception», hot-reze) ---- */

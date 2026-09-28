@@ -1,146 +1,110 @@
 # Menüwahl Restaurant BAULÜÜT
 
-Kursteilnehmende am Campus Sursee wählen ihr Mittagsmenü über eine Webseite statt auf einem Papierblatt. Die Réception legt pro Kurs eine Klasse an und gibt den Teilnehmenden einen Link oder ein Blatt mit QR-Code. Die Küche erhält die gesammelten Bestellungen ausgedruckt.
-
-**Stand dieser Ablage:** 14.09.2026
-
----
-
-## Wo fange ich an
-
-| Ich bin | Ich lese |
-|---|---|
-| an der Réception und will das System bedienen | [`anleitung/01_Anleitung_Reception.md`](anleitung/01_Anleitung_Reception.md) |
-| bei den ICT-Services und habe eine Störung | [`anleitung/02_Betriebshandbuch_Support.md`](anleitung/02_Betriebshandbuch_Support.md) |
-| bei den ICT-Services und will verstehen, wie es gebaut ist | [`anleitung/03_Technische_Dokumentation.md`](anleitung/03_Technische_Dokumentation.md) |
-| dabei, etwas zu ändern oder zu veröffentlichen | [`anleitung/04_Einrichtung_und_Deployment.md`](anleitung/04_Einrichtung_und_Deployment.md) |
-| neu im Projekt und frage mich, warum es so ist | [`anleitung/05_Entscheide_und_Verlauf.md`](anleitung/05_Entscheide_und_Verlauf.md) |
-| dabei, den Code zu ändern | [`anleitung/06_Hinweise_Quellcode.md`](anleitung/06_Hinweise_Quellcode.md) |
+Kursteilnehmende am Campus Sursee wählen ihr Mittagessen im Restaurant BAULÜÜT
+**am Handy statt auf einem Papierblatt**. Dieses Repository enthält die
+Webseite dafür und alle Anleitungen.
 
 ---
 
-## Was hier liegt
+## So läuft es ab
 
-```
-baulueuet-menue/
-├── README.md                         dieses Dokument
-├── wrangler.toml                     Hosting-Einstellungen für Cloudflare Pages
-├── frontend/                         die Webseite, genau so wie sie gehostet wird
-│   ├── index.html                    Gästeseite, Menüwahl
-│   ├── admin.html                    Verwaltung der Termine und des Firmenverzeichnisses
-│   ├── kursblatt.html                Aushang mit QR-Code, ohne Anmeldung; auch als Firmenblatt
-│   ├── menueblatt.html               Bestellübersicht für die Küche
-│   ├── konfig.js                     alle Kennungen und Adressen an einer Stelle
-│   ├── auth.js                       Anmeldung an Entra ID
-│   ├── graph.js                      Zugriff auf die SharePoint-Listen
-│   ├── _headers                      Sicherheitsheader und CSP (Cloudflare Pages)
-│   └── .nojekyll                     damit GitHub Pages `_headers` nicht wegfiltert
-├── code/
-│   └── serve.ps1                     kleiner Server zum lokalen Testen
-├── anleitung/
-│   ├── 01_Anleitung_Reception.md     Bedienung, für die Anwender
-│   ├── 02_Betriebshandbuch_Support.md  Störungsbehebung, für die ICT
-│   ├── 03_Technische_Dokumentation.md  Architektur, Datenmodell, Schnittstellen
-│   ├── 04_Einrichtung_und_Deployment.md  Einrichten und veröffentlichen
-│   ├── 05_Entscheide_und_Verlauf.md  warum es so gebaut ist, was offen ist
-│   └── 06_Hinweise_Quellcode.md      Hinweise für alle, die den Code ändern
-└── Vorlagen/
-    ├── Menueauswahlblatt_Original_Word.docx   das alte Papierblatt als Referenz
-    └── logo-bauluut.svg
+```mermaid
+flowchart LR
+    A["1 · Réception<br/>legt einen Termin an"] --> B["2 · Kurs erhält<br/>Link oder QR-Code"]
+    B --> C["3 · Teilnehmende wählen<br/>am Kurstag bis 10 Uhr"]
+    C --> D["4 · Küche erhält<br/>das Menüblatt"]
 ```
 
-Alle Pfadangaben in den Dokumenten sind ab diesem Wurzelverzeichnis zu lesen.
+1. **Die Réception legt einen Termin an**: pro Kurs und Essenstag einen. Dabei
+   entsteht automatisch ein Zugangscode, zum Beispiel `M2VJ8KWS`.
+2. **Der Kurs erhält einen Link oder ein Blatt mit QR-Code.** Niemand braucht
+   ein Konto oder eine App.
+3. **Die Teilnehmenden wählen am Kurstag bis 10:00 Uhr** Vorspeise, Hauptgang
+   und geben Allergien an. Danach nimmt die Réception Änderungen entgegen.
+4. **Die Réception druckt das Menüblatt** mit allen Bestellungen für die Küche.
+
+Firmen, die oft am Campus sind, können einen **dauerhaften QR-Code** bekommen,
+der für alle ihre Kurstage gilt.
 
 ---
 
-## Veröffentlichen
+## Die Webseite
 
-Gehostet wird bei **Cloudflare Pages**, angebunden an dieses Git-Repository:
-Ein Push auf `main` veröffentlicht automatisch. Der ausgelieferte Ordner steht
-in [`wrangler.toml`](wrangler.toml) und nicht in der Cloudflare-Oberfläche.
-
-| Einstellung | Wert | Bedeutung |
+| Seite | Adresse | Für wen |
 |---|---|---|
-| `pages_build_output_dir` | `frontend` | nur dieser Ordner geht ins Netz; `anleitung`, `code` und `Vorlagen` bleiben aussen vor |
-| `name` | `baulueuet-menue` | muss gleich lauten wie das Projekt in Cloudflare Pages |
-| Build command (Oberfläche) | leer | es gibt keinen Bauprozess |
+| **Verwaltung** | [menue.campus-sursee.ch/admin](https://menue.campus-sursee.ch/admin) | Réception, mit Microsoft-Konto |
+| Menüwahl | `https://menue.campus-sursee.ch/?klasse=CODE` | Teilnehmende, ohne Anmeldung |
+| Menüwahl einer Firma | `https://menue.campus-sursee.ch/?firma=SCHLUESSEL` | Teilnehmende, ohne Anmeldung |
+| Kursblatt mit QR-Code | `https://menue.campus-sursee.ch/kursblatt?klasse=CODE` | zum Aufhängen, ohne Anmeldung |
+| Menüblatt für die Küche | `https://menue.campus-sursee.ch/menueblatt?klasse=CODE` | Réception, mit Microsoft-Konto |
 
-Sicherheitsheader und Content Security Policy stehen bewusst **nicht** in
-`wrangler.toml`, sondern in [`frontend/_headers`](frontend/_headers), samt
-Begründung zu jeder einzelnen Regel. Bitte nur dort nachführen: Zwei Fassungen
-derselben Richtlinie führen zu Fehlern, die kaum zu finden sind, weil der
-Browser blockierte Aufrufe stillschweigend verwirft.
+Die Adressen mit `CODE` oder `SCHLUESSEL` muss niemand von Hand zusammensetzen:
+Die Verwaltung erzeugt sie per Knopfdruck.
 
-Der Ablauf Schritt für Schritt steht in
-[`anleitung/04_Einrichtung_und_Deployment.md`](anleitung/04_Einrichtung_und_Deployment.md),
-Abschnitt 4. Dort ist auch der Weg ohne Git beschrieben, das Hochladen des
-Ordners `frontend` von Hand, der die Ausnahme bleiben soll.
-
-Lokal anschauen, ohne etwas zu veröffentlichen:
-
-```
-powershell -ExecutionPolicy Bypass -File code\serve.ps1
-```
-
-Die Datei `frontend/.nojekyll` hat für Cloudflare Pages keine Bedeutung. Sie bleibt
-liegen, damit der Ordner notfalls auch als Quelle für GitHub Pages taugt; ohne
-sie würde Pages `_headers` wegen des Unterstrichs ignorieren.
+**Zum Ausprobieren ohne echte Daten** gibt es einen Testmodus, einfach
+`?mock=1` anhängen:
+[Verwaltung](https://menue.campus-sursee.ch/admin?mock=1) ·
+[Menüwahl](https://menue.campus-sursee.ch/?mock=1) ·
+[Kursblatt](https://menue.campus-sursee.ch/kursblatt?mock=1) ·
+[Menüblatt](https://menue.campus-sursee.ch/menueblatt?mock=1).
+Dort lässt sich alles anklicken; nichts wird gespeichert.
 
 ---
 
-## Die vier Seiten
+## Wo was liegt
 
-| Adresse | Wofür | Anmeldung |
+Die Webseite selbst speichert nichts. Sie nutzt Dienste, die Campus Sursee
+ohnehin hat:
+
+| Was | Wo | Link |
 |---|---|---|
-| `https://menue.campus-sursee.ch/?klasse=CODE` | Gäste wählen ihr Menü | nein |
-| `https://menue.campus-sursee.ch/?firma=SCHLUESSEL` | dauerhafter Gästelink einer Firma, führt am Kurstag zum Termin des Tages | nein |
-| `https://menue.campus-sursee.ch/kursblatt.html?klasse=CODE` | Aushang mit QR-Code, darf der Kursleitung geschickt werden | nein |
-| `https://menue.campus-sursee.ch/kursblatt.html?firma=SCHLUESSEL&name=NAME` | Firmenblatt mit dem dauerhaften QR-Code einer Firma | nein |
-| `https://menue.campus-sursee.ch/admin.html` | Verwaltung der Termine und des Firmenverzeichnisses | ja |
-| `https://menue.campus-sursee.ch/menueblatt.html?klasse=CODE` | Bestellübersicht für die Küche | ja |
+| **Daten** (Termine, Bestellungen, Firmen) | SharePoint-Site «Reception», Listen «Klassen», «Bestellungen» und «Firmen» | [Site öffnen](https://campussursee.sharepoint.com/sites/hot-reze) · [Websiteinhalte (alle Listen)](https://campussursee.sharepoint.com/sites/hot-reze/_layouts/15/viewlsts.aspx) |
+| **Automatische Abläufe** (Menüwahl ohne Anmeldung, Tagesmenüs holen, Daten nach 30 Tagen löschen) | Power Automate, Konto `powerplatform@campus-sursee.ch` | [Flows öffnen](https://make.powerautomate.com/environments/Default-2553fb74-5dcc-4072-8bb5-399d18f72af9/flows) |
+| **Anmeldung und Zugriff** für die Réception | Entra ID, App «Menuewahl BAULUUT Admin» | [App-Registrierung](https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Overview/appId/9d344eb0-8af8-44d1-ad64-916d564e5975) |
+| **Webseite im Netz** | Cloudflare Pages, Projekt `baulueuet-menue` | [Cloudflare-Projekt](https://dash.cloudflare.com/?to=/:account/pages/view/baulueuet-menue) |
+| **Quellcode und Anleitungen** | dieses Repository | [GitHub](https://github.com/CAMPUS-SURSEE/baulueuet-menue) |
+| **Tagesmenüs** | Lunchgate, gepflegt vom Restaurant | – |
 
-Firmen, die über Wochen immer wieder am Campus sind, bekommen seit dem 14.09.2026
-einen **dauerhaften QR-Code**: Die Firma steht mit einem festen Schlüssel im
-Verzeichnis, und die Gästeseite bildet daraus am Kurstag selbst den Code des
-heutigen Termins. Die Réception legt trotzdem jeden Kurstag als Termin an und
-wählt dabei die Firma aus dem Verzeichnis. Siehe
-[`anleitung/01_Anleitung_Reception.md`](anleitung/01_Anleitung_Reception.md), Abschnitt 3a.
-
-Cloudflare Pages leitet Adressen mit `.html` auf die Fassung ohne Endung um:
-Aus `/admin.html` wird `/admin`, aus `/kursblatt.html?klasse=CODE` wird
-`/kursblatt?klasse=CODE`. Die Abfragezeichenfolge bleibt erhalten, alle
-bestehenden Links und QR-Codes funktionieren weiterhin. Wichtig ist nur, dass
-in der Entra-ID-App-Registrierung **beide** Schreibweisen als Umleitungsadresse
-stehen, siehe `anleitung/04_Einrichtung_und_Deployment.md`, Abschnitt 2.2.
-
-Jede Seite kennt `?mock=1`. Damit zeigt sie Testdaten ohne Anmeldung, praktisch zum Anschauen und Erklären.
-
-Die Menüwahl ist am Kurstag **bis 10:00 Uhr** offen. Danach lässt sich weder
-neu bestellen noch die eigene Wahl ändern; beides läuft dann über die
-Réception. Die Uhrzeit steht in `frontend/konfig.js` (`annahmeschluss`) und
-nochmals im Kopf von `frontend/index.html`.
-
-Für die Réception gilt die Frist nicht: In `admin.html` lässt sich jede
-Bestellung jederzeit ändern, nacherfassen und löschen. Wer eine Bestellung
-erfasst und wer sie zuletzt geändert hat, führt SharePoint von selbst mit und
-die Verwaltung zeigt es an.
+Zugangsdaten stehen bewusst **nicht** in diesem Repository.
 
 ---
 
-## In drei Sätzen, wie es funktioniert
+## Anleitungen
 
-Die Webseite liegt bei Cloudflare Pages und ist reines HTML, es gibt keinen eigenen Server. Die Daten stehen in drei SharePoint-Listen auf der Site «Reception» («Klassen», «Bestellungen» und das Firmenverzeichnis «Firmen»); die Verwaltung greift nach Anmeldung mit dem Microsoft-365-Konto direkt darauf zu, Gästeseite und Kursblatt über zwei Power-Automate-Flows, weil Kursteilnehmende und Kursleitung kein Konto haben. Die Tagesmenüs kommen von Lunchgate, abgeholt von einem dieser Flows.
-
----
-
-## Zuständigkeiten
-
-| Bereich | Konto |
+| Ich möchte … | Dann lese ich … |
 |---|---|
-| Power Automate Flows | powerplatform@campus-sursee.ch |
-| SharePoint-Site «Reception» | ICT-Services |
-| Cloudflare Pages, Domäne `menue.campus-sursee.ch` | ICT-Services |
-| Entra ID App-Registrierung und Benutzerzuweisung | ICT-Services |
-| Menüinhalte | Restaurant BAULÜÜT über Lunchgate |
+| das System an der Réception bedienen | [Anleitung für die Réception](anleitung/01_Anleitung_Reception.md) |
+| eine Störung beheben | [Betriebshandbuch und Support](anleitung/02_Betriebshandbuch_Support.md) |
+| verstehen, wie es technisch aufgebaut ist | [Technische Dokumentation](anleitung/03_Technische_Dokumentation.md) |
+| etwas einrichten oder eine Änderung veröffentlichen | [Einrichtung und Veröffentlichung](anleitung/04_Einrichtung_und_Deployment.md) |
+| wissen, warum etwas so gebaut ist | [Entscheide und Verlauf](anleitung/05_Entscheide_und_Verlauf.md) |
+| den Code ändern | [Hinweise zum Quellcode](anleitung/06_Hinweise_Quellcode.md) |
 
-Zugangsdaten stehen bewusst **nicht** in dieser Ablage.
+---
+
+## Aufbau des Repositorys
+
+```
+frontend/     die Webseite, genau so, wie sie im Netz steht
+anleitung/    die Anleitungen oben
+code/         kleiner Server zum Testen auf dem eigenen PC
+Vorlagen/     das alte Papierblatt und das Logo, als Referenz
+wrangler.toml Einstellungen für Cloudflare Pages
+```
+
+**Änderungen gehen automatisch live:** Was auf den Zweig `main` kommt, ist nach
+etwa einer Minute auf der Webseite. Einzelheiten stehen in
+[Einrichtung und Veröffentlichung](anleitung/04_Einrichtung_und_Deployment.md#4-eine-änderung-veröffentlichen).
+
+---
+
+## Zuständig
+
+| Bereich | Wer |
+|---|---|
+| Termine, Links, Druckblätter | Réception |
+| Inhalt der Tagesmenüs | Restaurant BAULÜÜT (über Lunchgate) |
+| Webseite, SharePoint, Entra ID, Cloudflare | ICT-Services |
+| Power-Automate-Flows | ICT-Services, Konto `powerplatform@campus-sursee.ch` |
+
+**Stand:** 28.09.2026

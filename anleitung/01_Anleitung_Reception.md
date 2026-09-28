@@ -1,444 +1,341 @@
-# Menüwahl BAULÜÜT: Anleitung für die Réception
+# Anleitung für die Réception
 
-Kursteilnehmende wählen ihr Mittagessen im Restaurant BAULÜÜT neu über eine Webseite.
-Diese Anleitung zeigt Ihnen Schritt für Schritt, was Sie am Empfang dafür tun.
+So bedienen Sie die Menüwahl für das Restaurant BAULÜÜT, Schritt für Schritt.
 
----
-
-## 1. Kurz erklärt
-
-Für jeden Kurs, der bei uns zu Mittag isst, legen Sie in der Verwaltung einen «Termin» an.
-Beim Speichern entsteht automatisch ein achtstelliger Zugangscode, zum Beispiel `M2VJ8KWS`.
-Aus diesem Code entstehen ein Gästelink und ein QR-Code, die Sie dem Kurs weitergeben.
-Die Teilnehmenden wählen am Kurstag mit dem Handy ihre Vorspeise und ihren Hauptgang, **bis 10:00 Uhr**.
-Am Kurstag drucken Sie das Menüblatt mit allen Bestellungen aus und geben es der Küche.
-
-Es gibt vier Seiten. Die erste brauchen Sie täglich, die anderen öffnen sich aus der Verwaltung heraus von selbst.
-
-| Seite | Adresse | Für wen |
-|---|---|---|
-| Verwaltung | `https://menue.campus-sursee.ch/admin.html` | Réception |
-| Gästeseite | `https://menue.campus-sursee.ch/?klasse=CODE` | Teilnehmende |
-| Kursblatt zum Aushängen | `https://menue.campus-sursee.ch/kursblatt.html?klasse=CODE` | Réception zum Drucken, **darf auch der Kursleitung geschickt werden** |
-| Menüblatt für die Küche | `https://menue.campus-sursee.ch/menueblatt.html?klasse=CODE` | Réception, zum Drucken |
-
-Für Firmen, die über mehrere Tage oder Wochen immer wieder bei uns sind, gibt es zusätzlich einen **dauerhaften QR-Code**, der nicht an einem einzelnen Kurstag hängt. Dazu kommen zwei weitere Adressen, beide ohne Anmeldung:
-
-| Seite | Adresse | Für wen |
-|---|---|---|
-| Gästeseite einer Firma | `https://menue.campus-sursee.ch/?firma=SCHLUESSEL` | Teilnehmende, an jedem Kurstag derselben Firma |
-| Firmenblatt zum Aushängen | `https://menue.campus-sursee.ch/kursblatt.html?firma=SCHLUESSEL&name=FIRMA` | Réception zum Drucken, darf auch der Firma geschickt werden |
-
-Wie das im Alltag aussieht, steht in Abschnitt 3a.
-
-**Die 10-Uhr-Regel.** Am Kurstag können die Teilnehmenden bis 10:00 Uhr wählen und ihre Wahl beliebig oft ändern. Ab 10:00 Uhr ist Schluss: Wer dann etwas ändern oder nachträglich bestellen will, wird auf der Seite an die Réception verwiesen. **Für Sie gilt diese Grenze nicht.** In der Verwaltung können Sie jede Bestellung jederzeit ändern, nacherfassen oder löschen, auch nach 10:00 Uhr, siehe Abschnitt 6. Drucken Sie das Menüblatt danach neu aus oder melden Sie die Änderung der Küche.
+**Stand:** 28.09.2026
 
 ---
 
-## 2. Anmelden
+## Inhalt
 
-1. Öffnen Sie im Browser `https://menue.campus-sursee.ch/admin.html`.
-2. Melden Sie sich mit Ihrem Geschäftskonto an, also mit der Adresse, mit der Sie auch Outlook benutzen.
-3. Meist passiert gar nichts sichtbar: Sie werden ohne Eingabe durchgereicht, weil Sie am Arbeitsplatz bereits angemeldet sind. Kurz steht «Verwaltung wird geladen …», danach erscheint die Verwaltung.
+1. [Das Wichtigste in Kürze](#1-das-wichtigste-in-kürze)
+2. [Anmelden und zurechtfinden](#2-anmelden-und-zurechtfinden)
+3. [Einen Termin anlegen](#3-einen-termin-anlegen)
+4. [Den Kurs informieren](#4-den-kurs-informieren)
+5. [Firmen mit dauerhaftem QR-Code](#5-firmen-mit-dauerhaftem-qr-code)
+6. [Am Kurstag](#6-am-kurstag)
+7. [Termin ändern oder löschen](#7-termin-ändern-oder-löschen)
+8. [Was die Teilnehmenden sehen](#8-was-die-teilnehmenden-sehen)
+9. [Häufige Fragen](#9-häufige-fragen)
+10. [Wenn etwas nicht geht](#10-wenn-etwas-nicht-geht)
 
-Oben rechts steht Ihr Name und daneben «Abmelden». Abmelden brauchen Sie im Alltag nicht.
-Solange die Anmeldung läuft oder scheitert, sehen Sie stattdessen die Meldung «Anmeldung nicht möglich» mit dem Knopf «Erneut versuchen».
+---
 
-Zuoberst im Arbeitsbereich stehen zwei Reiter: **«Termine»** und **«Firmen»**. «Termine» ist der Alltag und beim Öffnen immer gewählt; hinter «Firmen» liegt das Firmenverzeichnis mit den dauerhaften QR-Codes, siehe Abschnitt 3a. Ein Klick schaltet um, die Terminliste bleibt dabei erhalten.
+## 1. Das Wichtigste in Kürze
 
-Der Reiter «Termine» ist in zwei Spalten aufgeteilt:
+- Für jeden Kurs und jeden Essenstag legen Sie in der **Verwaltung** einen **Termin** an:
+  [menue.campus-sursee.ch/admin](https://menue.campus-sursee.ch/admin)
+- Beim Speichern entsteht ein Zugangscode, zum Beispiel `M2VJ8KWS`. Daraus macht
+  die Verwaltung einen **Link** und ein **Kursblatt mit QR-Code** für den Kurs.
+- Die Teilnehmenden wählen am Kurstag am Handy, **bis 10:00 Uhr**.
+- Am Kurstag drucken Sie das **Menüblatt** und geben es der Küche.
 
-- links zuoberst der schwarze Knopf **«Neuer Termin»** über die ganze Spaltenbreite, darunter die Überschrift «Termine», das Suchfeld «Suchen: Titel, Firma oder Code», der Knopf «Filter» und daneben ein kleiner Pfeilknopf für die Sortierung
-- darunter die Terminliste, nach Kurstag gruppiert
-- rechts der ausgewählte Termin mit seinen Bestellungen
+**Die 10-Uhr-Regel.** Bis 10:00 Uhr können die Teilnehmenden wählen und ihre
+Wahl beliebig oft ändern. Danach geht das nur noch über Sie. **Für Sie gilt die
+Grenze nicht:** In der Verwaltung können Sie jede Bestellung jederzeit ändern,
+nacherfassen oder löschen.
 
-Solange Sie nichts angeklickt haben, steht rechts nur: «Links einen Termin auswählen, um Bestellungen und Gästelink zu sehen.»
+**Die Daten werden nach 30 Tagen automatisch gelöscht.** Was Sie länger brauchen,
+drucken Sie aus oder speichern es als PDF.
 
-**Wie die Liste aufgebaut ist.** Über jeder Gruppe steht der Kurstag, zum Beispiel «Freitag, 04.09.2026»; der heutige Tag ist zusätzlich orange mit «heute» angeschrieben. Darunter stehen alle Termine dieses Tages, nach Essenszeit sortiert. Rechts an jeder Zeile steht die Anzahl Bestellungen, zum Beispiel «5 / 18 Best.»: fünf Bestellungen liegen vor, achtzehn Teilnehmende werden erwartet. Ist keine Teilnehmeranzahl hinterlegt, steht dort nur «5 Best.».
+---
 
-**Die Sortierung.** Von Haus aus steht der Kurstag, der am weitesten in der Zukunft liegt, zuoberst und der am weitesten zurückliegende zuunterst; der Pfeilknopf neben «Filter» zeigt dann nach oben, weil die neuesten Termine oben stehen. Ein Klick darauf kehrt die Reihenfolge um: der früheste Kurstag steht zuoberst, die neuesten Termine zuunterst, und der Pfeil zeigt nach unten. Ein zweiter Klick stellt die ursprüngliche Reihenfolge wieder her.
+## 2. Anmelden und zurechtfinden
 
-**Der Filter.** Von Haus aus zeigt die Liste **nur die heutigen Termine**. Das ist der Alltagsfall. Klicken Sie auf «Filter», öffnet sich ein kleines Feld mit zwei Kästchen:
+1. Öffnen Sie [menue.campus-sursee.ch/admin](https://menue.campus-sursee.ch/admin).
+2. Melden Sie sich mit Ihrem Geschäftskonto an (dieselbe Adresse wie in Outlook).
+   Meist geschieht das von selbst, weil Sie am Arbeitsplatz schon angemeldet sind.
 
-| Kästchen | Blendet zusätzlich ein |
-|---|---|
-| «Zukünftige Termine» | alle Kurstage nach heute |
-| «Vergangene Termine» | alle Kurstage vor heute |
+Oben rechts steht danach Ihr Name. Darunter gibt es zwei Reiter:
 
-Neben dem Knopf steht, was gerade gezeigt wird: «Nur heute», «Heute und später», «Heute und früher» oder «Alle Termine». Die heutigen Termine sind immer sichtbar, unabhängig von den Kästchen. Das Feld schliesst sich wieder mit einem Klick daneben oder mit der Esc-Taste; die Einstellung bleibt bis zum Neuladen der Seite erhalten.
+- **«Termine»**: der Alltag, beim Öffnen immer gewählt.
+- **«Firmen»**: das Verzeichnis der Firmen mit dauerhaftem QR-Code, siehe [Abschnitt 5](#5-firmen-mit-dauerhaftem-qr-code).
 
-Sortiert wird durchgehend nach Datum, der am weitesten in der Zukunft liegende Tag zuoberst, der am weitesten zurückliegende zuunterst. Zeigt die Liste nur den heutigen Tag, steht dieser allein da; blenden Sie die kommenden Termine ein, rückt der heutige Tag nach unten.
+**Im Reiter «Termine»** sehen Sie links die Terminliste und rechts den gewählten
+Termin mit seinen Bestellungen.
+
+- Zuoberst links steht der Knopf **«Neuer Termin»**, darunter das Suchfeld
+  (Titel, Firma oder Code).
+- Die Termine sind **nach Kurstag gruppiert**. Der heutige Tag ist orange mit
+  «heute» markiert.
+- Rechts an jeder Zeile steht die Anzahl Bestellungen, zum Beispiel
+  **«5 / 18 Best.»**: 5 Bestellungen, 18 Teilnehmende erwartet.
+
+**Filter.** Die Liste zeigt von sich aus **nur die heutigen Termine**. Über den
+Knopf **«Filter»** blenden Sie **«Zukünftige Termine»** und/oder
+**«Vergangene Termine»** dazu. Nach dem Neuladen der Seite steht der Filter
+wieder auf «Nur heute».
+
+**Sortierung.** Der Kurstag, der am weitesten in der Zukunft liegt, steht
+zuoberst. Der kleine Pfeilknopf neben «Filter» dreht die Reihenfolge um.
 
 ---
 
 ## 3. Einen Termin anlegen
 
-Legen Sie pro Kurs und pro Essenstag einen Termin an. Isst derselbe Kurs an drei Tagen bei uns, brauchen Sie drei Termine.
+Pro Kurs und pro Essenstag ein Termin. Isst ein Kurs an drei Tagen bei uns,
+braucht es drei Termine.
 
-1. Klicken Sie links zuoberst auf «Neuer Termin». Rechts erscheint das Formular unter dem Titel «Neuer Termin».
-2. **«Titel *»** ausfüllen. Das ist der Name des Kurses, den auch die Teilnehmenden sehen, zum Beispiel «Polierkurs Modul 4». Dieses Feld ist Pflicht, das Sternchen weist darauf hin.
-3. **«Firma»** ausfüllen. Der Auftraggeber oder die Trägerfirma, zum Beispiel «Implenia Schweiz AG». Darf leer bleiben, hilft aber später beim Suchen.
-4. **«Datum»** prüfen. Das ist der Tag, an dem der Kurs zu Mittag isst. Vorgeschlagen wird der heutige Tag, meist müssen Sie ihn also anpassen. Das Datum entscheidet, wann die Teilnehmenden wählen dürfen und unter welchem Kurstag der Termin links in der Liste steht.
-5. **«Essenszeit»** prüfen. Das ist die Uhrzeit des Mittagessens. Vorgeschlagen wird 12:00. Die Zeit erscheint auf dem Kursblatt und auf dem Menüblatt als Hinweis für Küche und Teilnehmende. Sie steuert nicht, wann die Wahl möglich ist.
-6. **«Erwartete Teilnehmeranzahl»** ausfüllen, wenn die Zahl bekannt ist, zum Beispiel `18`. Diese Zahl ist nur ein Massstab: Sie sehen später auf einen Blick «5 / 18 Best.» und wissen damit sofort, wie viele Bestellungen noch fehlen. Sie schränkt nichts ein, es dürfen also auch mehr Leute bestellen. Lassen Sie das Feld leer, solange die Zahl nicht feststeht; dann steht in der Liste nur die Anzahl Bestellungen. Nachtragen können Sie sie jederzeit über «Bearbeiten».
-7. Klicken Sie auf «Termin speichern». Mit «Abbrechen» verwerfen Sie die Eingaben.
+1. Klicken Sie auf **«Neuer Termin»**.
+2. Füllen Sie das Formular aus:
 
-Eine Sprache müssen Sie beim Termin nicht wählen. Sie entscheiden erst beim Drucken des Kursblatts, ob es deutsch, englisch oder französisch sein soll, siehe Abschnitt 4, Weg B; die Teilnehmenden können die Sprache auf dem Handy zudem selbst umstellen.
+   | Feld | Was hinein gehört |
+   |---|---|
+   | **Titel** (Pflicht) | Name des Kurses, zum Beispiel «Polierkurs Modul 4». Die Teilnehmenden sehen ihn. |
+   | **Firma** | Auftraggeber, zum Beispiel «Implenia Schweiz AG». Frei eintippen oder eine Firma aus dem Verzeichnis wählen (siehe [Abschnitt 5](#5-firmen-mit-dauerhaftem-qr-code)). |
+   | **Datum** | Tag des Mittagessens. Vorgeschlagen ist heute, meist müssen Sie es anpassen. **Nur an diesem Tag** können die Teilnehmenden wählen. |
+   | **Essenszeit** | Uhrzeit des Mittagessens, vorgeschlagen 12:00. Nur zur Information. |
+   | **Erwartete Teilnehmeranzahl** | Wenn bekannt, zum Beispiel `18`. Nur ein Richtwert, es dürfen auch mehr bestellen. Darf leer bleiben. |
 
-Den Zugangscode müssen Sie nicht eingeben. Er entsteht beim Speichern automatisch und besteht aus acht Zeichen ohne die verwechselbaren Zeichen 0, O, 1 und I.
+3. Klicken Sie auf **«Termin speichern»**.
 
-Nach dem Speichern ist der neue Termin links ausgewählt und rechts sehen Sie sofort seine Details:
-Titel, Firma, Datum, «Mittagessen um … Uhr», «Erwartete Teilnehmeranzahl: 18», der Gästelink und die Zählerleiste.
+Den Zugangscode müssen Sie nicht eingeben, er entsteht von selbst. Er hat acht
+Zeichen und enthält nie die verwechselbaren Zeichen 0, O, 1 und I.
 
-Liegt der neue Termin nicht am heutigen Tag, blendet die Liste den passenden Zeitraum von selbst ein; Sie müssen den Filter dafür nicht von Hand umstellen.
+Eine Sprache wählen Sie beim Termin nicht. Das tun Sie erst beim Drucken des
+Kursblatts (siehe [Abschnitt 4](#4-den-kurs-informieren)).
 
-> Fehlt der Titel, erscheint beim Speichern der rote Hinweis «Bitte einen Titel eingeben.». Ergänzen Sie den Titel und speichern Sie nochmals. Steht bei «Erwartete Teilnehmeranzahl» etwas anderes als eine ganze Zahl von 0 bis 999, meldet die Seite «Erwartete Teilnehmeranzahl: bitte eine ganze Zahl von 0 bis 999 eingeben.».
-
-**Wer hat den Termin angelegt?** Unter dem Kopf steht eine sehr kleine graue Zeile, zum Beispiel:
-
-> Erstellt 29.08.2026, 09:20 von Vreni Bühler · zuletzt geändert 02.09.2026, 14:20 von Martin Kaufmann
-
-So ist nachvollziehbar, wer den Kurs erfasst und wer ihn zuletzt angefasst hat. Sie müssen dafür nichts eintragen, das System führt es von selbst mit. Wurde seit dem Anlegen nichts geändert, steht nur der erste Teil da. Bei Terminen aus der Zeit vor dieser Änderung kann die Zeile knapper ausfallen oder ganz fehlen.
-
-**Das Feld «Firma» hat zwei Möglichkeiten.** Über dem Textfeld steht ein Klappfeld. Steht dort «— Firma frei eingeben —», ist alles wie bisher: Sie tippen den Firmennamen ein und der Termin bekommt beim Speichern seinen eigenen achtstelligen Zufallscode. Wählen Sie stattdessen eine Firma aus dem Verzeichnis, bekommt der Termin den **dauerhaften Firmen-QR-Code** dieser Firma. Was das heisst, steht im nächsten Abschnitt. Unter dem Feld sagt Ihnen eine graue Zeile jeweils, welchen Code der Termin bekommt.
-
----
-
-## 3a. Firmen mit dauerhaftem QR-Code
-
-**Wofür das gut ist.** Manche Firmen sind eine ganze Woche oder immer wieder bei uns, zum Beispiel SORBA. Bisher hatte jeder Kurstag seinen eigenen QR-Code, und die Teilnehmenden mussten jeden Morgen ein neues Blatt suchen. Eine Firma kann stattdessen **einen einzigen QR-Code** bekommen, den sie aufklebt oder aufhängt und immer wieder verwendet. Wer ihn scannt, landet automatisch beim Kurs dieser Firma vom **heutigen** Tag.
-
-> **Wichtig: Sie legen trotzdem jeden Kurstag einen Termin an.** Der dauerhafte QR-Code ersetzt nur das Verteilen von Links und Blättern, nicht das Erfassen des Termins. Ohne Termin für den heutigen Tag findet der QR-Code nichts.
-
-### Eine Firma ins Verzeichnis aufnehmen
-
-1. Klicken Sie oben auf den Reiter **«Firmen»**.
-2. Geben Sie links unter **«Neue Firma»** den **Firmennamen** ein, zum Beispiel `SORBA`. Das ist der Name, den die Teilnehmenden später auf dem Firmenblatt sehen.
-3. Klicken Sie auf **«Firma speichern»**.
-
-Die Firma erscheint rechts im **Verzeichnis**, mit ihrem **Schlüssel**, zum Beispiel `SORBA-K7M2`. Den Schlüssel müssen Sie nicht eingeben, er entsteht beim Speichern aus dem Namen und vier Zufallszeichen. Die Zufallszeichen sind Absicht: Sie verhindern, dass zwei ähnlich heissende Firmen denselben Code bekommen, und sie sorgen dafür, dass niemand den Code einer Firma erraten kann.
-
-**Der Schlüssel lässt sich nachträglich nicht mehr ändern.** An ihm hängt der gedruckte QR-Code. Ist ein Name falsch geschrieben, benennen Sie die Firma um (siehe unten); der Schlüssel und damit der gedruckte Code bleiben dabei bestehen.
-
-Auf jeder Firmenkarte im Verzeichnis stehen ausserdem:
-
-- die Anzahl der **kommenden Termine** dieser Firma, zum Beispiel «3 kommende Termine»,
-- der **dauerhafte Gästelink** mit dem Knopf «Link kopieren»,
-- die Knöpfe **«Umbenennen»**, **«Löschen»** und **«Firmenblatt»**.
-
-Zwei Firmen dürfen nicht gleich heissen; sie wären im Klappfeld des Terminformulars nicht auseinanderzuhalten. Die Seite meldet in diesem Fall «Eine Firma mit diesem Namen steht bereits im Verzeichnis.»
-
-> Einmalige Kunden gehören **nicht** ins Verzeichnis. Wer nur ein einziges Mal bei uns ist, wird beim Termin wie bisher als freier Text erfasst.
-
-### Einen Termin für eine Firma aus dem Verzeichnis anlegen
-
-Wie gewohnt über «Neuer Termin», mit einem einzigen Unterschied:
-
-1. Reiter **«Termine»**, Knopf **«Neuer Termin»**.
-2. **«Titel»** ausfüllen, zum Beispiel «SORBA Einführungstag».
-3. Beim Feld **«Firma»** im Klappfeld die Firma auswählen, zum Beispiel «SORBA (SORBA-K7M2)». Der Firmenname füllt sich danach von selbst aus und lässt sich nicht mehr ändern; er kommt aus dem Verzeichnis.
-4. **«Datum»** setzen. Bei einer Firma aus dem Verzeichnis ist das Datum Pflicht, weil der Kurstag im Code steckt. Fehlt es, meldet die Seite: «Ein Termin mit Firmen-QR-Code braucht ein Datum: der Kurstag steckt im Code.»
-5. Essenszeit und erwartete Teilnehmeranzahl wie bisher, dann speichern.
-
-Unter dem Feld «Firma» steht während des Ausfüllens, welchen Code der Termin bekommt, zum Beispiel «Dauerhafter Firmen-QR-Code, Code: SORBA-K7M2-260914». Die sechs Ziffern am Schluss sind der Kurstag: Jahr, Monat, Tag.
-
-In der Terminliste und in den Details trägt ein solcher Termin die kleine Marke **«Firmen-QR»**. In den Details steht unter dem gewohnten Gästelink zusätzlich die Zeile **«Firma»** mit dem dauerhaften Link und dem Knopf «Firmen-Link kopieren».
-
-**Pro Firma und Kurstag ist nur ein Termin mit Firmen-QR-Code möglich.** Das ist keine Schikane, sondern die Folge davon, dass ein QR-Code an einem Tag nur auf einen Kurs zeigen kann. Versuchen Sie es doch, meldet die Seite: «Für … ist am … bereits ein Termin mit Firmen-QR-Code erfasst. Pro Firma und Tag ist nur ein solcher Termin möglich; bitte für den zweiten Kurs «Firma frei eingeben» wählen.» Hat dieselbe Firma am selben Tag zwei Kurse, legen Sie den zweiten mit freiem Firmentext an; er bekommt dann einen gewöhnlichen Zufallscode, und Sie verteilen dafür wie bisher Link oder Kursblatt.
-
-### Das Firmenblatt drucken
-
-Das Firmenblatt ist das Gegenstück zum Kursblatt, nur ohne Kurstitel, ohne Datum und ohne Essenszeit. Diese drei Angaben wechseln ja von Kurstag zu Kurstag, das Blatt aber bleibt.
-
-1. Reiter **«Firmen»**, auf der Karte der Firma das Klappfeld am rechten Ende des Knopfs «Firmenblatt» auf «DE», «EN» oder «FR» stellen.
-2. Auf **«Firmenblatt»** klicken. Es öffnet sich ein neuer Tab mit dem Blatt: BAULÜÜT-Logo, Firmenname, ein grosser QR-Code und darunter der Link als Text.
-3. Unten auf dem Blatt auf **«Firmenblatt drucken»** klicken und ausdrucken.
-4. Das Blatt der Firma geben oder im Kurszimmer aufhängen. Es darf laminiert oder aufgeklebt werden, es gilt dauerhaft.
-
-Auf dem Blatt steht anstelle des gewohnten Hinweises: «Dieses Blatt gilt für alle Kurstage Ihrer Firma. Scannen Sie den QR-Code jeweils am Kurstag, um Ihr Mittagsmenü zu wählen.» Darunter wie beim Kursblatt die Frist bis 10:00 Uhr.
-
-Für eine Firma mit fremdsprachigen Teilnehmenden drucken Sie das Blatt nacheinander in mehreren Sprachen; jedes trägt den QR-Code in seine Sprache. Das Klappfeld wird nicht gespeichert und steht beim nächsten Mal wieder auf «DE».
-
-### Was am Kurstag geschieht
-
-Nichts, was Sie tun müssten, ausser dem Termin selbst. Wer den Firmen-QR-Code scannt, kommt auf dieselbe Menüwahl wie über einen gewöhnlichen Gästelink, samt Kursnamen, Datum und Essenszeit des heutigen Termins. Die 10-Uhr-Regel gilt unverändert.
-
-Ist für heute **kein** Termin dieser Firma erfasst, sehen die Teilnehmenden:
-
-> **Kein Kurs gefunden**
-> Für diese Firma wurde für den heutigen Tag kein Kurs gefunden. Bitte melde dich bei der Réception.
-
-**Was dann zu tun ist**, in dieser Reihenfolge:
-
-1. **Gibt es für heute überhaupt einen Termin dieser Firma?** Wenn nein, legen Sie ihn jetzt an, mit der Firma aus dem Verzeichnis. Der QR-Code der Firma funktioniert danach sofort, die Teilnehmenden müssen die Seite nur neu laden.
-2. **Wurde der Termin mit freiem Firmentext angelegt** statt mit der Firma aus dem Verzeichnis? Dann fehlt ihm die Marke «Firmen-QR». Öffnen Sie ihn über «Bearbeiten», wählen Sie im Klappfeld «Firma» die Firma aus dem Verzeichnis und speichern Sie. Die Seite fragt zurück, weil der Termin dabei einen neuen Code bekommt; bestätigen Sie mit «Code neu bilden». Ein bereits verteilter Link dieses einen Termins gilt danach nicht mehr, der Firmen-QR-Code dafür schon.
-3. **Stimmt das Datum des Termins?** Steht dort der falsche Tag, sucht der QR-Code am heutigen Tag ins Leere. Datum korrigieren und speichern.
-
-### Umbenennen und Löschen
-
-Ein einmal angelegter Termin steht für sich: Firmenname und Code sind an ihm gespeichert, nicht am Verzeichnis.
-
-- **Umbenennen** ändert nur den Eintrag im Verzeichnis und den Namen auf künftig gedruckten Firmenblättern. Der Schlüssel bleibt, der gedruckte QR-Code gilt weiter, und bereits angelegte Termine behalten den bisherigen Firmennamen.
-- **Löschen** entfernt nur den Verzeichniseintrag. Bestehende Termine bleiben vollständig erhalten, samt Firmenname, Code und Bestellungen. Der gedruckte QR-Code der Firma führt aber zu keinem **neuen** Termin mehr, weil sich neue Termine dieser Firma nicht mehr zuordnen lassen. Löschen Sie eine Firma also erst, wenn sie nicht mehr zu uns kommt.
-
-> **Steht im Reiter «Firmen» der Hinweis «Die Liste «Firmen» ist auf der SharePoint-Site noch nicht vorhanden»?** Dann fehlt die Ablage für das Verzeichnis. Mit dem Knopf «Liste jetzt anlegen» legen Sie sie selbst an; gelingt das nicht, melden Sie es den ICT-Services. Bis dahin funktioniert die Terminverwaltung unverändert weiter, im Terminformular steht dann nur «Firma frei eingeben» zur Verfügung.
+> Unter dem Titel eines Termins steht klein und grau, **wer ihn angelegt und wer
+> ihn zuletzt geändert hat**. Das führt das System von selbst.
 
 ---
 
 ## 4. Den Kurs informieren
 
-Sie haben zwei Wege. Sie dürfen auch beide gleichzeitig benutzen.
+Wählen Sie den Termin links aus. Dann haben Sie zwei Wege, die Sie auch
+kombinieren können.
 
 ### Weg A: Link verschicken
 
-Beim Termin steht die Zeile **Gäste** mit dem Link, zum Beispiel `https://menue.campus-sursee.ch/?klasse=M2VJ8KWS`. Er führt direkt ins Bestellformular und ist für die Teilnehmenden gedacht. Die Menüwahl öffnet sich deutsch; oben auf der Seite können die Teilnehmenden mit den Schaltern «DE», «EN» und «FR» jederzeit auf Englisch oder Französisch umstellen. Wollen Sie den Link gleich in einer anderen Sprache verschicken, hängen Sie `&en` beziehungsweise `&fr` an, also zum Beispiel `https://menue.campus-sursee.ch/?klasse=M2VJ8KWS&fr`.
+1. Klicken Sie beim Gästelink auf **«Link kopieren»**.
+2. Fügen Sie ihn in ein E-Mail ein (Strg + V).
 
-1. Wählen Sie den Termin links in der Liste aus.
-2. Klicken Sie auf «Link kopieren». Daneben erscheint kurz das Wort «Kopiert».
-3. Fügen Sie den Link in ein E-Mail ein, mit Tastenkombination Strg + V.
+Die Menüwahl öffnet sich auf Deutsch. Die Teilnehmenden können oben mit
+**DE / EN / FR** die Sprache umstellen. Soll der Link gleich englisch oder
+französisch öffnen, hängen Sie `&en` oder `&fr` an, zum Beispiel
+`https://menue.campus-sursee.ch/?klasse=M2VJ8KWS&fr`.
 
-**Soll die Kursleitung das Blatt selbst ausdrucken**, öffnen Sie es mit «Kursblatt drucken» (Weg B) und kopieren Sie die Adresse aus der Adresszeile des neuen Tabs. Diesen Link dürfen Sie bedenkenlos nach aussen geben: Er verlangt keine Anmeldung. Wer ihn öffnet, sieht dasselbe Blatt, das Sie auch drucken würden: Kursname, Firma, Datum, Essenszeit und den QR-Code, in der Sprache, die Sie beim Öffnen gewählt haben. Preisgegeben wird dabei nichts, was nicht ohnehin auf dem Aushang stünde, und der Link funktioniert nur mit dem achtstelligen Code dieses einen Termins.
+### Weg B: Kursblatt drucken
 
-Klappt das Kopieren einmal nicht, meldet die Seite «Kopieren nicht möglich, bitte von Hand markieren.». Markieren Sie den Link dann mit der Maus und kopieren Sie ihn mit Strg + C.
-
-### Weg B: Kursblatt drucken und aufhängen
-
-1. Wählen Sie den Termin aus. Der Knopf «Kursblatt drucken» hat an seinem rechten Ende ein kleines Klappfeld mit der Sprache, vorgeschlagen ist «DE». Lassen Sie es für einen deutschsprachigen Kurs stehen; für einen englischen oder französischen Kurs stellen Sie es auf «EN» oder «FR». Klicken Sie dann auf «Kursblatt drucken».
-2. Es öffnet sich ein neuer Browser-Tab mit dem fertigen Blatt: BAULÜÜT-Logo, Kursname, Firma, Datum, Essenszeit, ein grosser QR-Code und darunter der Link als Text. Das Blatt ist in der gewählten Sprache; der QR-Code führt die Teilnehmenden ebenfalls auf die Menüwahl in dieser Sprache. Für einen gemischten Kurs können Sie das Blatt nacheinander in mehreren Sprachen öffnen und drucken; die Auswahl im Klappfeld wird nicht gespeichert und steht beim nächsten Termin wieder auf «DE».
-3. Klicken Sie unten auf dem Blatt nochmals auf «Kursblatt drucken». Der Druckdialog öffnet sich. Der Knopf selbst wird nicht mitgedruckt.
+1. Wählen Sie im kleinen Klappfeld am Knopf **«Kursblatt drucken»** die Sprache
+   (DE, EN oder FR).
+2. Klicken Sie auf **«Kursblatt drucken»**. Ein neuer Tab zeigt das Blatt mit
+   Kursname, Firma, Datum, Essenszeit und QR-Code.
+3. Klicken Sie unten auf dem Blatt nochmals auf **«Kursblatt drucken»**.
 4. Hängen Sie das Blatt im Kurszimmer auf oder legen Sie es auf die Tische.
 
-Auf dem Blatt steht bereits alles, was die Teilnehmenden wissen müssen:
+**Gut zu wissen:**
 
-> «Scannen Sie den QR-Code mit der Handykamera und wählen Sie Ihr Menü. Die Wahl ist nur am Tag des Mittagessens möglich.»
-> «Bitte wählen Sie bis 10:00 Uhr. Danach sind Änderungen nur noch über die Réception möglich.»
-
-**Was ist der QR-Code?** Ein QR-Code ist das schwarzweisse Quadrat auf dem Blatt. Es enthält nichts anderes als den Gästelink dieses einen Termins. Wer die Handykamera darauf richtet, bekommt den Link als antippbaren Hinweis auf den Bildschirm und landet mit einem Fingertipp direkt auf der richtigen Seite. Niemand muss etwas abtippen und niemand braucht eine App. Jeder Termin hat seinen eigenen QR-Code, deshalb dürfen Sie Blätter von verschiedenen Kursen nicht vertauschen.
-
-Das Kursblatt können Sie ruhig schon Tage im Voraus drucken. Es funktioniert für jedes Kursdatum.
+- Das Kursblatt können Sie schon Tage vorher drucken.
+- Für einen gemischtsprachigen Kurs drucken Sie das Blatt einfach mehrmals, in
+  verschiedenen Sprachen.
+- **Die Kursleitung kann das Blatt selbst drucken:** Schicken Sie ihr die
+  Adresse aus dem neuen Tab. Sie braucht dafür kein Konto.
+- Jeder Termin hat seinen eigenen QR-Code. Blätter verschiedener Kurse nicht
+  vertauschen.
 
 ---
 
-## 5. Termine über den Tag hinaus anschauen
+## 5. Firmen mit dauerhaftem QR-Code
 
-Von Haus aus zeigt die Liste links nur, was heute ansteht. Für die Frage «Was kommt in den nächsten Wochen auf uns zu?» blenden Sie die übrigen Kurstage dazu:
+Manche Firmen sind mehrere Tage oder immer wieder bei uns, zum Beispiel SORBA.
+Sie können **einen einzigen QR-Code** bekommen, der für alle ihre Kurstage gilt.
+Wer ihn scannt, landet beim Kurs dieser Firma vom **heutigen** Tag.
 
-1. Klicken Sie links auf **«Filter»**.
-2. Setzen Sie das Häkchen bei **«Zukünftige Termine»**. Neben dem Knopf steht jetzt «Heute und später».
-3. Schliessen Sie das Feld mit einem Klick daneben oder mit der Esc-Taste.
+> **Wichtig:** Sie legen trotzdem **jeden Kurstag einen Termin** an. Der
+> dauerhafte QR-Code erspart nur das Verteilen von Links und Blättern.
 
-Die Liste zeigt nun jeden kommenden Kurstag als eigenen Block, den am weitesten entfernten zuoberst und den heutigen zuunterst, mit allen Terminen eines Tages nach Essenszeit sortiert. Möchten Sie den nächsten Kurstag zuoberst sehen, klicken Sie auf den Pfeilknopf neben «Filter»; er dreht die Reihenfolge um. Rechts an jeder Zeile steht «Bestellungen / erwartete Teilnehmende», zum Beispiel «5 / 18 Best.».
+### Firma aufnehmen (einmalig)
 
-Nützlich dabei:
+1. Reiter **«Firmen»** öffnen.
+2. Unter «Neue Firma» den Firmennamen eingeben und **«Firma speichern»** klicken.
 
-- **Kurse, bei denen noch wenig oder nichts bestellt ist**, erkennen Sie sofort an der ersten Zahl. Dort lohnt es sich nachzufassen, meist ist der Link nicht angekommen.
-- Für zurückliegende Kurse setzen Sie zusätzlich das Häkchen bei **«Vergangene Termine»**. Neben dem Knopf steht dann «Alle Termine».
-- Der heutige Tag ist orange mit «heute» angeschrieben und dadurch auch in einer langen Liste sofort zu finden.
-- Mit **F5** holen Sie den neuesten Stand. Die Häkchen stehen danach wieder auf «Nur heute».
+Die Firma erhält einen **Schlüssel**, zum Beispiel `SORBA-K7M2`. Er lässt sich
+nicht mehr ändern, weil der gedruckte QR-Code daran hängt. Einmalige Kunden
+gehören nicht ins Verzeichnis.
 
-> **Was ist mit der Seite «Alle Termine»?** Die gibt es seit dem 04.09.2026 nicht mehr. Sie zeigte dasselbe in einem eigenen Tab; seit die Liste links nach Kurstagen gruppiert ist, brauchen Sie dafür keine zweite Seite mehr. Einen Ausdruck der Tagesübersicht fürs Restaurant gibt es damit nicht mehr; brauchen Sie einen, melden Sie das den ICT-Services.
+### Firmenblatt drucken
+
+Auf der Karte der Firma die Sprache wählen und **«Firmenblatt»** klicken, dann
+drucken. Das Blatt zeigt den Firmennamen und den QR-Code, aber kein Datum und
+keine Essenszeit. Es darf laminiert oder aufgeklebt werden.
+
+### Termin für eine Firma anlegen
+
+Wie gewohnt über **«Neuer Termin»**, aber im Feld **«Firma»** die Firma **aus dem
+Klappfeld wählen**. Das Datum ist dann Pflicht. Der Termin trägt danach die
+Marke **«Firmen-QR»**.
+
+Pro Firma und Kurstag ist nur **ein** solcher Termin möglich. Hat die Firma am
+selben Tag einen zweiten Kurs, legen Sie ihn mit frei eingetipptem Firmennamen
+an und verteilen dafür Link oder Kursblatt wie gewohnt.
+
+### Teilnehmende melden «Kein Kurs gefunden»
+
+Der Firmen-QR-Code findet für heute keinen Termin. Prüfen Sie:
+
+1. **Gibt es für heute einen Termin dieser Firma?** Wenn nein: jetzt anlegen.
+   Danach genügt es, die Seite am Handy neu zu laden.
+2. **Trägt der Termin die Marke «Firmen-QR»?** Wenn nein, wurde die Firma frei
+   eingetippt. Termin **«Bearbeiten»**, im Klappfeld die Firma wählen, speichern
+   und mit **«Code neu bilden»** bestätigen.
+3. **Stimmt das Datum des Termins?**
+
+### Umbenennen und Löschen
+
+- **Umbenennen** ändert nur den Namen im Verzeichnis und auf künftigen
+  Firmenblättern. Der QR-Code bleibt gültig.
+- **Löschen** entfernt nur den Eintrag im Verzeichnis. Bestehende Termine
+  bleiben. Neue Termine lassen sich der Firma aber nicht mehr zuordnen. Löschen
+  Sie eine Firma also erst, wenn sie nicht mehr kommt.
+
+---
 
 ## 6. Am Kurstag
 
 ### Bestellungen kontrollieren
 
-1. Öffnen Sie die Verwaltung und wählen Sie links den Termin aus.
-2. Rechts sehen Sie die Zählerleiste mit sechs Zahlen: «Total», «Suppe», «Salat», «Keine», «Menü 1» und «Menü 2».
-3. Haben Sie beim Termin eine erwartete Teilnehmeranzahl hinterlegt, steht sie beim «Total» gleich daneben, zum Beispiel «5 / 18». Fehlen Bestellungen, erinnern Sie die Kursleitung.
-4. Darunter steht die Liste aller Bestellungen mit den Spalten «Name», «Vorspeise», «Hauptgang» und «Bemerkung».
+Wählen Sie den Termin aus. Rechts sehen Sie:
 
-In der Terminliste links steht bei jedem Termin rechts dieselbe Angabe in Kurzform, zum Beispiel «5 / 18 Best.». So sehen Sie auf einen Blick, wo noch etwas fehlt, ohne jeden Termin einzeln anzuklicken.
+- die **Zählerleiste**: Total, Suppe, Salat, Keine, Menü 1, Menü 2
+- die **Liste der Bestellungen** mit Name, Vorspeise, Hauptgang und Bemerkung
 
-Hat noch niemand gewählt, steht rechts: «Für diesen Termin liegt noch keine Bestellung vor.»
+Fehlen Bestellungen (zum Beispiel «5 / 18»), erinnern Sie die Kursleitung.
 
-### Eine Bestellung ändern
+### Bestellung ändern, nacherfassen oder löschen
 
-Hat sich jemand vertippt, das falsche Menü gewählt oder eine Allergie vergessen, korrigieren Sie das selbst:
+Das geht jederzeit, auch nach 10:00 Uhr.
 
-1. Termin links auswählen.
-2. In der Bestellungsliste rechts auf **«Ändern»** am Ende der betreffenden Zeile klicken. Auf dem Telefon steht der Knopf unten in der Karte.
-3. Vorname, Nachname, Vorspeise, Hauptgang und Bemerkung stehen bereits ausgefüllt da. Ändern Sie, was zu ändern ist.
-4. **«Änderungen speichern»** klicken.
+| Was | So geht's |
+|---|---|
+| **Ändern** | In der Bestellungsliste auf **«Ändern»** klicken, korrigieren, **«Änderungen speichern»**. |
+| **Nacherfassen** | Über der Liste auf **«Bestellung erfassen»** klicken. Vorname und Nachname sind Pflicht. Allergien ins Feld «Bemerkung». **«Bestellung speichern»**. |
+| **Löschen** | Bestellung über **«Ändern»** öffnen, zuunterst **«Bestellung löschen»**. Das lässt sich nicht rückgängig machen. |
 
-Die Zählerleiste und die Anzahl in der Terminliste rechnen sich sofort neu. Über dem Formular steht in kleiner grauer Schrift, wer die Bestellung erfasst hat und wer sie zuletzt geändert hat; so ist später erkennbar, was von den Teilnehmenden kam und was Sie korrigiert haben.
+Haben Sie das Menüblatt schon gedruckt, drucken Sie es neu oder melden Sie die
+Änderung der Küche.
 
-**Diese Änderung gilt jederzeit**, auch nach 10:00 Uhr. Die 10-Uhr-Grenze betrifft nur die Teilnehmenden auf ihrem Handy, nicht die Verwaltung.
+### Menüblatt drucken
 
-### Eine Bestellung nacherfassen
+1. Klicken Sie auf **«Menüblatt drucken»**. Ein neuer Tab zeigt das Blatt.
+2. Kontrollieren Sie Kursname, Datum und Essenszeit.
+3. Unten auf dem Blatt nochmals **«Menüblatt drucken»** klicken.
+4. Den Ausdruck der Küche geben.
 
-Meldet sich jemand, der gar nicht bestellt hat, tragen Sie die Bestellung selbst ein:
+Das Blatt enthält die **Tagesmenüs**, die **Bestellungen** (alphabetisch nach
+Nachname) und den **Zusammenzug** mit den Stückzahlen.
 
-1. Termin links auswählen.
-2. Rechts über der Bestellungsliste auf **«Bestellung erfassen»** klicken.
-3. Vorname und Nachname eingeben, beides ist Pflicht. Vorspeise und Hauptgang wählen; ohne Ihr Zutun stehen dort «Keine Vorspeise» und «BAULÜÜT-Menü 1».
-4. Allergien und Unverträglichkeiten ins Feld «Bemerkung» schreiben. Sie erscheinen auf dem Menüblatt farbig hervorgehoben.
-5. **«Bestellung speichern»** klicken.
+> **Allergien stehen in der Spalte «Bemerkung»**, orange und fett. Weisen Sie
+> die Küche mündlich darauf hin, wenn ein Eintrag dabei ist.
 
-Die Bestellung steht danach in der Liste und auf dem Menüblatt, genau wie eine über das Handy abgegebene. Haben Sie das Menüblatt schon gedruckt, drucken Sie es neu oder melden Sie den Nachtrag der Küche.
-
-### Eine Bestellung löschen
-
-Hat jemand doppelt bestellt oder isst doch nicht mit, öffnen Sie die Bestellung über «Ändern» und klicken Sie zuunterst auf **«Bestellung löschen»**. Es folgt eine Rückfrage. Danach ist der Eintrag weg, auch vom Menüblatt. Rückgängig machen lässt sich das nicht; erfassen Sie die Bestellung im Zweifel lieber neu.
-
-### Menüblatt drucken und der Küche geben
-
-1. Klicken Sie auf «Menüblatt drucken». Es öffnet sich ein neuer Tab mit dem Blatt «Menüauswahl Restaurant BAULÜÜT».
-2. Kontrollieren Sie kurz den Kopf: Kursname, Firma, Datum und «Mittagessen um: … Uhr».
-3. Klicken Sie unten auf dem Blatt auf «Menüblatt drucken» und drucken Sie es aus.
-4. Geben Sie den Ausdruck der Küche.
-
-Das Menüblatt enthält von oben nach unten:
-
-- **«Menü des Tages»**: die Texte zu «Tagessuppe», «Tagessalat», «BAULÜÜT-Menü 1» und «BAULÜÜT-Menü 2», dazu das Dessert mit drei Sternchen davor.
-- **«Bestellungen»**: die nummerierte Namensliste mit den Spalten «Vor- und Nachname», «Tagessuppe / Tagessalat», «Hauptgang» und «Bemerkung», alphabetisch nach Nachname.
-- **«Zusammenzug»**: die Stückzahlen «Total Bestellungen», «Tagessuppe», «Tagessalat», «Keine Vorspeise», «BAULÜÜT-Menü 1» und «BAULÜÜT-Menü 2».
-- Zuunterst die Fusszeile: «Wir bitten Sie das Menüauswahlblatt bis 10:00 Uhr an der Réception abzugeben. Besten Dank!»
-
-> **Wichtig: Allergien stehen in der Spalte «Bemerkung».**
-> Alles, was die Teilnehmenden an Allergien und Unverträglichkeiten angegeben haben, erscheint ganz rechts in der Spalte «Bemerkung», zum Beispiel «Nussallergie», «glutenfrei» oder «laktosefrei». Diese Einträge sind orange und fett gedruckt, damit die Küche sie nicht übersieht. Achten Sie beim Kontrollieren des Blattes speziell auf diese Spalte und weisen Sie die Küche mündlich darauf hin, wenn ein Eintrag dabei ist. Dieselbe Spalte sehen Sie auch in der Verwaltung, dort ebenfalls farbig hervorgehoben.
-
-Steht statt der Menükarte der Satz «Die Tagesmenüs sind zurzeit nicht abrufbar. Die Bestellungen sind vollständig aufgeführt.», dann fehlen nur die Menütexte. Die Namensliste und der Zusammenzug stimmen trotzdem. Sie können das Blatt so der Küche geben.
+Steht statt der Menükarte «Die Tagesmenüs sind zurzeit nicht abrufbar», fehlen
+nur die Menütexte. Die Bestellungen sind vollständig, das Blatt kann in die Küche.
 
 ---
 
 ## 7. Termin ändern oder löschen
 
-### Ändern
+**Ändern:** Termin auswählen, neben dem Titel auf **«Bearbeiten»** (grauer Text
+mit Stift) klicken, anpassen, **«Änderungen speichern»**. Am häufigsten tragen
+Sie hier die endgültige Teilnehmeranzahl nach.
 
-1. Wählen Sie den Termin links aus.
-2. Klicken Sie rechts auf den grauen Schriftzug «Bearbeiten» mit dem Stift, gleich neben dem Kurstitel. Über dem Formular steht jetzt «Termin bearbeiten».
-3. Sie sehen dieselben Felder wie beim Anlegen: «Titel», «Firma», «Datum», «Essenszeit» und «Erwartete Teilnehmeranzahl».
-4. Klicken Sie auf «Änderungen speichern» oder auf «Abbrechen».
+Der Zugangscode bleibt beim Ändern gleich, verteilte Links und QR-Codes gelten
+weiter. **Einzige Ausnahme:** Bei einem Termin mit «Firmen-QR» steckt das Datum
+im Code. Verschieben Sie ihn auf einen anderen Tag, bekommt er einen neuen Code.
+Der dauerhafte QR-Code der Firma funktioniert trotzdem weiter.
 
-Am häufigsten werden Sie hier die **erwartete Teilnehmeranzahl** nachtragen oder korrigieren, sobald die Kursleitung die endgültige Zahl meldet. Leeren Sie das Feld, wenn die Zahl doch nicht feststeht; dann verschwindet der Massstab wieder und in der Liste steht nur noch die Anzahl Bestellungen.
+**Löschen:** Termin auswählen, zuunterst **«Termin löschen»**, Rückfrage mit
+**«Löschen»** bestätigen.
 
-Den Zugangscode können Sie nicht ändern. Ein bereits verteilter Link oder QR-Code bleibt also gültig, auch wenn Sie Titel, Firma, Datum oder Essenszeit noch anpassen.
+> Die Bestellungen des Termins sind danach in der Verwaltung nicht mehr zu
+> sehen. **Drucken Sie das Menüblatt darum vor dem Löschen.**
 
-**Eine Ausnahme gilt für Termine mit Firmen-QR-Code**, also solche mit der Marke «Firmen-QR». Bei ihnen steckt der Kurstag im Code. Verschieben Sie einen solchen Termin auf einen anderen Tag, bildet die Seite den Code neu; der bisherige Link dieses Termins gilt danach nicht mehr. Der dauerhafte QR-Code der Firma ist davon nicht betroffen, er führt am neuen Tag wie gewohnt zum Termin. Dasselbe geschieht, wenn Sie im Klappfeld «Firma» von freiem Text auf eine Firma aus dem Verzeichnis wechseln oder umgekehrt; in diesem Fall fragt die Seite vorher zurück. Bereits erfasste Bestellungen bleiben in allen Fällen erhalten.
-
-### Löschen
-
-1. Wählen Sie den Termin aus und klicken Sie ganz unten auf «Termin löschen».
-2. Es erscheint eine Rückfrage, zum Beispiel: «Termin «Polierkurs Modul 4» wirklich löschen?»
-3. Bestätigen Sie mit «OK» oder brechen Sie mit «Abbrechen» ab.
-
-**Was passiert mit den Bestellungen?** Sie werden nicht mitgelöscht. Die bereits erfassten Bestellungen dieses Termins bleiben in der Liste «Bestellungen» stehen. In der Verwaltung sehen Sie sie danach aber nicht mehr, weil der zugehörige Termin fehlt. Drucken Sie das Menüblatt darum immer aus, bevor Sie einen Termin löschen.
-
-Im Alltag müssen Sie gar nichts löschen. Vergangene Termine verschwinden von selbst aus der Ansicht, sobald der Filter wieder auf «Nur heute» steht, und die Daten werden nach 30 Tagen automatisch entfernt.
+Im Alltag müssen Sie nichts löschen: Alte Termine verschwinden nach 30 Tagen von
+selbst.
 
 ---
 
 ## 8. Was die Teilnehmenden sehen
 
-Wer den Link öffnet oder den QR-Code scannt, kommt auf die Seite «Menüwahl Mittagessen». Zuoberst stehen Kursname, Datum und «Mittagessen um … Uhr». Darunter das Formular:
+Nach dem Scannen oder Antippen des Links erscheint die Seite «Menüwahl
+Mittagessen» mit Kursname, Datum und Essenszeit. Die Teilnehmenden geben ein:
 
-1. **«Dein Name»** mit den Pflichtfeldern «Vorname *» und «Nachname *».
-2. **«Vorspeise *»** mit drei Karten zum Antippen: «Tagessuppe», «Tagessalat» und «Keine Vorspeise». Bei Suppe und Salat steht der Tagestext dabei.
-3. **«Hauptgang *»** mit zwei Karten: «BAULÜÜT-Menü 1» und «BAULÜÜT-Menü 2», je mit Beschrieb und Dessert.
-4. **«Bemerkung (optional)»** mit dem Hinweis: «Bitte gib Allergien und Unverträglichkeiten an, z. B. glutenfrei oder laktosefrei (max. 200 Zeichen).»
-5. Der Knopf «Absenden» ganz unten.
+1. Vorname und Nachname
+2. Vorspeise: Tagessuppe, Tagessalat oder keine
+3. Hauptgang: BAULÜÜT-Menü 1 oder 2
+4. Bemerkung für Allergien und Unverträglichkeiten (freiwillig)
 
-Fehlt etwas, erscheint oben im Formular die Meldung «Bitte ergänzen:» mit den fehlenden Feldern.
+Nach **«Absenden»** erscheint «Danke, …! Deine Wahl ist gespeichert.»
 
-Nach dem Absenden erscheint eine Bestätigung: «Danke, Anna!», darunter «Deine Wahl ist gespeichert.» und eine Zusammenfassung mit Name, Vorspeise, Hauptgang und Bemerkung.
+Diese Meldungen sind **kein Fehler**:
 
-Drei Punkte, die am Empfang immer wieder gefragt werden:
+| Meldung | Bedeutung |
+|---|---|
+| «Menüwahl noch nicht möglich» | Der Link wurde vor dem Kurstag geöffnet. Am Kurstag nochmals öffnen. |
+| «Änderungen nicht mehr möglich» | Es ist nach 10:00 Uhr. Änderungen laufen über Sie. |
+| «Menüwahl geschlossen» | Es ist nach 10:00 Uhr und die Person hat noch nicht bestellt. Nehmen Sie die Bestellung entgegen. |
+| «Kein Kurs gefunden» | Firmen-QR-Code, aber heute kein Termin dieser Firma. Siehe [Abschnitt 5](#teilnehmende-melden-kein-kurs-gefunden). |
 
-- **Die Wahl ist nur am Tag des Mittagessens möglich.** Öffnet jemand den Link vorher, erscheint «Menüwahl noch nicht möglich» mit dem Satz, an welchem Tag das Mittagessen stattfindet, und der Bitte, den Link an diesem Tag nochmals zu öffnen. Das ist kein Fehler und Sie müssen nichts unternehmen.
-- **Die Wahl lässt sich bis 10:00 Uhr ändern.** Auf der Bestätigungsseite gibt es den Knopf «Auswahl bearbeiten». Damit kommt man zurück ins Formular, wo bereits alles ausgefüllt ist. Der Knopf unten heisst dann «Änderung speichern». Das funktioniert auf demselben Handy und solange die 10-Uhr-Grenze nicht überschritten ist.
-- **Ab 10:00 Uhr ist die Wahl zu.** Dann verschwindet der Knopf «Auswahl bearbeiten». An seiner Stelle steht:
-
-  > **Änderungen nicht mehr möglich**
-  > Änderungen an der Menüwahl sind nur bis 10:00 Uhr möglich. Bitte wende dich für eine Änderung an die Réception.
-
-  Die bereits abgegebene Bestellung bleibt sichtbar, sie ist nur nicht mehr änderbar. Wer bis dahin gar nichts bestellt hat, sieht statt des Formulars:
-
-  > **Menüwahl geschlossen**
-  > Die Menüwahl ist nur bis 10:00 Uhr möglich.
-  > Bitte melde dich bei der Réception, sie nimmt deine Bestellung entgegen.
-
-  Beides ist so gewollt und kein Fehler. Melden sich Teilnehmende deswegen bei Ihnen, nehmen Sie die Bestellung oder die Änderung entgegen und tragen sie in der Verwaltung nach, siehe Abschnitt 6. Für Sie ist die Bestellung jederzeit änderbar.
+Bis 10:00 Uhr können die Teilnehmenden ihre Wahl über **«Auswahl bearbeiten»**
+selbst ändern, allerdings nur auf demselben Handy.
 
 ---
 
 ## 9. Häufige Fragen
 
-**Ein Teilnehmer hat den Link zu früh geöffnet und sieht «Menüwahl noch nicht möglich».**
-Alles in Ordnung. Die Menüwahl öffnet erst am Tag des Mittagessens. Er soll denselben Link an diesem Tag nochmals öffnen, am besten am Morgen. Prüfen Sie im Zweifel in der Verwaltung, ob beim «Datum» des Termins wirklich der richtige Tag steht.
+**Jemand hat sich vertippt oder das falsche Menü gewählt.**
+Vor 10:00 Uhr: selbst über «Auswahl bearbeiten» auf demselben Handy. Sonst
+korrigieren Sie es in der Verwaltung über «Ändern» ([Abschnitt 6](#6-am-kurstag)).
 
-**Jemand hat sich vertippt, zum Beispiel beim Namen oder beim Menü.**
-Vor 10:00 Uhr: Er soll auf demselben Handy den Link nochmals öffnen, auf «Auswahl bearbeiten» klicken, korrigieren und auf «Änderung speichern» klicken. Klappt das nicht mehr, zum Beispiel weil das Handy gewechselt hat oder weil es bereits nach 10:00 Uhr ist, korrigieren Sie es selbst in der Verwaltung: Termin auswählen, in der Bestellungsliste auf «Ändern» klicken, richtigstellen, speichern. Siehe Abschnitt 6. War das Menüblatt schon gedruckt, drucken Sie es neu oder melden die Änderung der Küche.
+**Jemand meldet sich nach 10:00 Uhr und hat noch nicht bestellt.**
+Das ist so vorgesehen. Fragen Sie nach Name, Vorspeise, Hauptgang und Allergien
+und erfassen Sie die Bestellung über «Bestellung erfassen».
 
-**Jemand meldet sich um 10:30 Uhr und hat noch gar nicht bestellt.**
-Das ist der vorgesehene Weg, nicht eine Störung. Fragen Sie nach Vorname, Nachname, Vorspeise, Hauptgang und allfälligen Allergien und erfassen Sie die Bestellung in der Verwaltung über «Bestellung erfassen», siehe Abschnitt 6. Melden Sie es der Küche, besonders wenn eine Allergie dabei ist; haben Sie das Menüblatt bereits gedruckt, drucken Sie es neu.
+**Kann ich die 10-Uhr-Grenze für einen Kurs verschieben?**
+Nein, sie gilt für alle Kurse. Wünsche für eine andere Uhrzeit an die ICT-Services.
 
-**Kann ich die 10-Uhr-Grenze für einen einzelnen Termin verschieben?**
-Nein. Sie gilt für alle Kurse gleich. Soll die Zeit grundsätzlich eine andere sein, ist das eine Änderung an der Webseite; melden Sie den Wunsch den ICT-Services.
-
-**Ich möchte, dass die Kursleitung das Blatt selbst ausdruckt.**
-Öffnen Sie das Kursblatt mit «Kursblatt drucken» und schicken Sie ihr die Adresse aus dem neuen Tab, siehe Abschnitt 4, Weg A. Sie braucht dafür kein Konto und keine Anmeldung.
+**Ein Termin fehlt in der Liste.**
+1. Er liegt nicht auf heute: über «Filter» die zukünftigen oder vergangenen
+   Termine einblenden.
+2. Im Suchfeld steht noch ein alter Text: Feld leeren.
+3. Er wurde nie gespeichert: neu anlegen.
 
 **Ein Kurs spricht Französisch oder Englisch.**
-Stellen Sie das Klappfeld am rechten Ende von «Kursblatt drucken» auf «FR» oder «EN» und öffnen Sie das Blatt. Es erscheint in dieser Sprache, und der QR-Code darauf führt auf die Menüwahl in derselben Sprache. Ein gemischter Kurs bekommt einfach zwei Blätter, eines je Sprache. Auf dem Handy können die Teilnehmenden die Sprache mit den Schaltern «DE», «EN» und «FR» oben auf der Seite ausserdem selbst umstellen. Die Menütexte selbst bleiben deutsch, weil sie so aus der Küche kommen; das Menüblatt für die Küche bleibt ebenfalls deutsch.
+Beim Kursblatt die Sprache im Klappfeld wählen ([Abschnitt 4](#weg-b-kursblatt-drucken)).
+Die Menütexte selbst und das Menüblatt für die Küche bleiben deutsch.
 
-**Ein Termin taucht in der Liste nicht auf.**
-Drei Gründe kommen infrage:
-1. Das Kursdatum ist nicht der heutige Tag. Klicken Sie links auf «Filter» und setzen Sie das Häkchen bei «Zukünftige Termine» oder bei «Vergangene Termine», je nachdem, wo Sie suchen. Beide zusammen zeigen alles.
-2. Im Suchfeld «Suchen: Titel, Firma oder Code» steht noch ein Text von vorhin. Leeren Sie das Feld. Findet die Suche etwas ausserhalb des Filters, sagt die Seite es Ihnen und bietet mit einem Klick an, alle Termine anzuzeigen.
-3. Der Termin wurde nie gespeichert. Legen Sie ihn neu an.
-
-**Wie drucke ich als PDF statt auf Papier?**
-Klicken Sie wie gewohnt auf «Kursblatt drucken» oder «Menüblatt drucken». Wählen Sie im Druckdialog beim Drucker den Eintrag «Microsoft Print to PDF» und klicken Sie auf «Drucken». Danach geben Sie Dateiname und Ordner an. So können Sie das Menüblatt auch per E-Mail verschicken.
-
-**Wie lange bleiben die Daten gespeichert?**
-30 Tage. Danach werden Termine und Bestellungen automatisch gelöscht. Was Sie länger aufbewahren wollen, drucken Sie aus oder speichern Sie als PDF.
-
-**Wer bekommt Zugriff auf die Verwaltung?**
-Zugriff erhalten die Mitarbeitenden der Réception, freigeschaltet durch die ICT-Services. Braucht jemand Neues Zugriff oder verlässt jemand den Empfang, melden Sie das den ICT-Services. Die Teilnehmenden brauchen keinen Zugang und keine Anmeldung, für sie genügt der Gästelink.
-
-**Muss ich für jeden Kurstag einen eigenen Termin anlegen?**
-Ja. Ein Termin gilt für genau einen Essenstag. Das gilt auch für Firmen mit dauerhaftem QR-Code: Der Code bleibt derselbe, der Termin dahinter muss trotzdem für jeden Kurstag erfasst sein, siehe Abschnitt 3a.
-
-**Eine Firma ist eine ganze Woche bei uns und möchte einen einzigen QR-Code.**
-Nehmen Sie die Firma im Reiter «Firmen» ins Verzeichnis auf und drucken Sie ihr das Firmenblatt. Dessen QR-Code gilt dauerhaft. Legen Sie danach für jeden Kurstag wie gewohnt einen Termin an und wählen Sie dabei im Feld «Firma» die Firma aus dem Klappfeld. Siehe Abschnitt 3a.
-
-**Teilnehmende melden «Kein Kurs gefunden».**
-Sie haben den Firmen-QR-Code gescannt, für heute ist aber kein Termin dieser Firma erfasst. Prüfen Sie der Reihe nach: Gibt es für heute einen Termin dieser Firma? Trägt er die Marke «Firmen-QR» oder wurde die Firma als freier Text eingetippt? Stimmt das Datum? Das Vorgehen steht in Abschnitt 3a unter «Was am Kurstag geschieht».
-
-**Dieselbe Firma hat am selben Tag zwei Kurse.**
-Der erste bekommt den Firmen-QR-Code, der zweite wird mit freiem Firmentext angelegt und bekommt einen gewöhnlichen Zufallscode. Für ihn verteilen Sie wie bisher Link oder Kursblatt. Ein QR-Code kann an einem Tag nur auf einen Kurs zeigen.
-
-**Kann ich das Kursblatt schon eine Woche vorher drucken?**
-Ja. Der QR-Code funktioniert unabhängig vom Datum. Nur wählen können die Teilnehmenden erst am Kurstag, und dann bis 10:00 Uhr.
+**Wie drucke ich als PDF?**
+Im Druckdialog den Drucker «Microsoft Print to PDF» wählen.
 
 **Wie viele Kurse essen nächste Woche bei uns?**
-Klicken Sie in der Verwaltung auf «Filter» und setzen Sie das Häkchen bei «Zukünftige Termine», siehe Abschnitt 5. Die Liste links zeigt danach jeden kommenden Kurstag mit seinen Kursen und den bisherigen Bestellungen.
+«Filter» → «Zukünftige Termine» einblenden.
 
-**Kann jemand ohne Link zufällig bestellen?**
-Praktisch nicht. Der Zugangscode hat acht Zeichen und ist zufällig. Ohne den passenden Link erscheint der Hinweis «Ungültiger Link». Auch der Schlüssel einer Firma enthält vier Zufallszeichen und lässt sich deshalb nicht aus dem Firmennamen erraten.
+**Kann jemand ohne Link bestellen?**
+Praktisch nicht. Der Code ist zufällig und lässt sich nicht erraten. Ohne
+gültigen Link erscheint «Ungültiger Link».
+
+**Wer bekommt Zugang zur Verwaltung?**
+Mitarbeitende der Réception, freigeschaltet durch die ICT-Services. Melden Sie
+Ein- und Austritte dort.
 
 ---
 
 ## 10. Wenn etwas nicht geht
 
-Probieren Sie zuerst diese vier Punkte, in dieser Reihenfolge:
+Probieren Sie zuerst, in dieser Reihenfolge:
 
-1. **Seite neu laden.** Taste F5 drücken. Das behebt die meisten kurzen Aussetzer, zum Beispiel wenn ein Termin nicht erscheint oder eine Meldung stehen bleibt.
-2. **Richtiges Konto prüfen.** Steht oben rechts Ihr Name? Wenn dort ein fremder Name steht oder «Anmeldung nicht möglich» erscheint, klicken Sie auf «Abmelden», laden die Seite neu und melden sich mit Ihrem Geschäftskonto an.
-3. **Internetverbindung prüfen.** Meldungen wie «Verbindungsfehler» deuten meist darauf hin. Öffnen Sie zur Kontrolle eine andere Webseite.
-4. **Nochmals versuchen.** Wo der Knopf «Erneut versuchen» oder «Nochmals versuchen» erscheint, klicken Sie ihn einmal an.
+1. **Seite neu laden** (Taste F5).
+2. **Konto prüfen:** Steht oben rechts Ihr Name? Wenn nicht: «Abmelden», neu
+   laden, mit dem Geschäftskonto anmelden.
+3. **Internet prüfen:** Öffnet sich eine andere Webseite?
+4. **Einmal «Erneut versuchen»** klicken, falls der Knopf erscheint.
 
-Melden Sie sich bei den ICT-Services, wenn:
+**Melden Sie sich bei den ICT-Services**, wenn die Anmeldung scheitert, Bestellungen
+fehlen, sich ein Termin nicht speichern lässt, kein QR-Code erscheint oder die
+Menütexte mehrere Tage fehlen. Nennen Sie dabei den **Termin**, den **Code**, das
+**Datum** und die **genaue Fehlermeldung**; ein Bildschirmfoto hilft.
 
-- die Anmeldung auch nach dem Neuladen scheitert oder eine Meldung über fehlende Berechtigung erscheint,
-- Bestellungen fehlen, die nachweislich abgeschickt wurden,
-- ein Termin sich nicht speichern, ändern oder löschen lässt,
-- der QR-Code auf dem Kursblatt oder auf dem Firmenblatt nicht erzeugt wird,
-- der Reiter «Firmen» meldet, die Liste «Firmen» sei nicht vorhanden, und der Knopf «Liste jetzt anlegen» hilft nicht,
-- die Menütexte auf dem Menüblatt mehrere Tage hintereinander fehlen.
+**Notfall:** Isst der Kurs bereits und das Menüblatt fehlt, nehmen Sie das
+bekannte Papierblatt und melden den Fall danach.
 
-Halten Sie dabei bereit: den Namen des Termins, den Zugangscode, das Kursdatum und den genauen Wortlaut der Fehlermeldung. Ein Bildschirmfoto hilft zusätzlich.
-
-Ist der Kurs bereits am Essen und das Menüblatt fehlt, greifen Sie auf das bekannte Papierblatt zurück und melden den Fall danach.
-
-Technische Details, Zuständigkeiten und die Vorgehensweise im Störungsfall stehen im Dokument `02_Betriebshandbuch_Support.md`.
+Technische Hilfe für die ICT steht im [Betriebshandbuch](02_Betriebshandbuch_Support.md).

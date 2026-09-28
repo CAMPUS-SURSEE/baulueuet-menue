@@ -1,369 +1,163 @@
 # Entscheide und Verlauf
 
-**Stand:** 14.09.2026
+Warum die Menüwahl so gebaut ist, was bewusst offen bleibt und wie sie
+entstanden ist.
 
-Warum das System so gebaut ist, wie es gebaut ist. Dieses Dokument beantwortet die Fragen, die sich sonst in einem Jahr niemand mehr beantworten kann.
-
----
-
-## 1. Warum überhaupt
-
-Bisher füllten Kursteilnehmende ein Papierblatt aus, das die Réception bis 10:00 Uhr einsammelte und der Küche übergab. Das kostete Zeit, war schlecht lesbar, und Allergien gingen unter. Die digitale Fassung behält den Ablauf bei und ersetzt nur das Papier durch eine Webseite.
-
-Das gedruckte Menüblatt für die Küche gibt es weiterhin. Es ist bewusst dem alten Word-Blatt nachempfunden, das unter `Vorlagen\Menueauswahlblatt_Original_Word.docx` beiliegt, damit sich in der Küche nichts umgewöhnen muss.
+**Stand:** 28.09.2026
 
 ---
 
-## 2. Warum keine Anmeldung für die Gäste
+## Inhalt
 
-Kursteilnehmende sind externe Personen ohne Konto im Mandanten. Eine Anmeldung wäre für sie eine Hürde, die den ganzen Zweck zunichtemacht. Die Gästeseite ist deshalb anonym erreichbar und über den achtstelligen Zugangscode geschützt.
-
-**Was das bedeutet:** Wer den Code kennt, kann bestellen. Das ist bewusst so. Bei einem Mittagsmenü ist der Schaden eines Missbrauchs gering, und der Code ist lang genug, dass er sich nicht erraten lässt.
-
----
-
-## 3. Warum Power Apps abgelöst wurde
-
-Die Verwaltung lief zunächst als Power-Apps-Canvas-App. Sie funktionierte, hatte aber aus Sicht der Betreuung mehrere Nachteile:
-
-- Änderungen nur im Power-Apps-Studio, mit eigenen Eigenheiten und leicht verlorenen Formeln
-- eine zweite Oberfläche mit eigenem Aussehen neben der bereits vorhandenen Webseite
-- Lizenz- und Freigabefragen bei jeder neuen Person
-- kein Quellcode, der sich versionieren, lesen oder ablegen liesse
-
-Die Ablösung durch `admin.html` bringt: eine einzige Technologie für alles, lesbaren und ablegbaren Quellcode, dasselbe Aussehen wie die Gästeseite, und keine zusätzliche Lizenzfrage.
-
-**Was dabei verloren ging:** nichts. Alle Funktionen der App wurden übernommen, dazu kamen die Detailliste der Bestellungen und die beiden Druckknöpfe, die vorher noch offen waren.
+1. [Warum es die Menüwahl gibt](#1-warum-es-die-menüwahl-gibt)
+2. [Die wichtigen Entscheide](#2-die-wichtigen-entscheide)
+3. [Kleinere Entscheide](#3-kleinere-entscheide)
+4. [Bekannte Schwächen und mögliche Ausbauten](#4-bekannte-schwächen-und-mögliche-ausbauten)
+5. [Verlauf](#5-verlauf)
 
 ---
 
-## 4. Warum Flow B trotzdem weiterlebt
+## 1. Warum es die Menüwahl gibt
 
-Naheliegend wäre gewesen, alle Power-Automate-Flows abzuschaffen. Das geht nicht, aus zwei Gründen:
+Früher füllten Kursteilnehmende ein Papierblatt aus, das die Réception bis
+10:00 Uhr einsammelte und der Küche brachte. Das kostete Zeit, war schlecht
+lesbar, und Allergien gingen unter.
 
-1. **Die Gästeseite braucht einen anonymen Zugang** zu den Daten. Ohne Anmeldung gibt es kein Token für Microsoft Graph. Flow B und Flow C sind dieser Zugang.
-2. **Die Lunchgate-Schnittstelle lässt sich nicht aus dem Browser aufrufen.** Sie verlangt Basic Authentication und sendet keine CORS-Freigaben. Ausserdem hätten die Zugangsdaten im öffentlich lesbaren Quelltext gestanden. Flow B ist deshalb die einzige Stelle, welche die Tagesmenüs holt; auch das Menüblatt bezieht sie von dort.
-
-Ein vierter Flow «API Bestellungen laden» war geplant und wurde **nie gebaut**. Er ist überflüssig geworden, weil `menueblatt.html` die Bestellungen direkt über Graph holt.
-
----
-
-## 5. Warum das Kursblatt zuerst über Graph lief und jetzt doch über Flow B
-
-**Bis 04.09.2026:** Kursblätter werden **im Voraus** gedruckt, oft Tage vor dem Kurs. Flow B galt als auf den laufenden Tag ausgerichtet, weil er die Tagesmenüs mitliefert. Über Graph stimmten die Klassendaten sicher für jedes Datum. Menütexte braucht das Kursblatt ohnehin keine. Der Preis war die Anmeldung: Das Kursblatt liess sich nur intern öffnen.
-
-**Seit 04.09.2026 läuft es über Flow B, ohne Anmeldung.** Auslöser war der Wunsch, den Kursblatt-Link auch der Kursleitung schicken zu können, damit diese das Blatt selbst ausdruckt. Eine Weiterleitung auf `login.microsoftonline.com` ist für Personen ohne Konto im Mandanten eine Sackgasse.
-
-**Die Annahme von damals wurde nachgemessen, nicht geglaubt.** Ein Aufruf von Flow B mit der Testklasse `TEST1234` am 04.09.2026 lieferte `"datum":"2026-08-27"`, also einen vergangenen Kurstag mit korrekten Klassendaten. Flow B ist damit **nicht** auf den laufenden Tag beschränkt; er liefert jede Klasse mit ihrem eigenen Datum. Der ursprüngliche Einwand traf schlicht nicht zu.
-
-**Was preisgegeben wird:** Kursname, Firma, Datum und Essenszeit, und nur an jemanden, der den achtstelligen Code bereits kennt. Genau das steht ohnehin auf dem Aushang, und derselbe Code öffnet über die Gästeseite bereits mehr. Bestellungen liefert Flow B nicht, sie bleiben hinter der Anmeldung.
-
-**Der Weg über Graph blieb bestehen**, als Rückfall für den Fall, dass Flow B nicht antwortet. Er wird aber nie von selbst eingeschlagen, sondern nur über den Knopf «Mit Konto anmelden» auf der Fehlerkarte. Deshalb muss die Umleitungsadresse für `kursblatt.html` in der App-Registrierung eingetragen bleiben, obwohl die Seite im Normalfall keine Anmeldung mehr braucht.
+Die Webseite behält den Ablauf bei und ersetzt nur das Papier. Das Menüblatt
+für die Küche sieht bewusst aus wie das alte Word-Blatt
+([`Vorlagen/Menueauswahlblatt_Original_Word.docx`](../Vorlagen/Menueauswahlblatt_Original_Word.docx)),
+damit sich in der Küche nichts ändert.
 
 ---
 
-## 5a. Warum die 10-Uhr-Frist im Browser geprüft wird und nicht im Flow
+## 2. Die wichtigen Entscheide
 
-Seit dem 04.09.2026 endet die Menüwahl am Kurstag um 10:00 Uhr. Das bildet nach, was auf dem Papierblatt stand und was die Küche zum Planen braucht.
+### Keine Anmeldung für die Teilnehmenden
 
-Geprüft wird die Frist in `index.html`, also im Browser der Teilnehmenden. Flow C nimmt eine Bestellung weiterhin an, wenn jemand ihn von Hand aufruft. Das ist bewusst so:
+Kursteilnehmende haben kein Konto bei Campus Sursee. Eine Anmeldung wäre eine
+Hürde, die den Zweck zunichtemacht. Geschützt ist die Gästeseite deshalb nur
+durch den zufälligen Zugangscode.
 
-- **Der Zweck ist Verlässlichkeit im Ablauf, nicht Abwehr von Missbrauch.** Es geht darum, dass die Küche ab 10:00 Uhr eine feste Zahl hat und niemand versehentlich noch etwas ändert.
-- **Wer den Code kennt, könnte ohnehin bestellen.** Das ist seit Beginn so entschieden, siehe Abschnitt 2. Eine harte Sperre in Flow C würde daran nichts ändern, sondern nur eine andere Lücke schliessen als die, die offen ist.
-- **Eine Änderung an Flow C ist teuer und heikel.** Der Power-Automate-Designer verliert Ausdrücke still, siehe `03_Technische_Dokumentation.md`, Abschnitt 10. Für einen Nutzen, der hier gering ist, lohnt sich dieses Risiko nicht.
+**Preis:** Wer den Code kennt, kann bestellen. Bei einem Mittagsmenü ist der
+mögliche Schaden gering, und der Code lässt sich nicht erraten.
 
-Soll die Frist trotzdem hart gelten, steht der nötige Eingriff in Flow C in `03_Technische_Dokumentation.md`, Abschnitt 7.1. Die Gästeseite ist darauf vorbereitet: Antwortet Flow C mit HTTP 403, zeigt sie bereits die Karte «Bestellung geschlossen».
+### Webseite statt Power App
 
----
+Die Verwaltung lief zuerst als Power-Apps-Canvas-App. Sie wurde am 28.08.2026
+durch `admin.html` ersetzt, weil die App nur im Power-Apps-Studio änderbar war,
+Formeln leicht verloren gingen, Lizenzfragen aufwarf und keinen lesbaren
+Quellcode hatte. Jetzt gibt es eine einzige Technik, versionierten Code und das
+gleiche Aussehen wie die Gästeseite. Verloren ging dabei nichts.
 
-## 5b. Warum die Spur «erstellt von / geändert von» ohne neue Spalten auskommt
+### Flow B und C bleiben
 
-Die Verwaltung zeigt seit dem 04.09.2026 unter jedem Klassenkopf eine sehr kleine Zeile mit Zeitpunkt und Person des Anlegens und der letzten Änderung.
+Die Seiten ohne Anmeldung brauchen einen Zugang zu den Daten, der ohne Konto
+funktioniert; das sind Flow B und C. Ausserdem lässt sich Lunchgate nicht aus
+dem Browser aufrufen (Zugangsdaten, keine CORS-Freigabe). Flow B ist darum auch
+für das Menüblatt die Quelle der Tagesmenüs.
 
-Naheliegend wäre gewesen, dafür vier Spalten in der Liste «Klassen» anzulegen und sie beim Speichern mitzuschreiben. Dagegen sprach dreierlei:
+### Kursblatt ohne Anmeldung
 
-1. **SharePoint führt diese Angaben ohnehin mit**, für jeden Listeneintrag, ohne Zutun. Graph liefert sie als `createdBy`, `createdDateTime`, `lastModifiedBy` und `lastModifiedDateTime`.
-2. **Keine Migration.** Bestehende Klassen hätten bei eigenen Spalten leere Werte gehabt. So stimmen sie rückwirkend.
-3. **Nicht fälschbar.** Selbstgeschriebene Spalten liessen sich über die Oberfläche beliebig setzen; die Angaben von SharePoint nicht.
+Bis zum 04.09.2026 verlangte das Kursblatt eine Anmeldung. Man nahm an, Flow B
+liefere nur Termine des laufenden Tages. **Nachgemessen stimmte das nicht:**
+Flow B liefert jeden Termin mit seinem eigenen Datum. Seither lädt das
+Kursblatt über Flow B, und die Réception kann den Link einer externen
+Kursleitung schicken. Preisgegeben wird nur, was ohnehin auf dem Aushang steht.
 
-Der Preis ist ein grösseres `$select` auf jeder Abfrage. Sollte Graph das je verweigern, greift der bestehende Rückfall auf die knappe Auswahl: Die Seiten laden weiter, nur die Spur fehlt dann.
+### Die 10-Uhr-Frist prüft der Browser
 
----
+Die Frist soll der Küche verlässliche Zahlen geben, nicht Missbrauch abwehren.
+Wer den Code kennt, könnte ohnehin bestellen. Eine Prüfung in Flow C hätte
+einen heiklen Eingriff im Power-Automate-Designer bedeutet, für wenig Nutzen.
 
-## 5c. Warum «Alle Termine» wieder in die Verwaltung zurückgeholt wurde
+### Die Réception darf jederzeit ändern
 
-Das Restaurant wollte eine Vorschau auf die anstehenden Termine. Weil die Verwaltung links eine Klasse pro Zeile zeigte, absteigend nach Datum und ohne Zusammenzug pro Tag, entstand dafür die eigene Seite `termine.html`. Sie wurde noch am selben Tag wieder aufgegeben, bevor die Réception überhaupt damit gearbeitet hatte.
+Bis zum 04.09.2026 galt die Frist auch für die Réception; Korrekturen landeten
+von Hand auf dem gedruckten Blatt. Damit standen die Angaben an zwei Orten, und
+das Blatt liess sich nicht neu drucken. Seither kann die Réception jede
+Bestellung in der Verwaltung ändern, nacherfassen und löschen. Eine
+verschiebbare Frist pro Termin wurde verworfen: Die Küche soll sich auf eine
+feste Zeit verlassen können.
 
-**Was dagegen sprach, sobald sie in Gebrauch war:**
+### Firmen mit dauerhaftem QR-Code
 
-- **Zwei Listen für dieselbe Frage.** Die Réception schaute für «Was läuft heute?» in die Verwaltung und für «Was kommt nächste Woche?» in einen zweiten Tab. Beide zeigten dieselben Daten in verschiedener Form, und nur in der einen liess sich etwas anklicken.
-- **Der Umschalter «Vergangene anzeigen» beantwortete die falsche Frage.** Er kannte nur zwei Zustände, entweder alles Kommende oder alles Vergangene. Gefragt war fast immer: der heutige Tag.
-- **Der zusätzliche Eintrag in der App-Registrierung**, ohne den die Seite mit `AADSTS50011` scheiterte.
+Firmen wie SORBA sind eine ganze Woche am Campus und wollten nicht jeden Tag
+ein neues Blatt. Seit dem 14.09.2026 gibt es das Firmenverzeichnis.
 
-**Was stattdessen gebaut wurde.** Die linke Spalte von `admin.html` gruppiert die Termine jetzt selbst nach Kurstag, mit dem Datum als Überschrift über jeder Gruppe. Der Umschalter ist einem **Filter** gewichen: Von Haus aus stehen dort nur die heutigen Termine, zwei Kästchen blenden «Zukünftige Termine» und «Vergangene Termine» dazu. Die heutigen bleiben in jedem Fall sichtbar.
+- **Der Schlüssel hat vier Zufallszeichen** (`SORBA-K7M2` statt `SORBA`). Sonst
+  liesse sich der Link jeder Firma aus ihrem Namen erraten. Darum wird das
+  Verzeichnis auch nie aufgeräumt: Es ist der einzige Ort, an dem die Schlüssel
+  stehen.
+- **Der Termincode entsteht im Browser** aus Schlüssel und Datum. Die Flows
+  blieben unverändert, und die Zeitzonenfalle im Flow (`utcNow()` ist nicht
+  Ortszeit) wurde umgangen.
+- **Die Bildungsregel steht zweimal im Code** (`graph.js` und `index.html`),
+  weil die Gästeseite `graph.js` nicht lädt. Das ist ein bewusster Kompromiss,
+  damit anonymer und angemeldeter Teil getrennt bleiben.
+- **Verschiebt man einen Firmen-Termin, ändert sich sein Code.** Der Kurstag
+  steckt darin. Das Datum stattdessen zu sperren hätte Löschen und Neuanlegen
+  erzwungen und Bestellungen verwaist.
+- **Die Menütexte werden nicht übersetzt.** Maschinelle Übersetzung von
+  Gerichten und Allergenen ist nicht zuverlässig genug.
 
-Sortiert wird **durchgehend absteigend**, der am weitesten in der Zukunft liegende Tag zuoberst. Eine erste Fassung hielt stattdessen den heutigen Tag zuoberst und hängte kommende und vergangene Tage in je eigener Richtung an. In der Liste las sich das als zwei verschiedene Sortierungen übereinander und war nicht zu durchschauen. Eine einzige Richtung für alle Tage ist langweiliger, aber vorhersagbar: Der heutige Tag rutscht dann eben nach unten, sobald kommende Termine eingeblendet sind, und bleibt über seine orange Marke «heute» trotzdem auffindbar.
+### Bibliotheken statt Eigenbau
 
-**Was dabei verloren ging:** der Ausdruck der Tagesübersicht fürs Restaurant und der Zusammenzug «Tage / Kurse / Bestellungen / Menü 1 / Menü 2» über den ganzen Zeitraum. Beides war an die eigene Seite gebunden. Wird es wieder gebraucht, ist es in der linken Spalte nicht sinnvoll unterzubringen; dann braucht es die eigene Seite erneut.
-
-**Der Grundsatz «eine Seite, eine Aufgabe» gilt weiterhin.** Er hat hier nur nicht getragen, weil es gar nicht zwei Aufgaben waren: Terminliste und Terminübersicht sind dieselbe Aufgabe in zwei Auflösungen.
-
----
-
-## 5d. Warum «Bestellung offen» aus der Verwaltung verschwunden ist
-
-Die Liste «Klassen» hat eine Spalte `Status` mit den Werten `offen` und `geschlossen`. Die Verwaltung zeigte sie an zwei Stellen: als orangen Punkt in jeder Listenzeile und als Marke «Bestellung offen» im Kopf der Details. Im Formular liess sie sich umstellen.
-
-Gebraucht wurde das nie. Die 10-Uhr-Regel schliesst die Menüwahl von selbst, und einen Kurs schon vorher dichtzumachen kam in der Praxis nicht vor. Übrig blieben ein Punkt, der in jeder Zeile Platz und Aufmerksamkeit kostete, und ein Wahlfeld, das man beim Bearbeiten jedes Mal überlesen musste.
-
-Seit dem 04.09.2026 sind Punkt, Marke und Wahlfeld entfernt. Die Spalte selbst bleibt:
-
-- **Flow B liest sie weiterhin** und meldet der Gästeseite `offen: false`, wenn dort `geschlossen` steht. Die Gästeseite zeigt dann unverändert «Bestellung geschlossen».
-- **Beim Anlegen** schreibt die Verwaltung deshalb weiterhin `offen` hinein. Bliebe die Spalte leer, hielte Flow B den Termin für geschlossen und niemand könnte bestellen.
-- **Beim Ändern** fasst die Verwaltung die Spalte nicht mehr an. Was in SharePoint steht, bleibt stehen.
-
-Wer einen Termin vorzeitig schliessen will, setzt den Wert direkt in der SharePoint-Liste. Das ist selten genug, dass es keinen eigenen Handgriff in der Oberfläche rechtfertigt.
-
----
-
-## 5e. Warum die erwartete Teilnehmeranzahl nur ein Massstab ist
-
-Die Réception fragte: «Fehlen noch Bestellungen?» Bisher liess sich das nur beantworten, wenn man die Teilnehmeranzahl des Kurses im Kopf hatte. Seit dem 04.09.2026 lässt sie sich am Termin hinterlegen, und die Liste zeigt «5 / 18 Best.».
-
-Die Zahl **schränkt nichts ein**. Sie ist keine Obergrenze, kein Kontingent und keine Pflichtangabe:
-
-- Es dürfen mehr Leute bestellen als erwartet. Wer im Kurs kurzfristig dazukommt, soll nicht abgewiesen werden, nur weil eine Zahl nicht nachgeführt wurde.
-- Das Feld darf leer bleiben. Dann zeigt die Verwaltung schlicht keinen Massstab. Eine erzwungene Angabe hätte nur Platzhalterzahlen erzeugt, die niemand pflegt.
-- **Leer und `0` sind nicht dasselbe.** Leer heisst «noch nicht bekannt», `0` hiesse «niemand wird erwartet». Ein geleertes Feld schreibt deshalb `null` in die Spalte, nicht `0`.
-
-Die Alternative wäre gewesen, die Teilnehmenden vorab namentlich zu erfassen. Das ist der Ablauf, den das Papierblatt hatte, und genau den sollte die Webseite ablösen.
-
----
-
-## 5f. Warum die Réception Bestellungen ändern darf und die Teilnehmenden nicht
-
-Die 10-Uhr-Frist auf der Gästeseite bleibt, wie sie ist: Ab 10:00 Uhr kann niemand mehr selbst
-bestellen oder die eigene Wahl ändern. Sie hat einen einzigen Zweck, nämlich der Küche eine Zahl zu
-geben, auf die sie sich verlassen kann.
-
-Bis zum 04.09.2026 traf diese Frist allerdings auch die Réception. Wer sich vertippt hatte, wer das
-falsche Menü angetippt hatte oder wer eine Allergie nachmeldete, wurde an den Empfang verwiesen —
-und dort blieb nur, den Fall von Hand auf das ausgedruckte Menüblatt zu schreiben. Damit standen
-die Angaben an zwei Orten: die richtigen auf Papier, die falschen im System. Das Menüblatt liess
-sich danach nicht mehr neu drucken, ohne die Korrekturen zu verlieren.
-
-Seit dem 04.09.2026 kann die Réception jede Bestellung **jederzeit** ändern, nacherfassen und
-löschen, in `admin.html` und ohne Prüfung der Uhrzeit. Überlegungen dazu:
-
-- **Die Frist gilt der Planbarkeit, nicht der Abwehr.** Wer am Schalter steht, ist ohnehin schon
-  eine Ausnahme; ihn zusätzlich auf Papier zu verweisen, hilft niemandem.
-- **Eine einzige Wahrheit.** Was auf dem Menüblatt steht, kommt wieder vollständig aus der Liste.
-  Das Blatt lässt sich nach einer Korrektur neu drucken.
-- **Nachvollziehbar, ohne neue Spalten.** Wie bei den Klassen (siehe Abschnitt 5b) zeigt die
-  Verwaltung `createdBy` und `lastModifiedBy` des Listenelements. Eine Korrektur der Réception
-  bleibt damit von der ursprünglichen Bestellung unterscheidbar, ohne dass jemand ein Feld pflegen
-  müsste.
-- **Kein zweiter Weg für die Gäste.** Geschrieben wird direkt über Graph, also nur mit Anmeldung.
-  Flow C bleibt unverändert; die Gästeseite bekommt dadurch keine neuen Möglichkeiten.
-
-Verworfen wurde, die Frist pro Termin verschiebbar zu machen. Das hätte für jeden Kurs eine
-Entscheidung verlangt, die niemand treffen will, und die Küche hätte sich auf keine Zeit mehr
-verlassen können. Die Ausnahme gehört an den Schalter, nicht in die Konfiguration.
+Die erste Fassung hatte einen eigenen QR-Encoder und einen eigenen
+Anmeldeablauf, zusammen rund 610 Zeilen. Auf Wunsch wurde das durch zwei
+bewährte Bibliotheken ersetzt (MSAL und qrcode-generator). **Preis:** Anmeldung
+und QR-Code brauchen `cdn.jsdelivr.net`. Feste Versionen und Prüfsummen sichern
+gegen unbemerkt ausgetauschte Dateien.
 
 ---
 
-## 5g. Dauerhafter Firmen-QR-Code und Firmenverzeichnis
+## 3. Kleinere Entscheide
 
-Firmen wie SORBA sind eine ganze Woche am Campus. Bisher hatte jeder Kurstag seinen
-eigenen QR-Code, also jeden Morgen ein neues Blatt. Gewünscht war ein Code, den die
-Firma einmal bekommt und immer wieder verwendet.
-
-Seit dem 14.09.2026 steht eine solche Firma mit einem **dauerhaften Schlüssel** in der
-neuen SharePoint-Liste «Firmen» (`SORBA-K7M2`) und hat damit einen dauerhaften Gästelink
-(`/?firma=SORBA-K7M2`). Die Gästeseite bildet daraus am Kurstag selbst den Klassencode
-des heutigen Tages (`SORBA-K7M2-260914`) und ruft Flow B unverändert damit auf.
-
-**a) Der Schlüssel hat einen Zufallsanteil.** Naheliegend wäre `SORBA` gewesen, kurz und
-sprechend. Dann liesse sich der Code jeder Firma aber aus ihrem Namen erraten, und mit
-dem Code kommt man an jedem Kurstag auf deren Menüwahl. Vier Zufallszeichen kosten nichts
-und schliessen das. Sie trennen nebenbei gleichnamige Firmen. Der Preis: Der Schlüssel
-lässt sich nicht mehr aus dem Kopf rekonstruieren, und das Verzeichnis ist der einzige
-Ort, an dem er steht. Deshalb ist es auch die einzige Ablage, welche die 30-Tage-Aufräumung
-überlebt: Wären Firmen wie Termine nach dreissig Tagen weg, führten alle gedruckten
-QR-Codes ins Leere.
-
-**b) Die Bildungsregel des Codes steht bewusst zweimal.** In `Hilfe.firmenCode()` in
-`graph.js` für die Verwaltung und in `firmenCode()` im Kopf von `index.html` für die
-Gästeseite. Doppelter Code ist ein Mangel und wird hier trotzdem in Kauf genommen: Die
-Gästeseite lädt `graph.js` nicht, weil sie ohne Anmeldung auskommt und deshalb keine der
-Admin-Dateien lädt. Dasselbe gilt seit jeher für den Annahmeschluss (Abschnitt 5a); die
-Alternative wäre, `graph.js` auf der Gästeseite mitzuladen und damit die klare Trennung
-zwischen anonymem und angemeldetem Teil aufzugeben. Der Fehlerfall ist dafür still: Wird
-die Regel nur an einer Stelle geändert, meldet die Gästeseite «Kein Kurs gefunden», ohne
-dass irgendwo ein Fehler auftaucht. Der Hinweis steht deshalb in
-`06_Hinweise_Quellcode.md` und im Quelltext an beiden Stellen.
-
-**c) Der Code eines Firmen-Termins wird beim Ändern des Datums neu gebildet.** Das bricht
-mit der Regel «ein Code wird nie geändert», die sonst durchgehend gilt und die dafür
-sorgt, dass ein verteilter Link gültig bleibt. Hier geht es nicht anders: Der Kurstag
-steckt im Code. Ein verschobener Termin behielte sonst den Code des alten Tages, und der
-QR-Code der Firma fände ihn am neuen Tag nicht. Betroffen ist nur der Link **dieses einen
-Termins**; der dauerhafte Link der Firma bleibt, und genau ihn haben die Teilnehmenden.
-Verworfen wurde, das Datum eines Firmen-Termins nachträglich zu sperren — das hätte die
-Réception für einen Verschiebungsfall zum Löschen und Neuanlegen gezwungen und dabei die
-Bestellungen verwaisen lassen.
-
-**d) Kein Eingriff in die Flows.** Die naheliegende Lösung wäre gewesen, Flow B einen
-Parameter «Firma» beizubringen und dort den Termin des heutigen Tages zu suchen. Dagegen
-sprach zweierlei. Erstens ist jede Änderung im Power-Automate-Designer teuer und heikel,
-er verliert Ausdrücke still (siehe `03_Technische_Dokumentation.md`, Abschnitt 10).
-Zweitens hätte ein Datumsfilter im Flow genau in die Zeitzonenfalle geführt, die das
-System an anderer Stelle schon einmal gekostet hat: In der Liste «Klassen» stehen zwei
-Schreibweisen für denselben Kurstag, und `utcNow()` im Flow ist nicht die Ortszeit. Der
-Code aus Schlüssel und Kurstag umgeht das vollständig — er entsteht im Browser aus der
-Ortszeit, und der Flow sucht danach wie nach jedem anderen Code. Die Flows, die
-Entra-Registrierung und `_headers` blieben deshalb unverändert; `Sites.ReadWrite.All`
-deckt die neue Liste mit ab.
-
-**e) Die Menütexte werden weiterhin nicht übersetzt.** Die Frage kam bei dieser
-Gelegenheit von der Auftraggeberin. Der Entscheid ist nein, aus zwei Gründen: Eine
-maschinelle Übersetzung von Gerichten und vor allem von Allergenhinweisen ist nicht
-zuverlässig genug für etwas, das jemand isst, und sie brächte in jeden Seitenaufruf einen
-zusätzlichen Fremddienst. Der saubere Weg wäre eine mehrsprachige Erfassung in Lunchgate;
-solange sie fehlt, bleiben die Menütexte deutsch, übersetzt sind nur die Beschriftungen
-der Seiten. Das entspricht dem bisherigen Stand (Abschnitt 7, «Die Sprache reist im Link
-mit»).
-
-**Ehrlich benannt, was diese Lösung nicht kann:**
-
-- **Der Termin muss trotzdem für jeden Kurstag erfasst sein.** Der dauerhafte Code
-  erspart das Verteilen von Links und Blättern, nicht das Anlegen des Termins. Fehlt er,
-  sehen die Teilnehmenden «Kein Kurs gefunden» und melden sich an der Réception — genau
-  dort, wo der Termin fehlt. Eine Lösung ohne Termin hätte bedeutet, Kurse automatisch
-  anzulegen, und damit ein zweites System für etwas, das der Empfang ohnehin im Griff hat.
-- **Das Firmenblatt nennt keine Essenszeit**, und auch weder Kurstitel noch Datum. Es
-  kann sie nicht nennen, weil es für alle Kurstage gilt und diese Angaben je Tag
-  wechseln. Die Essenszeit steht erst auf der Gästeseite, nach dem Scannen. Wer sie im
-  Voraus auf Papier braucht, druckt zusätzlich das gewöhnliche Kursblatt des Tages.
-- **Pro Firma und Kurstag ist nur ein Termin mit Firmen-QR-Code möglich**, weil ein
-  QR-Code an einem Tag nur auf einen Kurs zeigen kann. Der zweite Kurs derselben Firma am
-  selben Tag bekommt einen gewöhnlichen Zufallscode. Die Verwaltung prüft das und sagt
-  es; geprüft wird im Browser gegen die geladene Terminliste, nicht in SharePoint.
-- **Der Code ändert beim Verschieben des Datums**, siehe c).
+| Entscheid | Grund |
+|---|---|
+| Ganze Listen holen und im Browser filtern | Filter in SharePoint brauchen einen Index und scheitern sonst sporadisch. Bei wenigen hundert Einträgen unproblematisch. |
+| Datum wird als Mittag UTC gespeichert | So landet es bei jeder Zeitzone auf dem richtigen Tag. |
+| Zugangscode ohne 0, O, 1 und I | Er wird vom Papier abgetippt. |
+| Beim Löschen eines Termins bleiben die Bestellungen | Ein Versehen soll nicht still Daten mitreissen. |
+| Daten nach 30 Tagen löschen | Allergien sind Gesundheitsdaten; sie werden nur so lange gehalten wie nötig. |
+| Wer etwas angelegt oder geändert hat, kommt aus SharePoint | Keine eigenen Spalten nötig, rückwirkend korrekt und nicht fälschbar. |
+| Terminliste nach Kurstag gruppiert, Filter «Nur heute» | Eine eigene Seite «Alle Termine» (`termine.html`) wurde am selben Tag wieder aufgegeben: zwei Listen für dieselbe Frage. |
+| Eine einzige Sortierrichtung für alle Tage | Eine Sonderregel für «heute» machte die Liste unlesbar. |
+| Status «Bestellung offen» nicht mehr in der Oberfläche | Die 10-Uhr-Regel schliesst von selbst; vorzeitiges Schliessen kam nie vor. Die Spalte bleibt für Flow B. |
+| Erwartete Teilnehmeranzahl nur als Richtwert | Wer kurzfristig dazukommt, soll trotzdem bestellen können. |
+| Sprache im Link, nicht am Termin | Ein Kurs hat oft gemischte Sprachen; so gibt es mehrere Blätter pro Termin. Flow B blieb unverändert. |
+| Keine Fusszeile auf den Blättern | Ruhigerer Druck. Der Satz «bis 10:00 Uhr an der Réception abgeben» passt nicht mehr, seit niemand mehr ein Blatt abgibt. |
+| Cloudflare Pages statt Netlify | Wechsel am 04.09.2026. Für die Seite ohne Unterschied, ausser der Umleitung auf Adressen ohne `.html`. |
 
 ---
 
-## 6. Warum zuerst alles selbst gebaut und dann auf Bibliotheken umgestellt wurde
-
-Die erste Fassung enthielt einen selbst geschriebenen QR-Encoder (rund 380 Zeilen) und einen selbst geschriebenen OAuth-Ablauf mit PKCE (rund 230 Zeilen). Der Gedanke dahinter: keine Abhängigkeit von fremden Servern, eine sehr enge Content Security Policy, nichts, was zusätzlich ausgeliefert werden muss.
-
-Auf ausdrücklichen Wunsch wurde das umgestellt auf **so wenig selbstgebauten Code wie möglich**. Heute übernehmen `@azure/msal-browser` die Anmeldung und `qrcode-generator` den QR-Code, beide per CDN.
-
-**Abwägung, ehrlich benannt:**
-
-| | Eigenbau | Bibliothek vom CDN |
-|---|---|---|
-| Abhängigkeit von Dritten | keine | `cdn.jsdelivr.net` muss erreichbar sein |
-| Code, den jemand warten muss | rund 610 Zeilen mehr | rund 610 Zeilen weniger |
-| Sicherheitslücken | müssen selbst gefunden werden | werden vom Hersteller behoben, Version muss aber nachgeführt werden |
-| Content Security Policy | sehr eng | eine zusätzliche Quelle erlaubt |
-
-Abgesichert ist die Abhängigkeit durch feste Versionen und `integrity`-Prüfsummen: Eine unbemerkt ausgetauschte Datei würde vom Browser abgelehnt. Fällt der CDN aus, melden die Seiten das im Klartext, statt leer zu bleiben.
-
-Der alte QR-Encoder liegt nicht mehr im Quellcode. Der Testordner `qr-test` im Arbeitsverzeichnis ist damit gegenstandslos.
-
----
-
-## 7. Kleinere Entscheide
-
-**Ganze Listen holen und im Browser filtern.** Serverseitige `$filter` auf SharePoint-Listenspalten setzen einen Spaltenindex voraus und scheitern sonst sporadisch. Bei höchstens ein paar hundert Einträgen ist das Filtern im Browser einfacher und zuverlässiger.
-
-**Datum beim Schreiben auf Mittag UTC setzen.** So landet der Wert auch bei Zeitzonenverschiebung sicher auf dem gewünschten Tag. Beim Lesen wird immer über die lokale Zeitzone umgerechnet, damit auch die von der alten Power App angelegten Einträge richtig erscheinen.
-
-**Zugangscode ohne 0, O, 1 und I.** Der Code steht auf einem gedruckten Blatt und wird von Hand abgetippt. Verwechselbare Zeichen sind dort ein echtes Ärgernis.
-
-**Bestellungen bleiben beim Löschen einer Klasse stehen.** Bewusst so: Ein versehentliches Löschen soll nicht stillschweigend die Bestellungen mitreissen. Die Rückfrage weist ausdrücklich darauf hin. Der Aufräum-Flow entfernt die verwaisten Einträge nach 30 Tagen.
-
-**Aufbewahrung 30 Tage.** Es sind Namen mit Angaben zu Allergien, also Gesundheitsdaten. Sie werden nur so lange behalten, wie sie für den Betrieb gebraucht werden.
-
-**Keine Fusszeile auf den Seiten.** Auf Wunsch entfernt, damit die Blätter im Druck ruhiger wirken. Am 08.09.2026 ist auch der Satz «Wir bitten Sie das Menüauswahlblatt bis 10:00 Uhr an der Réception abzugeben» vom Menüblatt verschwunden; seit die Wahl über das Handy läuft, gibt niemand mehr ein Blatt ab.
-
-**Die Sprache reist im Link mit, nicht über Flow B.** Kursblatt und Gästeseite laden ohne Anmeldung über Flow B. Statt den Flow anzufassen, hängt die Verwaltung `&fr` oder `&en` an die Adresse des Kursblatts, und das Kursblatt setzt denselben Zusatz in den QR-Code. Der Zusatz ist seit dem 10.09.2026 ein blosser Schlüssel ohne Wert statt `&sprache=fr`, damit der Link und der QR-Code so kurz wie möglich bleiben; die alte Form wird weiterhin verstanden. So bleibt Flow B unverändert, bestehende deutsche Links bleiben gültig, und die Sprache lässt sich am Link selbst nachvollziehen. Die Menütexte aus Lunchgate bleiben deutsch; übersetzt sind nur die Beschriftungen der Seiten.
-
-**Die Sprache hängt nicht am Termin, sondern am Blatt.** Am 08.09.2026 bekam jeder Termin eine Spalte `Sprache`. Schon am 09.09.2026 wieder aufgegeben: Ein Kurs hat oft Teilnehmende mit verschiedenen Sprachen, und dann braucht es mehrere Blätter für denselben Termin, nicht eine Sprache pro Termin. Die Réception wählt die Sprache jetzt im Klappfeld am Knopf «Kursblatt drucken» (Vorgabe DE) und kann das Blatt nacheinander in mehreren Sprachen drucken; gespeichert wird nichts. Zusätzlich kann jede Person die Gästeseite selbst auf DE, EN oder FR umstellen, unabhängig davon, welches Blatt sie gescannt hat. Die Spalte `Sprache` bleibt in SharePoint stehen, wird aber nicht mehr gelesen.
-
-**Die Kursblatt-Linkzeile ist weg.** Sie stand unter dem Gästelink mit eigenem Kopierknopf. Das Blatt ist über «Kursblatt drucken» ohnehin einen Klick entfernt, und wer die Adresse weitergeben will, nimmt sie aus dem geöffneten Tab. Zwei Linkzeilen übereinander haben die Réception eher verwirrt als geholfen.
-
-**Hosting bei Cloudflare Pages statt bei Netlify.** Am 04.09.2026 gewechselt. An der Webseite selbst ändert das nichts: Beide Anbieter liefern den Ordner `frontend` unverändert aus und werten `frontend\_headers` gleich aus. Aus `netlify.toml` wurde `wrangler.toml`. Ein einziger Unterschied ist zu beachten: Cloudflare Pages leitet `/admin.html` auf `/admin` um. Die Seiten melden sich damit auf der Adresse ohne Endung an, weshalb in Entra ID beide Schreibweisen als Umleitungsadresse hinterlegt sind.
-
----
-
-## 8. Bekannte Schwächen
-
-Diese Punkte sind bekannt und bewusst in Kauf genommen. Sie gehören auf die Liste, falls das System einmal ausgebaut wird.
+## 4. Bekannte Schwächen und mögliche Ausbauten
 
 | Schwäche | Auswirkung | Möglicher Ausbau |
 |---|---|---|
-| Flow C prüft das Datum nicht serverseitig | Wer die Schnittstelle direkt aufruft, könnte am falschen Tag bestellen | Datumsprüfung in Flow C ergänzen |
-| Aufteilung der Vorspeisenzeile am Wort « oder » | Schreibt die Küche die Zeile anders, landet alles im Feld Suppe | Lunchgate-Felder sauberer trennen, oder in SharePoint pflegen |
-| Zugriff auf die Verwaltung wird von Hand zugewiesen | Bei Personalwechsel leicht vergessen | Entra ID P1 und Gruppenzuweisung |
-| Abhängigkeit von `cdn.jsdelivr.net` | Bei Ausfall keine Anmeldung und kein QR-Code | Bibliotheken lokal mit ausliefern |
-| Veröffentlichung von Hand per Datei-Upload | Kein Verlauf, kein Rückschritt auf eine frühere Fassung | Git-Anbindung an Cloudflare Pages |
-| Verwaiste Bestellungen nach dem Löschen einer Klasse | Bleiben bis zu 30 Tage in der Liste | Aufräum-Flow um verwaiste Einträge erweitern |
-| Eine gelöschte Bestellung ist endgültig weg | Kein Papierkorb, kein Rückgängig in der Verwaltung | SharePoint-Papierkorb der Site nutzen, oder das Löschen durch ein Kennzeichen ersetzen |
-| Der Firmen-QR-Code setzt voraus, dass der Termin des Tages erfasst ist | Fehlt er, sehen die Teilnehmenden «Kein Kurs gefunden» statt der Menüwahl | Termine für wiederkehrende Firmen im Voraus als Serie anlegen |
-| Das Firmenblatt nennt weder Kurstitel noch Datum noch Essenszeit | Wer die Essenszeit auf Papier braucht, muss zusätzlich das Kursblatt des Tages drucken | Essenszeit je Firma hinterlegen, sofern sie tatsächlich konstant ist |
-| Der Code eines Firmen-Termins wird beim Ändern des Datums neu gebildet | Einzige Ausnahme von «ein Code wird nie geändert»; der Link dieses einen Termins wird ungültig | Keiner, ohne das Datum eines solchen Termins zu sperren |
-| Die Bildungsregel des Firmencodes steht in `graph.js` **und** in `index.html` | Wird sie nur an einer Stelle geändert, findet kein QR-Code mehr einen Termin, und zwar ohne Fehlermeldung | Wie beim Annahmeschluss: gemeinsame Datei, die auch die Gästeseite laden dürfte |
-| Nur ein Termin mit Firmen-QR-Code je Firma und Kurstag | Ein zweiter Kurs derselben Firma am selben Tag braucht einen gewöhnlichen Zufallscode | Kurskennzeichen im Code ergänzen; verlängert den Link und den QR-Code |
+| Flow C prüft weder Datum noch Uhrzeit | Wer die Schnittstelle direkt aufruft, kann ausserhalb der Frist bestellen | Prüfung in Flow C, Antwort HTTP 403 |
+| Suppe/Salat werden am Wort « oder » getrennt | Schreibt die Küche anders, steht alles bei «Suppe» | Lunchgate-Felder getrennt pflegen |
+| Zugriff wird von Hand zugewiesen | Bei Personalwechsel leicht vergessen | Entra ID P1 mit Gruppenzuweisung |
+| Abhängigkeit von `cdn.jsdelivr.net` | Bei Ausfall keine Anmeldung und kein QR-Code | Bibliotheken selbst ausliefern |
+| Verwaiste Bestellungen nach dem Löschen eines Termins | Bleiben bis zu 30 Tage | Aufräum-Flow erweitern |
+| Gelöschte Bestellung ist endgültig weg | Kein Rückgängig | SharePoint-Papierkorb nutzen |
+| Firmen-QR-Code braucht trotzdem einen Termin pro Tag | Sonst «Kein Kurs gefunden» | Termine als Serie anlegen |
+| Firmenblatt nennt keine Essenszeit | Wer sie auf Papier braucht, druckt das Kursblatt des Tages | Essenszeit je Firma hinterlegen |
+| Nur ein Firmen-Termin pro Firma und Tag | Zweiter Kurs braucht einen Zufallscode | Kurskennzeichen im Code |
+| Annahmeschluss und Firmencode-Regel stehen je zweimal im Code | Ändert man nur eine Stelle, passen die Seiten nicht mehr zusammen | Gemeinsame Datei, die auch die Gästeseite lädt |
+| Alte Power App (`5994926d-…`) ist abgelöst | Könnte noch parallel benutzt werden | Löschen oder deaktivieren |
 
 ---
 
-## 9. Verlauf
+## 5. Verlauf
 
 | Datum | Was |
 |---|---|
-| bis 26.08.2026 | Konzept, SharePoint-Listen, Gästeseite `index.html`, Flow B und Flow C |
-| 27.08.2026 | Lunchgate-Anbindung direkt in Flow B, Aufräum-Flow, erste Fassung der Power-Apps-Verwaltung |
-| 28.08.2026, Vormittag | Gästeseite: Knopf «Auswahl bearbeiten» und Merken der eigenen Bestellung im Browser. Druckblätter `kursblatt.html` und `menueblatt.html` |
-| 28.08.2026, Mittag | **Ablösung von Power Apps.** Neue Verwaltung `admin.html`, Anmeldung an Entra ID, Zugriff auf SharePoint über Microsoft Graph. Flow D wird gegenstandslos |
-| 28.08.2026, Nachmittag | Umstellung auf Bibliotheken vom CDN (MSAL, qrcode-generator), Fusszeilen entfernt, vollständige Dokumentation |
-| 04.09.2026, Vormittag | Alle Seiten durchgehend auf schmale Bildschirme ausgelegt: überlappende Spalten in der Verwaltung behoben, Tabellen auf dem Telefon als Karten, seitliche Ränder und Schriftgrössen wachsen mit der Fensterbreite. Terminübersicht `termine.html` als eigene Seite |
-| 04.09.2026, Nachmittag | **Umbau der Verwaltung.** `termine.html` wieder entfernt und die linke Spalte von `admin.html` nach Kurstag gruppiert, durchgehend absteigend sortiert; Umschalter «Vergangene anzeigen» durch einen Filter ersetzt, der von Haus aus nur den heutigen Tag zeigt. «Neuer Termin» ganz nach oben. Status «Bestellung offen» aus der Oberfläche entfernt. Neue Spalte `Teilnehmer` für die erwartete Teilnehmeranzahl, in der Liste als «5 / 18 Best.» |
-
-| 09.09.2026 | **Sprache je Kursblatt statt je Termin.** Feld «Sprache» aus dem Terminformular und Spalte `Sprache` aus `graph.js` entfernt. Neben «Kursblatt drucken» sitzt im selben Knopf ein Klappfeld DE / EN / FR (Vorgabe DE); dasselbe Blatt lässt sich so in mehreren Sprachen drucken, der QR-Code führt in die gewählte Sprache. Gästeseite mit Schaltern DE / EN / FR im Kopf, der Wechsel wird in die Adresse geschrieben. Gästelink in der Verwaltung ohne Sprachzusatz |
-| 10.09.2026 | Sprachzusatz im Link verkürzt: `&fr` und `&en` statt `&sprache=fr`; alte Links bleiben gültig |
-| 08.09.2026 | **Sprache je Termin und Feinschliff der Verwaltung.** Neue Spalte `Sprache` (`de`/`fr`/`en`); Kursblatt und Gästeseite vollständig auf Französisch und Englisch, Sprache reist als `&sprache=` im Link mit. In der Verwaltung: Pfeilknopf neben «Filter» kehrt die Sortierung der Kurstage um; «Bearbeiten» als grauer Textlink mit Stift neben dem Titel statt als Knopf; Legende «Details» über dem Termin entfernt; «Kursblatt drucken» und «Menüblatt drucken» teilen sich die volle Breite; Kursblatt-Linkzeile entfernt. Menüblatt ohne die Fusszeile «… bis 10:00 Uhr an der Réception abzugeben». SharePoint-Liste «Klassen» über Graph auf das Soll gebracht: `Sprache` angelegt, `Menu1Preis`, `Menu2Preis` und `Bemerkung` gelöscht |
-| 04.09.2026, Nachmittag | **Bestellungen in der Verwaltung bearbeitbar.** Die Réception kann jede Bestellung jederzeit ändern, nacherfassen und löschen, auch nach dem Annahmeschluss. Neu in `graph.js`: `bestellungAnlegen` und `bestellungAendern`; `bestellungLoeschen` war vorhanden, aber unbenutzt. Der bisherige Weg über das handschriftlich ergänzte Menüblatt entfällt |
-| 14.09.2026 | **Dauerhafter Firmen-QR-Code und Firmenverzeichnis.** Neue SharePoint-Liste «Firmen» (`Title`, `Schluessel`), neuer Reiter «Firmen» in `admin.html` samt Knopf «Liste jetzt anlegen». Eine Firma bekommt einen dauerhaften Schlüssel und damit einen dauerhaften Gästelink `/?firma=SCHLUESSEL`; die Gästeseite bildet daraus den Klassencode des heutigen Tages (`SCHLUESSEL-JJMMTT`) und ruft Flow B unverändert auf. Im Terminformular wählt die Réception die Firma aus dem Verzeichnis, der Termin bekommt dann diesen Code statt eines Zufallscodes. Neues Firmenblatt `kursblatt.html?firma=…&name=…` ohne Kurstitel, Datum und Essenszeit. Neu in `graph.js`: `firmenSlug`, `neuerFirmenSchluessel`, `firmenCode`, `istFirmenCode`, `firmenSchluesselAusCode`, `firmenLink`, `firmenblattLink` und die sechs Graph-Funktionen für das Verzeichnis. Flows, Entra-Registrierung und `_headers` unverändert |
-
-**Beim Umbau gefundene und behobene Fehler**, festgehalten, weil sie sich wiederholen könnten:
-
-- Eine Race Condition beim Speichern: Der abschliessende Zweig setzte die Knopfbeschriftung nachträglich wieder zurück, nachdem die Ansicht schon gewechselt hatte.
-- Ein horizontaler Überlauf der Kopfzeile auf Bildschirmen unter etwa 520 Pixeln Breite.
-- Überlappende Spalten in der Verwaltung: Die Klassenliste stand in einer Rasterspalte fester Breite, das Rasterfeld darin durfte aber nicht schmaler werden als der längste Kurstitel. Eine Zeile mit langem Titel schob sich deshalb über die Detailspalte und verdeckte dort Beschriftungen und Schaltflächen. Behoben mit `minmax(0, ...)` für beide Spalten und `min-width: 0` für die Abschnitte darin; erst dadurch greift das Kürzen des Titels.
-- Ein fehlender Ruhezonenrand am QR-Code nach dem Wechsel auf die Bibliothek. Ursache war, dass `margin` in SVG-Einheiten zählt und nicht in Modulen.
-
----
-
-## 10. Was geprüft wurde und was nicht
-
-Auf dem Arbeitsplatz sind weder Node noch Python installiert, geprüft wurde deshalb im Browser gegen den lokalen Server.
-
-**Geprüft:**
-
-- Datumsumrechnung für beide in SharePoint vorkommenden Schreibweisen
-- Zugangscode über 500 Läufe, nur erlaubte Zeichen
-- Verwaltung im Testmodus vollständig: Liste, Suche, Umschalter, Anlegen, Bearbeiten, Löschen, Link kopieren, Zähler gegen die Bestelltabelle nachgerechnet
-- Beide Druckblätter im Testmodus, Sortierung und Zähler stimmig
-- QR-Code mit **jsQR**, einem fremden Decoder, zurückgelesen: vier Gästelinks kamen zeichengleich zurück. Ruhezone genau vier Module, Symbol 62.8 mm im Rahmen von 78 mm
-- MSAL lädt vom CDN mit intakter Prüfsumme und initialisiert mit der echten Client-ID
-- Content Security Policy gegen eine Kopie der Gästeseite, keine Verletzungen
-
-**Nicht geprüft, offen:**
-
-- der Zugriff auf SharePoint über Graph gegen echte Daten. Am ehesten stolpert man über die Schreibweise der Auswahlwerte in der Spalte `Status`
-- die Anmeldung mit einem echten Konto. Ob Umleitungsadressen, Graph-Berechtigung und Benutzerzuweisung stimmen, zeigt der erste Login auf einen Schlag
-- der QR-Code mit einer echten Handykamera. Technisch ist er gegen die Norm belegt, der Praxistest dauert zehn Sekunden und sollte einmal gemacht werden
-
-> Ein Hinweis zur Redlichkeit: Während der Arbeit wurde versucht, die registrierten Umleitungsadressen zu prüfen, indem der Anmeldeendpunkt aufgerufen wurde. Dieser Test taugt nicht. Eine absichtlich falsche Adresse liefert dieselbe Anmeldemaske, der Fehler erscheint erst nach der Anmeldung. Wer das künftig prüfen will, muss sich tatsächlich anmelden.
+| bis 26.08.2026 | Konzept, SharePoint-Listen, Gästeseite, Flow B und Flow C |
+| 27.08.2026 | Lunchgate in Flow B, Aufräum-Flow, erste Verwaltung als Power App |
+| 28.08.2026 | Gästeseite: «Auswahl bearbeiten». Kursblatt und Menüblatt. **Verwaltung als Webseite** `admin.html` mit Anmeldung über Entra ID und Zugriff über Graph. Umstellung auf Bibliotheken |
+| 04.09.2026 | Alle Seiten fürs Handy optimiert. Wechsel zu Cloudflare Pages. Terminliste nach Kurstag gruppiert, mit Filter. Status aus der Oberfläche entfernt. Erwartete Teilnehmeranzahl. Kursblatt ohne Anmeldung. 10-Uhr-Frist. **Réception kann Bestellungen jederzeit ändern** |
+| 08.09.2026 | Kursblatt und Gästeseite auf Französisch und Englisch. Feinschliff der Verwaltung. Menüblatt ohne Fusszeile. Unbenutzte Spalten aus «Klassen» entfernt |
+| 09.09.2026 | Sprache wird beim Drucken gewählt statt am Termin. Sprachumschalter auf der Gästeseite |
+| 10.09.2026 | Kürzerer Sprachzusatz im Link: `&fr` statt `&sprache=fr` (alte Links gelten weiter) |
+| 14.09.2026 | **Firmenverzeichnis und dauerhafter Firmen-QR-Code.** Neue Liste «Firmen», Reiter «Firmen», Firmenblatt |
+| 28.09.2026 | Dokumentation überarbeitet und gekürzt |

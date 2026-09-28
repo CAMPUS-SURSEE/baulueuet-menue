@@ -1,707 +1,414 @@
-# Betriebs- und Supporthandbuch: Menüwahl Restaurant BAULÜÜT
+# Betriebshandbuch und Support
 
-**Für:** ICT-Services Campus Sursee
-**Stand:** 14.09.2026
-**Gilt für:** die Webseite `https://menue.campus-sursee.ch` samt SharePoint-Listen, Power-Automate-Flows und Entra-App-Registrierung
-**Verwandte Dokumente:** `ANLEITUNG_ANMELDUNG.md` (Einrichtung der App-Registrierung), `HANDOFF_Menuewahl_BAULUUT_Stand_2026-08-28.md` (Projektstand und Architektur)
+Für die ICT-Services: was im Betrieb von selbst läuft, wie man Störungen findet
+und behebt, und wann man eskaliert.
 
-Alle Zitate von Fehlermeldungen in diesem Handbuch stammen wortgetreu aus dem Quellcode im Ordner `frontend\`.
+**Stand:** 28.09.2026
+
+Alle Fehlermeldungen sind wörtlich aus dem Quellcode in `frontend/` zitiert.
+So lassen sie sich hier mit Strg + F finden.
 
 ---
 
-## Inhaltsverzeichnis
+## Inhalt
 
-1. [System in zwei Minuten](#1-system-in-zwei-minuten)
+1. [Das System in zwei Minuten](#1-das-system-in-zwei-minuten)
 2. [Regelbetrieb](#2-regelbetrieb)
-3. [Fehlerbilder](#3-fehlerbilder)
-   - [3.1 Anmeldung schlägt fehl](#31-anmeldung-schlägt-fehl)
-   - [3.2 Anmeldebibliothek und CDN](#32-anmeldebibliothek-und-cdn)
-   - [3.3 Berechtigungen auf die SharePoint-Listen](#33-berechtigungen-auf-die-sharepoint-listen)
-   - [3.4 Anmeldung abgelaufen, Token-Fehler](#34-anmeldung-abgelaufen-token-fehler)
-   - [3.5 Klasse nicht gefunden, Gästelink defekt](#35-klasse-nicht-gefunden-gästelink-defekt)
-   - [3.5a Firmen-QR-Code zeigt «Kein Kurs gefunden»](#35a-firmen-qr-code-zeigt-kein-kurs-gefunden)
-   - [3.6 Gast sieht «falscher Tag» statt Formular](#36-gast-sieht-falscher-tag-statt-formular)
-   - [3.6a Gast sieht «Menüwahl geschlossen» oder findet den Bearbeiten-Knopf nicht](#36a-gast-sieht-menüwahl-geschlossen-oder-findet-den-bearbeiten-knopf-nicht)
-   - [3.6b Kursblatt-Link führt bei Externen zur Microsoft-Anmeldung](#36b-kursblatt-link-führt-bei-externen-zur-microsoft-anmeldung)
-   - [3.7 Tagesmenüs fehlen auf dem Menüblatt](#37-tagesmenüs-fehlen-auf-dem-menüblatt)
-   - [3.8 Menütexte falsch verteilt](#38-menütexte-falsch-verteilt)
-   - [3.9 QR-Code lässt sich nicht scannen](#39-qr-code-lässt-sich-nicht-scannen)
-   - [3.10 Seite bleibt leer, Konsole meldet nichts](#310-seite-bleibt-leer-konsole-meldet-nichts)
-   - [3.11 Bestellungen erscheinen nicht in der Verwaltung](#311-bestellungen-erscheinen-nicht-in-der-verwaltung)
-   - [3.11a Reiter «Firmen» meldet, die Liste fehle](#311a-reiter-firmen-meldet-die-liste-fehle)
-   - [3.12 Weitere Meldungen im Wortlaut](#312-weitere-meldungen-im-wortlaut)
-4. [Diagnose-Werkzeuge](#4-diagnose-werkzeuge)
+3. [Werkzeuge zur Fehlersuche](#3-werkzeuge-zur-fehlersuche)
+4. [Fehlerbilder](#4-fehlerbilder)
 5. [Wiederkehrende Aufgaben](#5-wiederkehrende-aufgaben)
-6. [Grenzen und bekannte Schwächen](#6-grenzen-und-bekannte-schwächen)
+6. [Bekannte Grenzen](#6-bekannte-grenzen)
 7. [Eskalation](#7-eskalation)
 
 ---
 
-## 1. System in zwei Minuten
+## 1. Das System in zwei Minuten
 
-Kursteilnehmende wählen ihr Mittagsmenü über eine Webseite statt auf Papier. Die Réception legt pro Kurs eine Klasse an, verteilt Link oder QR-Code und druckt für die Küche das Menüblatt.
+Die Webseite ist reines HTML ohne eigenen Server. Die Daten liegen in SharePoint.
 
-### 1.1 Bestandteile
-
-| Bestandteil | Was es ist | Wo |
+| Bestandteil | Aufgabe | Wo |
 |---|---|---|
-| Webseite | statische Seiten, kein Server, keine Datenbank | Cloudflare Pages, `https://menue.campus-sursee.ch` |
-| `index.html` | Gästeseite, ohne Anmeldung | Cloudflare Pages |
-| `admin.html` | Verwaltung der Termine, nach Kurstag gruppiert, dazu der Reiter «Firmen», mit Anmeldung | Cloudflare Pages |
-| `kursblatt.html` | Aushang mit QR-Code, **ohne** Anmeldung, lädt über Flow B; mit `?firma=` als Firmenblatt, dann ganz ohne Netzaufruf | Cloudflare Pages |
-| `menueblatt.html` | Bestellübersicht für die Küche, mit Anmeldung | Cloudflare Pages |
-| Liste «Klassen» | ein Eintrag pro Kurs, mit 8-stelligem Code | SharePoint-Site «Reception» (`hot-reze`) |
-| Liste «Bestellungen» | ein Eintrag pro Person | SharePoint-Site «Reception» |
-| Liste «Firmen» | Firmenverzeichnis, ein Eintrag pro Firma mit dauerhaftem Schlüssel | SharePoint-Site «Reception», seit 14.09.2026 |
-| Flow B «API Klasse laden» | GET, liefert Klassendaten und die Tagesmenüs von Lunchgate | Power Automate |
-| Flow C «API Bestellung speichern» | POST, schreibt eine Bestellung | Power Automate |
-| Flow «Aufraeumen Menuewahl» | täglich 03:00, löscht Altbestand | Power Automate |
-| App-Registrierung «Menuewahl BAULUUT Admin» | Anmeldung der Réception, Zugangskontrolle | Entra ID |
+| Gästeseite `index.html` | Menüwahl, ohne Anmeldung | `menue.campus-sursee.ch/?klasse=CODE` |
+| Verwaltung `admin.html` | Termine, Bestellungen, Firmenverzeichnis; mit Anmeldung | [menue.campus-sursee.ch/admin](https://menue.campus-sursee.ch/admin) |
+| Kursblatt `kursblatt.html` | Aushang mit QR-Code, ohne Anmeldung; mit `?firma=` als Firmenblatt | `menue.campus-sursee.ch/kursblatt?klasse=CODE` |
+| Menüblatt `menueblatt.html` | Bestellübersicht für die Küche; mit Anmeldung | `menue.campus-sursee.ch/menueblatt?klasse=CODE` |
+| Listen «Klassen», «Bestellungen», «Firmen» | die Daten | [SharePoint-Site «Reception»](https://campussursee.sharepoint.com/sites/hot-reze/_layouts/15/viewlsts.aspx) |
+| Flow B «API Klasse laden» | liefert Termin und Tagesmenüs (Lunchgate) an Seiten ohne Anmeldung | [Power Automate](https://make.powerautomate.com/environments/Default-2553fb74-5dcc-4072-8bb5-399d18f72af9/flows) |
+| Flow C «API Bestellung speichern» | speichert eine Bestellung von der Gästeseite | Power Automate |
+| Flow «Aufraeumen Menuewahl» | löscht täglich um 03:00 Termine und Bestellungen, die älter als 30 Tage sind | Power Automate |
+| App «Menuewahl BAULUUT Admin» | Anmeldung und Zugangskontrolle der Réception | [Entra ID](https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Overview/appId/9d344eb0-8af8-44d1-ad64-916d564e5975) |
 
-Alle IDs, Adressen und Flow-Aufrufadressen stehen an einem Ort: `frontend\konfig.js`. Die Gästeseite `index.html` trägt die beiden Flow-Adressen zusätzlich in ihrem eigenen Konfigurationsblock ganz oben im `<script>`. Diese Adressen enthalten eine Signatur und gehören nicht in Tickets, Mails oder Chats.
+**Wer spricht mit wem:**
 
-### 1.2 Wer redet mit wem
+- **Gästeseite und Kursblatt** haben keine Anmeldung. Sie lesen über Flow B;
+  die Gästeseite speichert Bestellungen zusätzlich über Flow C.
+- **Verwaltung und Menüblatt** melden die Réception mit dem Microsoft-Konto an
+  und lesen und schreiben **direkt über Microsoft Graph** in SharePoint. Die
+  Menütexte holt das Menüblatt trotzdem über Flow B.
 
-- **Gäste** öffnen `index.html` anonym. Die Seite spricht ausschliesslich mit **Flow B** (Klassendaten und Tagesmenüs) und **Flow C** (Bestellung speichern). Kein Konto, kein Token.
-- **Der dauerhafte Firmen-QR-Code** (`index.html?firma=SCHLUESSEL`) ändert daran nichts: Die Gästeseite bildet aus dem Firmenschlüssel und dem heutigen Datum selbst den Klassencode (`SORBA-K7M2` + `-260914`) und ruft damit **Flow B** auf wie sonst auch. Die Flows wissen von Firmen nichts und wurden dafür nicht angefasst.
-- **Kursleitung** öffnet `kursblatt.html` ebenfalls anonym. Auch diese Seite spricht nur mit **Flow B**. Sie meldet sich nie von selbst an; der Weg über Graph steht allein hinter dem Knopf «Mit Konto anmelden» auf der Fehlerkarte.
-- **Réception** meldet sich auf `admin.html` und `menueblatt.html` mit dem Microsoft-365-Konto an und greift danach **direkt über Microsoft Graph** auf die beiden SharePoint-Listen zu. Die Berechtigung ist delegiert: Das Token kann nur das, was die Person in SharePoint ohnehin darf.
-- **Ausnahme:** `menueblatt.html` holt die Bestellungen über Graph, die Menütexte aber weiterhin über **Flow B**, weil dort die Lunchgate-Anbindung sitzt.
-
-### 1.3 Zuständigkeiten
-
-| Thema | Zuständig |
-|---|---|
-| Klassen anlegen, Codes verteilen, Blätter drucken | Réception |
-| Menütexte inhaltlich (Lunchgate) | Restaurant BAULÜÜT / Küche |
-| Webseite veröffentlichen (Cloudflare Pages) | ICT-Services |
-| Flows, Verbindungen, Aufräum-Flow | ICT-Services, Konto `powerplatform@campus-sursee.ch` |
-| Entra-App-Registrierung, Benutzerzuweisung | ICT-Services / IT-Administration |
-| SharePoint-Berechtigungen der Site «Reception» | Besitzende der Site «Reception» |
+Alle Kennungen und Adressen stehen in [`frontend/konfig.js`](../frontend/konfig.js).
+Die Flow-Adressen enthalten eine Signatur und gehören **nicht** in Tickets, Mails
+oder Chats.
 
 ---
 
 ## 2. Regelbetrieb
 
-Im Normalfall ist nichts zu tun. Es gibt keinen Server, der überwacht werden müsste, und keine geplante Wartung.
+**Im Normalfall ist nichts zu tun.** Es gibt keinen Server zu überwachen.
 
-**Was von allein läuft:**
+Von selbst läuft:
 
-- **Aufräum-Flow «Aufraeumen Menuewahl»**, täglich um 03:00. Er löscht Klassen und Bestellungen, die älter als 30 Tage sind. Dadurch bleiben die Listen klein, was für die Seiten wichtig ist: Sie holen ganze Listen und filtern im Browser.
-- **Token-Erneuerung.** MSAL erneuert das Zugriffstoken still im Hintergrund, solange die Sitzung gültig ist. Token liegen im `sessionStorage` und sind beim Schliessen des Tabs weg. Eine Abmeldung von Hand ist nicht nötig.
-- **Codeerzeugung.** Der 8-stellige Klassencode entsteht beim Speichern automatisch aus dem Alphabet `ABCDEFGHJKLMNPQRSTUVWXYZ23456789`, ohne 0, O, 1 und I, damit er auf Papier eindeutig lesbar ist. Der Code ist nie ein Eingabefeld und ändert sich beim Bearbeiten nicht.
-- **Codes von Firmen-Terminen.** Wählt die Réception beim Termin eine Firma aus dem Verzeichnis, bekommt der Termin statt eines Zufallscodes den Code `SCHLUESSEL-JJMMTT`, zum Beispiel `SORBA-K7M2-260914`. Er enthält als einziger einen Bindestrich; daran erkennt die Verwaltung ihn. **Einzige Ausnahme von der Regel «Code ändert sich nicht»:** Wird das Datum eines solchen Termins verschoben, bildet die Verwaltung den Code neu, weil der Kurstag darin steckt. Der dauerhafte Code der Firma selbst ändert sich nie.
-- **Tagesmenüs.** Flow B holt sie bei jedem Aufruf frisch von Lunchgate. Fehlt ein Wert, greift ein Fallback auf die entsprechenden Spalten der Klasse in SharePoint.
+- **Aufräumen:** Der Flow «Aufraeumen Menuewahl» löscht täglich um 03:00 alles,
+  was älter als 30 Tage ist. Die Liste «Firmen» bleibt davon unberührt.
+- **Anmeldung:** Die Bibliothek MSAL erneuert das Zugriffstoken still. Beim
+  Schliessen des Tabs ist die Sitzung weg.
+- **Tagesmenüs:** Flow B holt sie bei jedem Aufruf frisch von Lunchgate.
 
-**Was niemand anfassen muss:**
+Nicht anfassen, ausser zur Diagnose:
 
-- Die Listen «Klassen» und «Bestellungen» direkt in SharePoint. Alles Nötige geht über `admin.html`. SharePoint ist nur für die Diagnose gedacht.
-- Die Flows B und C. Sie sind fertig und laufen. Änderungen im Power-Automate-Designer sind heikel, siehe Abschnitt 6.
-- Die Client-ID und die Mandanten-ID im Quelltext. Sie sind öffentlich sichtbar und dürfen das sein: Es sind Kennungen, keine Geheimnisse. Der Schutz kommt aus der Anmeldung und aus der Benutzerzuweisung in Entra ID.
+- **Die SharePoint-Listen direkt.** Alles Nötige geht über die Verwaltung.
+- **Flow B und C.** Sie laufen. Der Power-Automate-Designer verliert Änderungen
+  leicht, siehe [Technische Dokumentation, Abschnitt 6](03_Technische_Dokumentation.md#6-power-automate-flows).
 
-**Regelmässig sinnvoll, aber nicht dringend:**
+Ab und zu:
 
-- Bei Personalwechsel in der Réception die Benutzerzuweisung in der Unternehmensanwendung nachführen, siehe Abschnitt 5.
-- Einmal pro Quartal prüfen, ob die eingebundenen Bibliotheken noch aktuell sind, siehe Abschnitt 5.3.
+- Bei **Personalwechsel** an der Réception den Zugriff nachführen ([5.1](#51-zugriff-geben-oder-entziehen)).
+- Einmal pro Quartal prüfen, ob es **Sicherheitsmeldungen** zu den beiden
+  Bibliotheken gibt ([Einrichtung, Abschnitt 5](04_Einrichtung_und_Deployment.md#5-bibliotheksversion-anheben)).
 
 ---
 
-## 3. Fehlerbilder
+## 3. Werkzeuge zur Fehlersuche
 
-Aufbau je Abschnitt: **Symptom**, **wahrscheinliche Ursache**, **Prüfschritt**, **Behebung**.
+### 3.1 Testmodus `?mock=1`
 
-Wichtig zum Verständnis der Meldungen: Auf `kursblatt.html` und `menueblatt.html` erscheint jeder unerwartete Fehler unter der Überschrift **«Verbindungsfehler»**, auch wenn es in Wahrheit ein Berechtigungs- oder Anmeldeproblem ist. Der eigentliche Text darunter ist die aussagekräftige Information. Auf `admin.html` erscheinen Anmeldefehler unter **«Anmeldung nicht möglich»**, Datenfehler im roten Balken oben im Arbeitsbereich.
+Jede Seite kennt `?mock=1`: Sie zeigt dann Beispieldaten, ohne Anmeldung, ohne
+SharePoint und ohne Flows.
 
-### 3.1 Anmeldung schlägt fehl
+- [admin?mock=1](https://menue.campus-sursee.ch/admin?mock=1) ·
+  [kursblatt?mock=1](https://menue.campus-sursee.ch/kursblatt?mock=1) ·
+  [menueblatt?mock=1](https://menue.campus-sursee.ch/menueblatt?mock=1) ·
+  [?mock=1](https://menue.campus-sursee.ch/?mock=1)
+- Gästeseite in Sonderlagen: `&falschertag=1` (falscher Tag), `&spaet=1` (nach
+  10 Uhr), `&keinkurs=1` (Firmen-QR-Code ohne Termin)
 
-**Symptom:** Nach dem Öffnen von `admin.html`, `kursblatt.html` oder `menueblatt.html` erscheint statt der Seite eine Fehlerkarte. Auf `admin.html` lautet die Überschrift «Anmeldung nicht möglich», darunter steht der Text von Entra ID mit einem Code der Form `AADSTS…`.
+**So trennt man Anzeige- von Datenproblemen:** Sieht die Seite im Testmodus
+richtig aus, im Echtbetrieb aber nicht, liegt es an Daten, Berechtigungen, Flows
+oder Netzwerk. Ist sie auch im Testmodus kaputt, ist die Veröffentlichung
+unvollständig.
 
-| Code | Ursache | Prüfschritt | Behebung |
-|---|---|---|---|
-| `AADSTS50011` | Die Umleitungsadresse ist in der App-Registrierung nicht hinterlegt oder weicht ab. Auch `http` gegen `https`, ein zusätzlicher Schrägstrich oder eine abweichende Domäne zählen als Abweichung. | In Entra ID unter **App-Registrierungen → Menuewahl BAULUUT Admin → Authentifizierung** die Liste der SPA-Umleitungsadressen mit der Adresse in der Browserzeile vergleichen (ohne den Teil ab `?`). | Fehlende Adresse ergänzen. Nötig sind `https://menue.campus-sursee.ch/admin`, `.../menueblatt` und `.../kursblatt` (für dessen Rückfallweg), und zwar **ohne `.html`**, weil Cloudflare Pages `/admin.html` auf `/admin` umleitet und die Seite sich auf der Adresse anmeldet, auf der sie tatsächlich läuft. Die Schreibweisen mit `.html` bleiben zusätzlich stehen, für lokale Tests dazu die `http://localhost:8123/…`-Varianten. Abfragezeichenfolgen wie `?klasse=CODE` gehören **nicht** dazu; die Seiten schneiden sie für die Anmeldung ab und stellen sie danach selbst wieder her. Speichern nicht vergessen. |
-| `AADSTS9002326` | Die Plattform der App-Registrierung steht auf «Web» statt auf «Single-Page-Anwendung». Nur bei SPA erlaubt Microsoft den Tokentausch direkt aus dem Browser. | Gleiche Seite **Authentifizierung**: Unter welcher Plattformüberschrift stehen die drei Adressen? | Die Adressen unter der Plattform **Single-Page-Anwendung (SPA)** eintragen und die Plattform «Web» entfernen. |
-| `AADSTS50105` | Die Person ist der Unternehmensanwendung nicht zugewiesen. Das ist der beabsichtigte Zustand für alle ausserhalb der Réception. | In Entra ID unter **Unternehmensanwendungen → Menuewahl BAULUUT Admin → Benutzer und Gruppen** nachsehen, ob das Konto aufgeführt ist. | Wenn die Person Zugriff haben soll: zuweisen, siehe Abschnitt 5.1. Wenn nicht: kein Fehler, so ist es gedacht. |
+### 3.2 Browser-Konsole und Netzwerkanalyse (F12)
 
-**Weitere Ursache im gleichen Bild:** Steht in der Fehlerkarte statt eines `AADSTS`-Codes der Text
+In der **Konsole** achten auf:
 
-> In konfig.js ist keine Client-ID eingetragen. Bitte die App-Registrierung anlegen, siehe ANLEITUNG_ANMELDUNG.md.
+| Meldung | Siehe |
+|---|---|
+| «Refused to …» oder «Content Security Policy» | [4.10](#410-seite-bleibt-leer-ohne-fehlermeldung) |
+| «Failed to find a valid digest in the integrity attribute» | [4.2](#42-anmeldebibliothek-lädt-nicht) |
+| `AADSTS…` | [4.1](#41-anmeldung-schlägt-fehl) |
+| 401, 403, 404, 429 von `graph.microsoft.com` | [4.3](#43-keine-berechtigung-oder-liste-nicht-gefunden), [4.4](#44-anmeldung-abgelaufen-oder-zu-viele-anfragen) |
 
-dann ist die Datei `konfig.js` bei Cloudflare Pages unvollständig oder wurde durch eine ältere Fassung überschrieben. Behebung: `konfig.js` aus `frontend\` prüfen, die Client-ID muss gesetzt sein, und den Ordner neu veröffentlichen (Abschnitt 5.4).
-
-### 3.2 Anmeldebibliothek und CDN
-
-**Symptom:** Auf einer der Seiten mit Anmeldung (`admin.html`, `menueblatt.html`) erscheint im Klartext
-
-> Die Anmeldebibliothek konnte nicht geladen werden. Bitte die Internetverbindung prüfen und die Seite neu laden.
-
-**Wahrscheinliche Ursachen**
-
-1. `cdn.jsdelivr.net` ist nicht erreichbar, etwa weil der Arbeitsplatz offline ist, ein Proxy oder die FortiGate den Host blockiert oder das CDN eine Störung hat.
-2. Die Prüfsumme im `integrity`-Attribut passt nicht mehr zur ausgelieferten Datei. Das passiert, wenn jemand die Versionsnummer in der `<script>`-Zeile angehoben hat, ohne die Prüfsumme mitzuziehen. Der Browser lädt die Datei dann bewusst nicht.
-3. Ein Browsererweiterung oder Werbeblocker unterbindet den CDN-Aufruf.
-
-**Prüfschritte**
-
-- Browser-Konsole öffnen (F12). Bei Fall 2 steht dort sinngemäss, die Ressource verletze die Integritätsprüfung («Failed to find a valid digest in the integrity attribute»). Bei Fall 1 oder 3 steht ein Netzwerk- oder Blockierungsfehler.
-- Die Adresse `https://cdn.jsdelivr.net/npm/@azure/msal-browser@4.30.0/lib/msal-browser.min.js` direkt im Browser aufrufen. Lädt sie nicht, ist es Fall 1 oder 3.
-- Am gleichen Arbeitsplatz eine andere Seite mit Internetzugriff öffnen, um eine allgemeine Netzstörung auszuschliessen.
-
-**Behebung**
-
-- Fall 1: Netzwerk beziehungsweise Proxy freigeben. `cdn.jsdelivr.net` muss erreichbar sein. Bei einer CDN-Störung hilft nur Warten; die Gästeseite `index.html` ist davon **nicht** betroffen und bleibt nutzbar, weil sie keine Bibliothek lädt.
-- Fall 2: Prüfsumme neu berechnen und in allen betroffenen Seiten nachführen, siehe Abschnitt 5.3.
-- Fall 3: Erweiterung für die Domäne `menue.campus-sursee.ch` deaktivieren oder einen anderen Browser verwenden.
-
-**Verwandtes Bild auf dem Kursblatt:** Fehlt nur die QR-Bibliothek, lädt das Kursblatt trotzdem, im QR-Rahmen steht dann
-
-> Der QR-Code konnte nicht erzeugt werden. Bitte laden Sie die Seite mit bestehender Internetverbindung neu.
-
-Der Gästelink im Klartext unter dem Rahmen bleibt gültig und kann als Ersatz weitergegeben werden.
-
-### 3.3 Berechtigungen auf die SharePoint-Listen
-
-**Symptom:** Die Anmeldung klappt, der Name der Person steht rechts oben, aber statt Daten erscheint
-
-> Keine Berechtigung für diese Liste. Bitte prüfen, ob das Konto Zugriff auf die SharePoint-Site «Reception» hat.
-
-Auf `admin.html` erscheint dieser Text im roten Balken oben, auf `kursblatt.html` und `menueblatt.html` unter der Überschrift «Verbindungsfehler».
-
-**Wahrscheinliche Ursache:** Das Konto hat keinen Zugriff auf die SharePoint-Site «Reception» (`hot-reze`). Die Graph-Berechtigung ist delegiert, das Token kann also nur, was die Person in SharePoint ohnehin darf. Eine Zuweisung in der Unternehmensanwendung allein genügt nicht.
-
-**Prüfschritt:** Mit dem betroffenen Konto `https://campussursee.sharepoint.com/sites/hot-reze` öffnen und versuchen, die Listen «Klassen» und «Bestellungen» zu sehen. Schlägt das bereits fehl, liegt es nicht an der Webseite.
-
-**Behebung:** Die Person durch die Besitzenden der Site «Reception» als Mitglied hinzufügen lassen. Danach die Menüwahl-Seite neu laden. Zusätzlich prüfen, ob in der App-Registrierung die delegierte Graph-Berechtigung `Sites.ReadWrite.All` samt Administratorzustimmung vorhanden ist.
-
-**Verwandte Meldung:** Steht stattdessen
-
-> Liste oder Eintrag nicht gefunden. Bitte die IDs in konfig.js prüfen.
-
-dann stimmen `siteId`, `listeKlassen` oder `listeBestellungen` in `frontend\konfig.js` nicht mehr mit SharePoint überein, oder der Eintrag wurde zwischenzeitlich gelöscht. Zuerst die Seite neu laden; besteht das Bild, die IDs abgleichen.
-
-### 3.4 Anmeldung abgelaufen, Token-Fehler
-
-**Symptom A:** Die Seite lief, nach einer längeren Pause erscheint
-
-> Die Anmeldung ist abgelaufen. Bitte die Seite neu laden.
-
-**Ursache:** Das Zugriffstoken ist abgelaufen und liess sich nicht still erneuern, oder der Zugriff wurde zwischenzeitlich entzogen (Konto gesperrt, Zuweisung entfernt, Kennwort geändert, Richtlinie für bedingten Zugriff greift).
-
-**Behebung:** Seite mit F5 neu laden. MSAL versucht dann eine stille Erneuerung und leitet nötigenfalls auf die Anmeldung um. Hilft das nicht: Tab schliessen und neu öffnen. Beim Schliessen des Tabs wird der `sessionStorage` geleert, damit sind alle Reste der alten Sitzung weg.
-
-**Symptom B:** Die Seite springt in einer Schlaufe auf `login.microsoftonline.com` und zurück, ohne je fertig zu laden.
-
-**Ursache:** Die stille Erneuerung im verborgenen Rahmen scheitert. Häufigste Gründe: Der Eintrag `frame-src https://login.microsoftonline.com` in `frontend\_headers` fehlt oder wurde verändert, oder der Browser blockiert Cookies von Drittanbietern für `login.microsoftonline.com`.
-
-**Prüfschritt:** Konsole und Netzwerkanalyse öffnen und auf CSP-Verstösse beziehungsweise blockierte Rahmen achten. Testweise ein privates Fenster mit Standardeinstellungen verwenden.
-
-**Behebung:** `_headers` gegen die Fassung in `frontend\_headers` abgleichen und den Ordner neu veröffentlichen. Cookieblockade im Browserprofil lockern.
-
-**Symptom C:** Es erscheint
-
-> Zu viele Anfragen. Bitte einen Moment warten und neu laden.
-
-**Ursache:** Microsoft Graph drosselt (HTTP 429), meist weil mehrere Personen gleichzeitig die vollständigen Listen abrufen. **Behebung:** Eine Minute warten und neu laden. Tritt das regelmässig auf, weist es auf zu grosse Listen hin; dann prüfen, ob der Aufräum-Flow läuft (Abschnitt 3.11).
-
-### 3.5 Klasse nicht gefunden, Gästelink defekt
-
-**Symptom A (Gast):** Auf `index.html` erscheint
-
-> **Ungültiger Link**
-> Dieser Link ist unvollständig. Bitte verwende den Link, den du erhalten hast.
-
-**Ursache:** Die Adresse enthält keinen Parameter `?klasse=`. Meist wurde `https://menue.campus-sursee.ch` von Hand eingetippt oder der Link beim Kopieren abgeschnitten.
-
-**Behebung:** Den vollständigen Gästelink verwenden. Er hat immer die Form `https://menue.campus-sursee.ch/?klasse=CODE` und steht in `admin.html` in der Detailansicht der Klasse, Knopf «Link kopieren».
-
-**Symptom B (Gast):** Auf `index.html` erscheint
-
-> **Ungültiger Link**
-> Diese Klasse wurde nicht gefunden. Bitte prüfe den Link oder melde dich bei der Réception.
-
-**Wahrscheinliche Ursachen und Prüfschritte:**
-
-| Ursache | Prüfschritt | Behebung |
-|---|---|---|
-| Tippfehler im Code | Code mit dem in `admin.html` vergleichen. Verwechslungsgefahr besteht bei S/5, B/8, Z/2. 0, O, 1 und I kommen im Alphabet **nicht** vor; wer sie im Code liest, hat falsch abgelesen. | Richtigen Link weitergeben. |
-| Termin wurde gelöscht | In `admin.html` suchen, dabei über «Filter» die vergangenen und zukünftigen Termine einblenden. | Termin neu anlegen, neuen Link verteilen. |
-| Termin älter als 30 Tage, vom Aufräum-Flow entfernt | Datum des Kurses prüfen. | Neuen Termin anlegen. |
-| Flow B liefert `ok = false` oder HTTP 404 | Flow-Lauf in Power Automate ansehen, siehe Abschnitt 4.4. | Je nach Befund, siehe 3.11. |
-
-**Symptom C (Réception):** Auf `kursblatt.html` oder `menueblatt.html` erscheint
-
-> **Ungültiger Link**
-> Dieser Link ist unvollständig. Bitte rufen Sie die Seite mit dem Klassencode auf, zum Beispiel kursblatt.html?klasse=ABC123.
-
-beziehungsweise mit `menueblatt.html?klasse=ABC123`. **Ursache:** Die Seite wurde ohne `?klasse=` geöffnet. **Behebung:** Die Blätter immer aus `admin.html` über die Knöpfe «Kursblatt drucken» und «Menüblatt drucken» öffnen; die Adresse wird dann korrekt zusammengesetzt.
-
-**Symptom D (Réception):**
-
-> **Ungültiger Link**
-> Diese Klasse wurde nicht gefunden. Bitte prüfen Sie den Klassencode.
-
-**Ursache:** Zu diesem Code existiert in der Liste «Klassen» kein Eintrag. Der Vergleich läuft in Grossbuchstaben, Gross- und Kleinschreibung spielt also keine Rolle; Leerzeichen im Code hingegen schon. **Behebung:** Code in `admin.html` nachschlagen und die Adresse neu aufbauen.
-
-### 3.5a Firmen-QR-Code zeigt «Kein Kurs gefunden»
-
-**Symptom:** Wer den dauerhaften QR-Code einer Firma scannt oder den Link `…/?firma=SCHLUESSEL` öffnet, sieht
-
-> **Kein Kurs gefunden**
-> Für diese Firma wurde für den heutigen Tag kein Kurs gefunden. Bitte melde dich bei der Réception.
-
-**Einordnung:** Das ist meist **kein** technischer Fehler, sondern die vorgesehene Antwort, wenn es für heute keinen Termin dieser Firma gibt. Der Firmen-QR-Code hängt an keinem Termin: Die Gästeseite bildet aus dem Schlüssel und dem heutigen Datum den Klassencode `SCHLUESSEL-JJMMTT` und fragt damit Flow B. Findet Flow B dazu nichts, erscheint genau dieser Text. Über einen gewöhnlichen Klassenlink erschiene an derselben Stelle «Ungültiger Link».
-
-**Wahrscheinliche Ursachen und Prüfschritte**
-
-| Ursache | Prüfschritt | Behebung |
-|---|---|---|
-| Für heute ist kein Termin dieser Firma erfasst | In `admin.html`, Reiter «Firmen», zeigt die Karte der Firma die Anzahl kommender Termine. In der Terminliste den heutigen Tag ansehen. | Termin anlegen und dabei im Feld «Firma» die Firma aus dem Klappfeld wählen. Danach genügt ein Neuladen auf dem Handy. |
-| Der Termin wurde mit **freiem Firmentext** angelegt statt mit der Firma aus dem Verzeichnis | Der Termin trägt dann in Liste und Details **keine** Marke «Firmen-QR», und sein Code ist ein achtstelliger Zufallscode ohne Bindestrich. | Termin bearbeiten, im Klappfeld «Firma» die Firma wählen, Rückfrage mit «Code neu bilden» bestätigen. Der Termin bekommt dadurch einen neuen Code; bereits erfasste Bestellungen bleiben. |
-| Falsches Datum am Termin | Datum in `admin.html` prüfen. Der Code muss auf den heutigen Tag enden, Format `JJMMTT`. | Datum korrigieren. Der Code wird dabei automatisch neu gebildet. |
-| Falsches Datum oder falsche Zeitzone auf dem Gerät des Gastes | Die Gästeseite bildet den Tagesteil des Codes aus der **lokalen Systemzeit** des Geräts, wie die Datumsprüfung in Abschnitt 3.6. | Systemzeit des Geräts richtigstellen. |
-| Schlüssel im Link verstümmelt | Der Link muss genau `…/?firma=SCHLUESSEL` lauten. Erlaubt sind nur Grossbuchstaben, Ziffern und Bindestrich; alles andere gilt als unvollständiger Link und führt zur Karte «Ungültiger Link». | Link aus dem Reiter «Firmen» über «Link kopieren» neu weitergeben oder das Firmenblatt neu drucken. |
-| Termin älter als 30 Tage, vom Aufräum-Flow entfernt | Nur bei rückblickenden Fragen. Der Verzeichniseintrag der Firma bleibt bestehen, er wird nicht aufgeräumt. | Neuen Termin anlegen. |
-
-**Gegenprobe ohne Daten:** `https://menue.campus-sursee.ch/?mock=1&keinkurs=1` zeigt dieses Bild mit Testdaten. Erscheint es dort korrekt, ist die ausgelieferte Fassung in Ordnung und es fehlt tatsächlich der Termin.
-
-### 3.6 Gast sieht «falscher Tag» statt Formular
-
-**Symptom:** Statt des Formulars zeigt `index.html`
-
-> **Menüwahl noch nicht möglich**
-> Das Mittagessen von *Klassenname* findet am *Wochentag, TT.MM.JJJJ* statt.
-> Die Menüwahl ist nur am Tag des Mittagessens möglich. Bitte öffne diesen Link am entsprechenden Tag nochmals.
-
-**Ursache:** So ist es gedacht. Das Formular erscheint nur, wenn das Datum der Klasse dem heutigen Datum entspricht. Wird ein anderes Datum genannt als erwartet, stimmt das Datum der Klasse nicht.
-
-**Prüfschritte**
-
-1. Nennt die Meldung den richtigen Kurstag? Dann ist alles in Ordnung, die Teilnehmenden müssen am Kurstag selbst wählen.
-2. Nennt sie einen Tag daneben, in `admin.html` das Datum der Klasse kontrollieren.
-3. Ist die Uhrzeit am Gerät des Gastes korrekt? Die Prüfung läuft im Browser gegen die lokale Systemzeit. Ein falsch gestelltes Handy oder eine falsche Zeitzone auf Reisen erzeugt genau dieses Bild.
-
-**Behebung:** Datum in `admin.html` korrigieren, Systemzeit des Geräts richtigstellen. Der Gästelink bleibt derselbe, der Code ändert sich beim Bearbeiten nicht.
-
-**Hinweis zu Altbeständen:** Datumswerte, die noch von der früheren Power App stammen, stehen in SharePoint anders geschrieben als neu erfasste (`…T22:00:00Z` gegen `…T12:00:00Z`) und meinen trotzdem denselben Kurstag. Die Seiten rechnen deshalb bewusst über die lokale Zeitzone um. Wer diese Umrechnung im Code ändert, verschiebt sämtliche Altbestände um einen Tag.
-
-**Verwandtes Bild:** Erscheint stattdessen
-
-> **Bestellung geschlossen**
-> Die Menüwahl von *Klassenname* vom *Datum* ist bereits abgeschlossen.
-> Bitte melde dich bei der Réception.
-
-dann steht der Status der Klasse auf «geschlossen». Behebung: in `admin.html` die Klasse bearbeiten und den Status auf «offen» setzen. Der gleiche Text erscheint auch, wenn Flow C beim Absenden mit HTTP 403 antwortet, die Klasse also zwischen dem Öffnen der Seite und dem Absenden geschlossen wurde.
-
-### 3.6a Gast sieht «Menüwahl geschlossen» oder findet den Bearbeiten-Knopf nicht
-
-**Symptom A:** Statt des Formulars zeigt `index.html`
-
-> **Menüwahl geschlossen**
-> Die Menüwahl ist nur bis 10:00 Uhr möglich.
-> Bitte melde dich bei der Réception, sie nimmt deine Bestellung entgegen.
-
-**Symptom B:** Auf der Bestätigungsseite fehlt der Knopf «Auswahl bearbeiten». An seiner Stelle steht
-
-> **Änderungen nicht mehr möglich**
-> Änderungen an der Menüwahl sind nur bis 10:00 Uhr möglich. Bitte wende dich für eine Änderung an die Réception.
-
-**Ursache:** Beides ist so gedacht und **kein Fehler**. Seit dem 04.09.2026 endet die Menüwahl am Kurstag um 10:00 Uhr. Symptom A trifft, wer bis dahin nichts bestellt hat, Symptom B, wer bestellt hat und nachträglich ändern will. Die bereits abgegebene Bestellung bleibt in beiden Fällen unangetastet.
-
-**Behebung:** Die Réception nimmt die Bestellung oder die Änderung entgegen und trägt sie in der Verwaltung nach: Termin auswählen, dann «Bestellung erfassen» beziehungsweise in der Bestellungsliste auf «Ändern». Die Frist gilt dort nicht, siehe `01_Anleitung_Reception.md`, Abschnitt 6. War das Menüblatt bereits gedruckt, wird es neu gedruckt oder die Änderung der Küche gemeldet.
-
-**Wenn die Meldung zur falschen Zeit erscheint**
-
-1. **Uhrzeit des Geräts prüfen.** Die Frist wird im Browser gegen die lokale Systemzeit geprüft, genau wie die Datumsprüfung in Abschnitt 3.6. Ein falsch gestelltes Handy oder eine fremde Zeitzone erzeugt dieses Bild zu früh oder zu spät.
-2. **Seite neu laden.** Lag die Seite über 10:00 Uhr hinaus offen, schaltet sie von selbst um. Das ist gewollt.
-3. Erscheint die Meldung **vormittags vor 10:00 Uhr** auf mehreren Geräten mit richtiger Uhrzeit, ist das ein echter Fehler. Dann in `frontend\index.html` den Wert der Konstanten `ANNAHMESCHLUSS` prüfen; er muss `10` sein.
-
-**Zur Einordnung:** Diese Frist ist eine Prüfung im Browser, keine Sperre. Flow C nimmt eine Bestellung weiterhin an, wenn jemand ihn von Hand aufruft. Das ist bewusst so, siehe `05_Entscheide_und_Verlauf.md`, Abschnitt 5a. Wer die Frist hart erzwingen will, findet den nötigen Eingriff in Flow C in `03_Technische_Dokumentation.md`, Abschnitt 7.1.
-
-### 3.6b Kursblatt-Link führt bei Externen zur Microsoft-Anmeldung
-
-**Symptom:** Eine Kursleitung ohne Konto im Mandanten erhält den Kursblatt-Link und landet auf `login.microsoftonline.com` statt auf dem Blatt.
-
-**Ursache:** Seit dem 04.09.2026 lädt `kursblatt.html` anonym über Flow B und darf **nie** von selbst zur Anmeldung umleiten. Passiert es doch, wurde entweder eine ältere Fassung der Datei ausgeliefert, oder jemand hat den Aufruf von `Auth.anmeldungSicherstellen()` zurück in den Ladepfad geschoben.
-
-**Prüfschritte**
-
-1. `https://menue.campus-sursee.ch/kursblatt.html?klasse=CODE` in einem **privaten Fenster** öffnen, also ohne bestehende Microsoft-Sitzung. Das Blatt muss ohne Anmeldung erscheinen.
-2. Netzwerkanalyse öffnen (Abschnitt 4.3). Erwartet wird **ein** GET an den Power-Automate-Host und **kein** Aufruf an `login.microsoftonline.com`.
-3. In Cloudflare unter **Workers & Pages, `baulueuet-menue`, Deployments** prüfen, ob der neueste Stand veröffentlicht ist.
-
-**Behebung:** Aktuellen Stand veröffentlichen, siehe Abschnitt 5.4.
-
-**Verwandtes Bild:** Erscheint
-
-> **Kursblatt nicht abrufbar**
-> Zu diesem Klassencode wurde nichts gefunden. Bitte prüfen Sie den Link. Mitarbeitende der Réception können es mit ihrem Geschäftskonto nochmals versuchen.
-
-dann hat Flow B nichts geliefert: entweder ist der Code falsch, oder der Flow ist gestört. Erst den Code prüfen, danach die Flow-Läufe (Abschnitt 4.4). Die Réception kommt in der Zwischenzeit über den Knopf **«Mit Konto anmelden»** an das Blatt; dieser Weg läuft über Microsoft Graph und ist von Flow B unabhängig.
-
-### 3.7 Tagesmenüs fehlen auf dem Menüblatt
-
-**Symptom:** Auf `menueblatt.html` fehlt der Kasten «Menü des Tages», stattdessen steht dort
-
-> Die Tagesmenüs sind zurzeit nicht abrufbar. Die Bestellungen sind vollständig aufgeführt.
-
-**Wichtig für die Auskunft am Telefon:** Das Blatt ist trotzdem **vollständig und druckbar**. Nur die Beschreibungstexte der Menüs fehlen, die Bestellungen selbst kommen aus SharePoint und sind davon nicht betroffen. Wer Menü 1 und Menü 2 bestellt hat, steht korrekt in der Tabelle und im Zusammenzug.
-
-**Wahrscheinliche Ursachen**
-
-1. Lunchgate ist gestört oder liefert für heute keine Menüs.
-2. Flow B läuft auf einen Fehler, etwa wegen einer unterbrochenen Verbindung.
-3. Die Flow-Aufrufadresse in `frontend\konfig.js` stimmt nicht mehr, weil der Flow neu erstellt oder die Signatur erneuert wurde.
-4. Der Power-Automate-Host ist in der Content Security Policy in `_headers` nicht mehr freigegeben.
-
-**Prüfschritte**
-
-1. `index.html` mit einem Gästelink für heute öffnen. Fehlen die Menütexte auch dort, ist es Flow B oder Lunchgate, nicht das Menüblatt.
-2. Power Automate öffnen, Flow **API Klasse laden**, Läufe der letzten Stunden ansehen (Abschnitt 4.4). Rote Läufe zeigen die fehlgeschlagene Aktion.
-3. In der Aktion «Lunchgate» die Antwort ansehen. Kommen `key_0`, `key_1` und `key_2` zurück? Kommt nur `key_0`, wurde in der Aufrufadresse `&limit=1` ergänzt; dieser Parameter darf dort **nicht** stehen, sonst bleiben M2, P3 und Dessert leer.
-4. Netzwerkanalyse im Browser: Wird der Aufruf an den Power-Automate-Host überhaupt gesendet oder von der CSP blockiert?
-
-**Behebung**
-
-- Lunchgate-Störung: abwarten. Als Übergang können die Menütexte in den Spalten `Suppe`, `Salat`, `Menu1`, `Menu2` und `Dessert` der Klasse in SharePoint von Hand erfasst werden; Flow B greift bei leeren Lunchgate-Werten auf diese Spalten zurück.
-- Flow-Fehler: Verbindung im Designer neu auswählen beziehungsweise reparieren, danach den Designer neu laden. Änderungen an Ausdrücken anschliessend **immer** in der Codeansicht der Aktion verifizieren, sie gehen sonst still verloren.
-- Geänderte Aufrufadresse: neue Adresse in `konfig.js` und im Konfigurationsblock von `index.html` nachführen, dann neu veröffentlichen (Abschnitt 5.4).
-- CSP: Host in `_headers` unter `connect-src` ergänzen und neu veröffentlichen.
-
-### 3.8 Menütexte falsch verteilt
-
-**Symptom:** Auf der Gästeseite und auf dem Menüblatt steht die ganze Vorspeisenzeile bei «Tagessuppe», bei «Tagessalat» steht nichts oder etwas Falsches. Seltener stehen Menü 1 und Menü 2 vertauscht oder das Dessert im falschen Feld.
-
-**Ursache:** Flow B teilt die Vorspeisenzeile aus Lunchgate (Feld `P3`) am Wort « oder » in Suppe und Salat auf. Diese Aufteilung ist rein textabhängig. Schreibt die Küche die Zeile anders, etwa mit «/», mit «und» oder ganz ohne Trenner, greift die Regel nicht und der gesamte Text landet im Suppe-Feld.
-
-**Prüfschritte**
-
-1. In Power Automate den letzten Lauf von **API Klasse laden** öffnen und die Rohantwort von Lunchgate ansehen. Wie lautet `key_2.line2` genau?
-2. Enthält der Text das Wort « oder » mit Leerzeichen davor und dahinter? Fehlt es, ist die Ursache bestätigt.
-
-**Behebung**
-
-- Kurzfristig und ohne Codeänderung: In `admin.html` ist das nicht möglich. Die Felder `Suppe` und `Salat` der betroffenen Klasse direkt in der SharePoint-Liste «Klassen» ausfüllen. Diese Werte greifen als Fallback nur dann, wenn Lunchgate nichts liefert. Verlässlicher ist deshalb der nächste Punkt.
-- Richtige Lösung: Das Restaurant bitten, die Vorspeisenzeile wieder im gewohnten Muster «Tagessuppe oder Tagessalat» zu schreiben. Das ist der Weg, der das Bild dauerhaft behebt.
-- Dauerlösung mit Aufwand: Die Aufteilung in Flow B robuster gestalten. Das ist eine Änderung am Flow und keine Supportaufgabe, siehe Abschnitt 7.
-
-### 3.9 QR-Code lässt sich nicht scannen
-
-**Symptom:** Die Handykamera erkennt den QR-Code auf dem gedruckten Kursblatt nicht oder nur nach langem Suchen.
-
-**Wahrscheinliche Ursachen und Behebung**
-
-| Ursache | Prüfschritt | Behebung |
-|---|---|---|
-| Ruhezone fehlt, weil jemand am Parameter `margin` gedreht hat | Auf dem Ausdruck: Ist rings um das Symbol ein weisser Rand von etwa vier Modulbreiten? Im Code muss bei `cellSize: 2` der Wert `margin: 8` stehen, weil `margin` in SVG-Einheiten zählt, nicht in Modulen. | Wert zurücksetzen, Seite neu veröffentlichen. Ohne Ruhezone verweigern Scanner den Code oft, weil direkt unter dem Symbol der Linktext folgt. |
-| Zu klein gedruckt, auf mehrere Seiten verteilt oder skaliert | Druckvorschau prüfen. Im Normaldruck misst das Symbol rund 63 mm in einem Rahmen von 78 mm. | Auf A4 in Originalgrösse drucken, Skalierung im Druckdialog auf 100 Prozent stellen, «An Seite anpassen» ausschalten. |
-| Schlechter Ausdruck: Toner am Ende, graues oder farbiges Papier, Knick quer durch das Symbol | Ausdruck ansehen. | Auf weissem Papier neu drucken. |
-| QR-Bibliothek nicht geladen | Im Rahmen steht «Der QR-Code konnte nicht erzeugt werden. Bitte laden Sie die Seite mit bestehender Internetverbindung neu.» | Siehe Abschnitt 3.2. |
-| Kamera-App des Geräts kann keine QR-Codes | Mit einem zweiten Gerät gegenprüfen. | Der vollständige Gästelink steht als Text unter dem Symbol und kann von Hand eingetippt oder abfotografiert werden. |
-
-Falls der Verdacht besteht, dass am Generator selbst etwas kaputt ist: Der Ordner `qr-test\` im Projektordner enthält die Testumgebung dafür. Sie liegt bewusst ausserhalb von `frontend` und wird nicht mitveröffentlicht.
-
-### 3.10 Seite bleibt leer, Konsole meldet nichts
-
-**Symptom:** Die Seite lädt, bleibt aber weiss oder hängt beim Ladehinweis. In der Konsole steht keine oder nur eine unauffällige Meldung, und in der Netzwerkanalyse fehlt ein Aufruf, den es geben müsste.
-
-**Ursache:** Die Content Security Policy in `frontend\_headers` blockiert den Aufruf. Fehlt dort eine Adresse, blockiert der Browser sie stillschweigend, ohne dass die Seite selbst etwas davon merkt. Das ist das tückischste Fehlerbild des Systems, weil es keinen Fehlertext gibt.
-
-**Prüfschritte**
-
-1. Konsole (F12) öffnen und gezielt nach Zeilen suchen, die mit «Refused to …» beginnen oder das Wort «Content Security Policy» enthalten. Diese Meldungen sind leicht zu übersehen.
-2. Netzwerkanalyse: Fehlt der Aufruf ganz oder ist er als blockiert markiert?
-3. `_headers` gegen die Fassung in `frontend\_headers` vergleichen.
-
-**Behebung:** Die betroffene Adresse in der passenden Direktive ergänzen und den Ordner neu veröffentlichen. Zur Orientierung, welche Direktive wofür da ist:
-
-| Direktive | Enthält | Wofür |
-|---|---|---|
-| `script-src` | `'self'`, `'unsafe-inline'`, `cdn.jsdelivr.net` | die inline eingebetteten Skripte der Seiten, MSAL und die QR-Bibliothek |
-| `connect-src` | `'self'`, Microsoft Graph, `login.microsoftonline.com`, der Power-Automate-Host | Graph-Zugriffe, Anmeldung, Flow B und Flow C |
-| `frame-src` | `login.microsoftonline.com` | die stille Token-Erneuerung von MSAL im verborgenen Rahmen |
-| `img-src` | `'self'`, `data:`, `baulueuet.ch` | Favicon und der als SVG erzeugte QR-Code |
-| `form-action` | `'self'`, `login.microsoftonline.com` | die Weiterleitung in die Anmeldung |
-
-Wird eine dieser Adressen je geändert, etwa weil ein Flow neu erstellt wurde, muss sie hier ebenfalls nachgeführt werden.
-
-**Andere Ursache mit gleichem Bild:** Eine der Dateien `konfig.js`, `auth.js` oder `graph.js` fehlt bei Cloudflare Pages, weil beim Veröffentlichen nur einzelne Dateien statt des ganzen Ordners `frontend` hochgeladen wurden. In der Netzwerkanalyse steht dann ein 404 auf die fehlende Datei. Behebung: den vollständigen Ordner neu veröffentlichen.
-
-### 3.11 Bestellungen erscheinen nicht in der Verwaltung
-
-**Symptom:** Gäste bestätigen, bestellt zu haben, aber in `admin.html` steht bei der Klasse
-
-> Für diese Klasse liegt noch keine Bestellung vor.
-
-oder der Zähler in der Klassenliste bleibt auf 0.
-
-**Prüfschritte in dieser Reihenfolge**
-
-1. **Richtige Klasse gewählt?** Der Zähler in der Liste zeigt nur Bestellungen mit passender `KlasseID`. Gibt es zwei Klassen mit ähnlichem Namen für denselben Tag, prüfen, welchen Code die Gäste tatsächlich erhalten haben.
-2. **Neu geladen?** Die Seite lädt die Bestellungen beim Auswählen der Klasse. F5 drücken und die Klasse erneut anklicken.
-3. **In SharePoint nachsehen.** Liste «Bestellungen» öffnen (Abschnitt 4.5) und nach dem Klassencode in der Spalte `KlasseCode` filtern. Sind die Einträge dort vorhanden, aber in `admin.html` nicht sichtbar, stimmt die `KlasseID` nicht. Fehlen sie auch dort, hat Flow C nicht geschrieben.
-4. **Flow C prüfen.** In Power Automate den Flow **API Bestellung speichern** öffnen und die Läufe des betreffenden Vormittags ansehen. Rote Läufe zeigen die Ursache, meist eine unterbrochene Verbindung oder ein Feldname, der nicht mehr passt.
-5. **Klasse gelöscht und neu angelegt?** Dann hat die neue Klasse eine neue `KlasseID`, während die alten Bestellungen auf die alte ID zeigen. Sie erscheinen dann nirgends mehr, stehen aber noch in der Liste.
-
-**Behebung**
-
-- Fehler in Flow C: Verbindung reparieren, Flow speichern, mit einem Testgast gegenprüfen.
-- Verwaiste Bestellungen nach einem Klassenwechsel: In der SharePoint-Liste «Bestellungen» stehen sie mit korrektem `KlasseCode` und können der Küche von dort übergeben werden. Automatisch aufgeräumt werden sie erst nach 30 Tagen.
-- Gäste haben in Wahrheit nicht bestellt: Auf der Gästeseite erscheint nach erfolgreichem Absenden eine Bestätigung mit «Danke, *Vorname*!» und der Zusammenfassung. Wer diese Seite nicht gesehen hat, hat nicht bestellt. Kommt beim Absenden «Senden fehlgeschlagen. Bitte versuche es nochmals.», wurde nichts gespeichert.
-
-**Verwandtes Bild:** Die Terminliste selbst ist leer und zeigt «Für heute ist kein Termin eingetragen.». Der Filter steht dann auf «Nur heute», dem Normalfall; über «Filter» lassen sich «Zukünftige Termine» und «Vergangene Termine» dazuschalten. Steht dort «Kein Termin gefunden.», ist das Suchfeld gefüllt; es zu leeren zeigt wieder alle Termine des eingestellten Zeitraums. Liegen Treffer ausserhalb, bietet die Seite darunter selbst an, alle Termine einzublenden.
-
-### 3.11a Reiter «Firmen» meldet, die Liste fehle
-
-**Symptom:** In `admin.html` steht im Reiter «Firmen» statt des Verzeichnisses die Karte
-
-> **Die Liste «Firmen» ist auf der SharePoint-Site noch nicht vorhanden**
-> Das Firmenverzeichnis braucht auf der Site «Reception» eine Liste «Firmen» mit der Textspalte «Schluessel». Die Terminverwaltung funktioniert auch ohne sie; im Terminformular steht dann nur «Firma frei eingeben» zur Verfügung.
-
-darunter der Knopf **«Liste jetzt anlegen»**.
-
-**Einordnung:** Die Terminverwaltung ist davon **nicht** betroffen. Bestehende Termine mit Firmen-QR-Code funktionieren weiter, weil sie Firmenname und Code als eigene Kopie tragen; es lassen sich nur keine neuen Termine einer Firma aus dem Verzeichnis zuordnen.
-
-**Wahrscheinliche Ursachen**
-
-1. Die Liste wurde nie angelegt. Das ist der Normalfall auf einer Site, die vor dem 14.09.2026 eingerichtet wurde.
-2. Die Liste heisst anders. Gesucht wird über den **Anzeigenamen** «Firmen», genau so geschrieben, sofern in `frontend\konfig.js` unter `listeFirmen` keine ID steht.
-3. In `konfig.js` steht unter `listeFirmen` eine ID, die es auf der Site nicht (mehr) gibt. Dann meldet die Verwaltung statt dieser Karte einen Graph-Fehler «Liste oder Eintrag nicht gefunden».
-4. Das angemeldete Konto darf auf der Site «Reception» keine Listen sehen oder anlegen. Dann erscheint im roten Balken des Reiters zusätzlich eine Berechtigungsmeldung, siehe 3.3.
-
-**Prüfschritte**
-
-1. Site «Reception» öffnen (`https://campussursee.sharepoint.com/sites/hot-reze`), **Websiteinhalte**: Gibt es eine Liste «Firmen»?
-2. `frontend\konfig.js` ansehen: Steht unter `listeFirmen` etwas? Leer ist zulässig und der Regelfall.
-3. Roten Balken im Reiter «Firmen» lesen; steht dort eine Graph-Meldung, ist es Fall 3 oder 4.
-
-**Behebung**
-
-- Fall 1: Knopf **«Liste jetzt anlegen»** klicken. Die Verwaltung legt die Liste «Firmen» mit der Textspalte `Schluessel` an; `Title` bringt SharePoint selbst mit und trägt den Firmennamen. Alternativ legt die ICT die Liste von Hand an, siehe `04_Einrichtung_und_Deployment.md`, Abschnitt 1.
-- Fall 2: Liste in SharePoint auf «Firmen» umbenennen oder ihre ID in `konfig.js` unter `listeFirmen` eintragen und neu veröffentlichen.
-- Fall 3: ID in `konfig.js` korrigieren oder leeren; ist sie leer, sucht die Verwaltung die Liste beim Start über den Anzeigenamen.
-- Fall 4: Berechtigung auf der Site klären, siehe 3.3 und 5.1.
-
-> Eine neue Graph-Berechtigung braucht es **nicht**. `Sites.ReadWrite.All` deckt die neue Liste und auch das Anlegen ab. Es ist ebenfalls kein Eingriff in die Flows nötig, sie kennen die Liste «Firmen» nicht.
-
-### 3.12 Weitere Meldungen im Wortlaut
-
-Meldungen, die im Betrieb auftauchen können und oben nicht bereits behandelt sind.
-
-| Meldung (wortgetreu) | Wo | Ursache | Behebung |
-|---|---|---|---|
-| «Bitte ergänzen: Vorname, Nachname, Vorspeise, Hauptgang» (nur die tatsächlich fehlenden Felder) | Gästeseite, roter Balken im Formular | Pflichtfelder leer | Felder ausfüllen und erneut absenden. Kein Systemfehler. |
-| «Senden fehlgeschlagen. Bitte versuche es nochmals.» | Gästeseite, roter Balken im Formular | Flow C nicht erreichbar, Netzwerk unterbrochen oder Flow C meldet einen Fehler | Nochmals absenden. Bleibt es dabei: Flow C prüfen, siehe 3.11. Achtung: Es wurde **nichts** gespeichert. |
-| «Verbindungsfehler» mit «Das Menü konnte nicht geladen werden. Bitte prüfe deine Internetverbindung.» | Gästeseite | Flow B nicht erreichbar oder liefert einen Fehlerstatus | Knopf «Nochmals versuchen». Bleibt es dabei: Flow B prüfen, siehe 3.7. |
-| «Verbindungsfehler» mit «Die Klassendaten konnten nicht geladen werden. Bitte prüfen Sie die Internetverbindung.» | Kursblatt | unerwarteter Fehler ohne eigene Meldung | Knopf «Nochmals versuchen», danach Konsole prüfen. |
-| «Verbindungsfehler» mit «Die Bestellungen konnten nicht geladen werden. Bitte prüfen Sie die Internetverbindung.» | Menüblatt | dito | dito |
-| «Fehler von Microsoft Graph (HTTP *nnn*)» | Admin-Seiten | ein Graph-Fehler, für den es keinen eigenen Text gibt | HTTP-Nummer notieren und ins Ticket aufnehmen. |
-| «Bitte einen Titel eingeben.» | Verwaltung, Formular | Das Feld «Titel» ist leer. | Titel erfassen. |
-| «Kopieren nicht möglich, bitte von Hand markieren.» | Verwaltung, neben «Link kopieren» | Die Zwischenablage ist gesperrt. Der Zugriff braucht einen sicheren Kontext, also HTTPS oder `localhost`. | Link im Feld daneben von Hand markieren und kopieren. Prüfen, ob die Seite tatsächlich über `https://` geöffnet wurde. |
-| Rückfrage beim Löschen: «Termin «*Name*» wirklich löschen? Die bereits erfassten Bestellungen dieses Termins werden dabei nicht mitgelöscht; sie bleiben in der Liste «Bestellungen» stehen.» | Verwaltung | keine Störung, sondern die bewusste Warnung vor dem Löschen | Siehe Abschnitt 6, Punkt 3. |
-| «Anmeldung nicht möglich» als Überschrift | Verwaltung | Sammelbild für alle Anmeldefehler; der Text darunter nennt die Ursache | Siehe 3.1 bis 3.4. Knopf «Erneut versuchen» lädt die Seite neu. |
-| «Die Menüwahl ist seit 10:00 Uhr geschlossen. Bitte melde dich bei der Réception.» | Gästeseite, roter Balken im Formular | Das Formular lag über den Annahmeschluss hinaus offen und wurde danach abgesendet. | Keine. Die Bestellung wurde **nicht** gespeichert; die Réception nimmt sie entgegen. Siehe 3.6a. |
-| «Menüwahl geschlossen» als Überschrift | Gästeseite | Annahmeschluss vorbei, keine Bestellung vorhanden | Kein Fehler, siehe 3.6a. |
-| «Kursblatt nicht abrufbar» als Überschrift | Kursblatt | Flow B hat zu diesem Code nichts geliefert: falscher Code oder Flow gestört | Code prüfen, danach Flow-Läufe (4.4). Die Réception kommt über «Mit Konto anmelden» ans Blatt. Siehe 3.6b. |
-| «Für heute ist kein Termin eingetragen.» | Verwaltung, linke Spalte | Es gibt keinen Termin mit dem heutigen Datum, und der Filter steht auf «Nur heute». | Kein Fehler. Über «Filter» die zukünftigen oder vergangenen Termine einblenden. |
-| «Kein Termin gefunden.» | Verwaltung, linke Spalte | Der Suchtext passt auf keinen Termin im eingestellten Zeitraum. | Kein Fehler. Liegen Treffer ausserhalb, steht darunter «… Termine liegen ausserhalb des Filters, alle anzeigen»; ein Klick blendet sie ein. |
-| «Erwartete Teilnehmeranzahl: bitte eine ganze Zahl von 0 bis 999 eingeben.» | Verwaltung, Formular | Im Feld steht etwas anderes als eine ganze Zahl in diesem Bereich. | Eingabe korrigieren oder Feld leeren. |
-| «Field 'Teilnehmer' is not recognized» oder ähnlich beim Speichern | Verwaltung, Formular | Die Spalte `Teilnehmer` fehlt in der SharePoint-Liste «Klassen». | Spalte anlegen (Zahl, darf leer sein), siehe `03_Technische_Dokumentation.md`, Abschnitt 4. |
-| «Kein Kurs gefunden» als Überschrift | Gästeseite, über `?firma=` | Für den heutigen Tag ist kein Termin dieser Firma erfasst | Meist kein Fehler, siehe 3.5a. |
-| «Die Liste «Firmen» ist auf der SharePoint-Site noch nicht vorhanden» | Verwaltung, Reiter «Firmen» | Das Firmenverzeichnis hat auf der Site noch keine Ablage | Knopf «Liste jetzt anlegen», siehe 3.11a. |
-| «Ein Termin mit Firmen-QR-Code braucht ein Datum: der Kurstag steckt im Code.» | Verwaltung, Terminformular | Im Klappfeld «Firma» steht eine Firma aus dem Verzeichnis, aber kein Datum. | Datum setzen. Kein Systemfehler. |
-| «Für *Firma* ist am *Datum* bereits ein Termin mit Firmen-QR-Code erfasst. …» | Verwaltung, Terminformular | Pro Firma und Kurstag ist nur ein Termin mit Firmen-QR-Code möglich. | Für den zweiten Kurs desselben Tages «Firma frei eingeben» wählen; er bekommt einen Zufallscode. Kein Systemfehler. |
-| «Eine Firma mit diesem Namen steht bereits im Verzeichnis.» | Verwaltung, Reiter «Firmen» | Zwei gleichnamige Firmen wären im Klappfeld des Terminformulars nicht zu unterscheiden. | Namen eindeutig machen, zum Beispiel mit Ortszusatz. |
-| Rückfrage «Termin dem Firmen-QR-Code zuordnen?» beziehungsweise «Termin vom Firmen-QR-Code lösen?» | Verwaltung, Terminformular | keine Störung, sondern die Warnung davor, dass der Termin einen neuen Code bekommt | Mit «Code neu bilden» bestätigen. Bereits erfasste Bestellungen bleiben erhalten. |
-| Kursblatt oder Gästeseite erscheinen deutsch, obwohl ein französisches oder englisches Blatt gewünscht war | Kursblatt, Gästeseite | Die Sprache reist im Link mit (`&fr`, `&en`). Das Klappfeld neben «Kursblatt drucken» stand auf «DE», oder der Link wurde von Hand gekürzt. | Klappfeld auf «FR» oder «EN» stellen und das Kursblatt neu öffnen; der QR-Code darauf enthält den Zusatz. Auf der Gästeseite lässt sich die Sprache oben mit «DE / EN / FR» jederzeit umstellen. |
-
----
-
-## 4. Diagnose-Werkzeuge
-
-### 4.1 Testansicht ohne Backend: `?mock=1`
-
-An **jede** Seite lässt sich `?mock=1` anhängen. Die Seite arbeitet dann mit fest eingebauten Beispieldaten, ohne Anmeldung, ohne SharePoint und ohne Flows.
-
-```
-https://menue.campus-sursee.ch/admin.html?mock=1
-https://menue.campus-sursee.ch/kursblatt.html?mock=1
-https://menue.campus-sursee.ch/menueblatt.html?mock=1
-https://menue.campus-sursee.ch/?mock=1
-https://menue.campus-sursee.ch/?mock=1&falschertag=1
-https://menue.campus-sursee.ch/?mock=1&spaet=1
-https://menue.campus-sursee.ch/?mock=1&keinkurs=1
-```
-
-Das ist das schnellste Mittel, um Anzeige- von Datenproblemen zu trennen:
-
-- **Sieht die Seite im Mock-Modus richtig aus, im Echtbetrieb aber nicht?** Dann liegt es an Daten, Berechtigungen, Flows oder Netzwerk, nicht am Layout.
-- **Ist sie auch im Mock-Modus kaputt?** Dann ist die Veröffentlichung unvollständig oder eine Datei beschädigt.
-
-In der Verwaltung erscheint im Mock-Modus rechts oben «Testperson (Mock-Modus)». Änderungen bleiben nur bis zum Neuladen bestehen und erreichen SharePoint nie. Mit `&falschertag=1` auf der Gästeseite lässt sich gezielt das Bild aus Abschnitt 3.6 nachstellen, mit `&keinkurs=1` jenes aus Abschnitt 3.5a. Im Mock-Modus enthält die Verwaltung auch ein Firmenverzeichnis mit zwei Firmen und zwei Terminen mit Firmen-QR-Code.
-
-### 4.2 Browser-Konsole
-
-F12, Reiter «Konsole». Worauf zu achten ist:
-
-- Zeilen mit «Content Security Policy» oder «Refused to …»: siehe Abschnitt 3.10.
-- «Failed to find a valid digest in the integrity attribute»: die Prüfsumme passt nicht, siehe 3.2 und 5.3.
-- Meldungen mit `AADSTS`: Anmeldeproblem, siehe 3.1.
-- 401, 403, 404 und 429 von `graph.microsoft.com`: siehe 3.3 und 3.4.
-
-### 4.3 Netzwerkanalyse
-
-F12, Reiter «Netzwerk», dann die Seite neu laden. Erwartete Aufrufe:
+In der **Netzwerkanalyse** (Reiter «Netzwerk», Seite neu laden) sollte man sehen:
 
 | Seite | Erwartete Aufrufe |
 |---|---|
 | Gästeseite | ein GET an den Power-Automate-Host (Flow B), beim Absenden ein POST (Flow C) |
-| Verwaltung | MSAL vom CDN, Anmeldung an `login.microsoftonline.com`, mehrere GET an `graph.microsoft.com` |
-| Kursblatt | QR-Bibliothek vom CDN, ein GET an den Power-Automate-Host (Flow B). **Keine Anmeldung, kein Graph** im Normalfall |
-| Menüblatt | MSAL vom CDN, Anmeldung, GET an `graph.microsoft.com`, zusätzlich ein GET an den Power-Automate-Host für die Menütexte |
+| Verwaltung | MSAL vom CDN, `login.microsoftonline.com`, mehrere GET an `graph.microsoft.com` |
+| Kursblatt | QR-Bibliothek vom CDN, ein GET an Flow B. **Keine Anmeldung** |
+| Menüblatt | MSAL, Anmeldung, Graph, dazu ein GET an Flow B für die Menütexte |
 
-Fehlt ein Aufruf ganz, ist er meist von der CSP blockiert. Steht dort ein Statuscode, ist er der beste Anhaltspunkt für das Ticket.
+Fehlt ein Aufruf ganz, blockiert ihn meist die Content Security Policy.
 
-### 4.4 Flow-Läufe in Power Automate
+### 3.3 Flow-Läufe ansehen
 
-1. `https://make.powerautomate.com` öffnen, anmelden mit **powerplatform@campus-sursee.ch**.
-2. Umgebung oben rechts auf `Default-2553fb74-5dcc-4072-8bb5-399d18f72af9` stellen.
-3. **Meine Flows** oder **Lösungen**, je nach Ablage, dann den gewünschten Flow öffnen:
-   - **API Klasse laden** (Flow B): Klassendaten und Tagesmenüs
-   - **API Bestellung speichern** (Flow C): eingehende Bestellungen
-   - **Aufraeumen Menuewahl**: täglicher Lauf um 03:00
-4. Im Abschnitt **Ausführungsverlauf** den Lauf zum fraglichen Zeitpunkt anklicken. Rote Aktionen ausklappen, dort stehen Eingaben, Ausgaben und die Fehlermeldung des Dienstes.
+1. [Power Automate](https://make.powerautomate.com/environments/Default-2553fb74-5dcc-4072-8bb5-399d18f72af9/flows)
+   öffnen, als `powerplatform@campus-sursee.ch` anmelden.
+2. Flow öffnen: «API Klasse laden» (B), «API Bestellung speichern» (C) oder
+   [«Aufraeumen Menuewahl»](https://make.powerautomate.com/environments/Default-2553fb74-5dcc-4072-8bb5-399d18f72af9/flows/063e1fa8-494b-4274-9402-608e88d59889/details).
+3. Unter **Ausführungsverlauf** den Lauf zum fraglichen Zeitpunkt öffnen. Rote
+   Aktionen zeigen die Fehlermeldung.
 
-Für die Störungssuche besonders nützlich: die Ausgabe der Aktion «Lunchgate» in Flow B und die Rohantwort mit `key_0` bis `key_2` (Abschnitte 3.7 und 3.8).
+### 3.4 In SharePoint nachsehen
 
-### 4.5 Direkt in die SharePoint-Listen schauen
+[Websiteinhalte der Site «Reception»](https://campussursee.sharepoint.com/sites/hot-reze/_layouts/15/viewlsts.aspx)
+→ Liste «Klassen», «Bestellungen» oder «Firmen». Die Spalten sind in der
+[Technischen Dokumentation, Abschnitt 3](03_Technische_Dokumentation.md#3-datenmodell) beschrieben.
 
-Site «Reception»: `https://campussursee.sharepoint.com/sites/hot-reze`, dort **Websiteinhalte**, dann die Liste «Klassen», «Bestellungen» oder «Firmen».
+- Bestellungen sucht man am einfachsten über die Spalte `KlasseCode`.
+- Die Liste «Bestellungen» hat **kein Datum**. Der Bezug zum Kurstag läuft nur
+  über `KlasseID`.
 
-- **Liste «Klassen»:** Spalten `Title`, `Firma`, `Datum`, `Essenszeit`, `Code`, `Status` («offen» oder «geschlossen»), `Teilnehmer`, `Suppe`, `Salat`, `Menu1`, `Menu2`, `Dessert`. Die Spalte `Sprache` vom 08.09.2026 wird seit dem 09.09.2026 nicht mehr gelesen oder geschrieben und darf stehen bleiben oder entfernt werden.
-- **Liste «Bestellungen»:** Spalten `Title`, `KlasseID`, `KlasseCode`, `Vorname`, `Nachname`, `Vorspeise` («Suppe», «Salat» oder «Keine»), `Hauptgang` («Menü 1» oder «Menü 2»), `Bemerkung`, `Created`.
-- **Liste «Firmen»:** Spalten `Title` (Firmenname) und `Schluessel` (dauerhafter Schlüssel, zum Beispiel `SORBA-K7M2`). Mehr enthält sie nicht. Sie ist die einzige Ablage, die der Aufräum-Flow nicht anfasst; Termine und Bestellungen verschwinden nach 30 Tagen, die Firmen bleiben.
-- **Achtung:** Die Liste «Bestellungen» hat **keine** eigene Datumsspalte. Die Zuordnung zum Kurstag läuft immer über `KlasseID`. Wer nach einem Tag suchen will, sucht zuerst die Klasse und dann deren ID.
-- Zum Suchen eignet sich die Spalte `KlasseCode`, weil sie den Code im Klartext enthält. Alle Termine einer Firma finden sich in der Liste «Klassen» über den Anfang der Spalte `Code`: Er lautet immer `SCHLUESSEL-`, gefolgt vom Kurstag als `JJMMTT`.
+---
 
-Änderungen von Hand in SharePoint sind möglich, aber die Ausnahme. Beim Status ist die Schreibweise entscheidend: exakt «offen» oder «geschlossen», in Kleinschreibung.
+## 4. Fehlerbilder
+
+Hinweis: Auf Kursblatt und Menüblatt erscheint **jeder** unerwartete Fehler unter
+der Überschrift «Verbindungsfehler», auch ein Berechtigungsproblem. Der Text
+darunter ist die eigentliche Information.
+
+### 4.1 Anmeldung schlägt fehl
+
+Die Verwaltung zeigt «Anmeldung nicht möglich» mit einem Code von Microsoft.
+
+| Code | Ursache | Lösung |
+|---|---|---|
+| `AADSTS50011` | Die Umleitungsadresse fehlt in der App-Registrierung. | Adressen nach [Einrichtung 2.2](04_Einrichtung_und_Deployment.md#22-umleitungsadressen) ergänzen. Wichtig: auch die Fassungen **ohne** `.html` (`/admin`, `/menueblatt`, `/kursblatt`). |
+| `AADSTS9002326` | Plattform steht auf «Web» statt «Single-Page-Anwendung». | Adressen unter der Plattform **SPA** eintragen, «Web» entfernen. |
+| `AADSTS50105` | Person ist der App nicht zugewiesen. | Gewollt für alle ausserhalb der Réception. Sonst zuweisen, siehe [5.1](#51-zugriff-geben-oder-entziehen). |
+
+Steht stattdessen «In konfig.js ist keine Client-ID eingetragen», ist
+`frontend/konfig.js` unvollständig veröffentlicht. Datei prüfen und neu veröffentlichen.
+
+### 4.2 Anmeldebibliothek lädt nicht
+
+> Die Anmeldebibliothek konnte nicht geladen werden. Bitte die Internetverbindung prüfen und die Seite neu laden.
+
+Mögliche Ursachen:
+
+1. `cdn.jsdelivr.net` ist nicht erreichbar (offline, Firewall, Störung beim CDN).
+2. Jemand hat die Version einer Bibliothek geändert, ohne die Prüfsumme
+   (`integrity`) mitzuziehen. Die Konsole meldet dann «Failed to find a valid digest».
+3. Ein Werbeblocker blockiert das CDN.
+
+Lösung: Netz freigeben, Prüfsumme korrigieren ([Einrichtung, Abschnitt 5](04_Einrichtung_und_Deployment.md#5-bibliotheksversion-anheben))
+oder Erweiterung ausschalten. Die **Gästeseite ist nicht betroffen**, sie lädt
+keine Bibliothek. Fehlt nur die QR-Bibliothek, zeigt das Kursblatt statt des
+QR-Codes einen Hinweis; der Link darunter bleibt gültig.
+
+### 4.3 Keine Berechtigung oder Liste nicht gefunden
+
+> Keine Berechtigung für diese Liste. Bitte prüfen, ob das Konto Zugriff auf die SharePoint-Site «Reception» hat.
+
+Die Anmeldung klappt, aber das Konto darf nicht auf die
+[SharePoint-Site «Reception»](https://campussursee.sharepoint.com/sites/hot-reze).
+Die Berechtigung ist *delegiert*: Die Webseite kann nur, was die Person in
+SharePoint ohnehin darf. Lösung: Person von den Besitzenden der Site als
+Mitglied hinzufügen lassen.
+
+> Liste oder Eintrag nicht gefunden. Bitte die IDs in konfig.js prüfen.
+
+Die IDs in `frontend/konfig.js` passen nicht mehr zu SharePoint, oder der
+Eintrag wurde gelöscht. Erst neu laden, dann IDs abgleichen.
+
+### 4.4 Anmeldung abgelaufen oder zu viele Anfragen
+
+| Meldung oder Bild | Ursache | Lösung |
+|---|---|---|
+| «Die Anmeldung ist abgelaufen. Bitte die Seite neu laden.» | Token abgelaufen oder Zugriff entzogen | F5. Hilft das nicht: Tab schliessen und neu öffnen. |
+| Seite springt endlos zu `login.microsoftonline.com` und zurück | `frame-src` in `frontend/_headers` fehlt, oder der Browser blockiert Drittanbieter-Cookies | `_headers` prüfen; im privaten Fenster gegenprüfen. |
+| «Zu viele Anfragen. Bitte einen Moment warten und neu laden.» | Microsoft Graph drosselt | Eine Minute warten. Kommt es oft vor: Läuft der Aufräum-Flow? |
+
+### 4.5 Gast sieht «Ungültiger Link»
+
+| Text darunter | Ursache | Lösung |
+|---|---|---|
+| «Dieser Link ist unvollständig.» | Link ohne `?klasse=` oder abgeschnitten | Vollständigen Link aus der Verwaltung («Link kopieren») weitergeben. |
+| «Diese Klasse wurde nicht gefunden.» | Tippfehler im Code, Termin gelöscht oder älter als 30 Tage, oder Flow B gestört | Code in der Verwaltung vergleichen (Filter auf alle Termine). 0, O, 1 und I kommen im Code nie vor. Sonst Flow-B-Läufe prüfen ([3.3](#33-flow-läufe-ansehen)). |
+
+Dieselben Meldungen gibt es auf Kursblatt und Menüblatt, wenn diese ohne
+gültigen Code aufgerufen werden. Blätter immer über die Knöpfe in der
+Verwaltung öffnen.
+
+### 4.6 Gast sieht «Kein Kurs gefunden»
+
+> Für diese Firma wurde für den heutigen Tag kein Kurs gefunden. Bitte melde dich bei der Réception.
+
+Das ist meist **kein** technischer Fehler: Der dauerhafte Firmen-QR-Code findet
+für heute keinen Termin. Die Gästeseite bildet aus Firmenschlüssel und heutigem
+Datum den Code (`SORBA-K7M2` → `SORBA-K7M2-260914`) und fragt damit Flow B.
+
+| Ursache | Lösung |
+|---|---|
+| Für heute kein Termin dieser Firma | Termin anlegen, Firma aus dem Klappfeld wählen. |
+| Termin mit frei eingetipptem Firmennamen angelegt (keine Marke «Firmen-QR», Code ohne Bindestrich) | Termin bearbeiten, Firma aus dem Klappfeld wählen, «Code neu bilden» bestätigen. |
+| Falsches Datum am Termin | Datum korrigieren; der Code wird neu gebildet. |
+| Uhrzeit oder Zeitzone am Handy falsch | Handy richtig stellen. |
+
+Gegenprobe mit Testdaten: [?mock=1&keinkurs=1](https://menue.campus-sursee.ch/?mock=1&keinkurs=1).
+
+### 4.7 Gast sieht «Menüwahl noch nicht möglich» oder «Bestellung geschlossen»
+
+**«Menüwahl noch nicht möglich»** ist gewollt: Gewählt werden kann nur am
+Kurstag. Nennt die Meldung einen falschen Tag, stimmt das Datum am Termin nicht
+oder die Uhr am Handy ist falsch gestellt.
+
+**«Bestellung geschlossen»** erscheint, wenn in der Liste «Klassen» die Spalte
+`Status` auf `geschlossen` steht. Die Verwaltung zeigt diese Spalte nicht mehr;
+**direkt in SharePoint** auf `offen` setzen (klein geschrieben).
+
+### 4.8 Gast sieht «Menüwahl geschlossen» oder «Änderungen nicht mehr möglich»
+
+Gewollt: Nach 10:00 Uhr kann niemand mehr selbst bestellen oder ändern. Die
+Réception erfasst oder ändert die Bestellung in der Verwaltung, dort gilt keine
+Frist.
+
+Erscheint die Meldung **vor** 10:00 Uhr:
+
+1. Uhrzeit am Handy prüfen (die Frist wird im Browser geprüft).
+2. Tritt es auf mehreren Geräten mit richtiger Uhrzeit auf: Wert
+   `ANNAHMESCHLUSS` in `frontend/index.html` prüfen, er muss `10` sein.
+
+### 4.9 Kursblatt verlangt eine Anmeldung oder ist «nicht abrufbar»
+
+Das Kursblatt muss **ohne** Anmeldung laden, damit auch eine externe Kursleitung
+es öffnen kann.
+
+- **Leitet es zur Microsoft-Anmeldung um:** Im privaten Fenster testen. In
+  Cloudflare prüfen, ob der neueste Stand veröffentlicht ist.
+- **«Kursblatt nicht abrufbar»:** Flow B hat zu diesem Code nichts geliefert.
+  Code prüfen, dann die Flow-Läufe. Die Réception kommt in der Zwischenzeit über
+  den Knopf «Mit Konto anmelden» ans Blatt.
+
+### 4.10 Seite bleibt leer, ohne Fehlermeldung
+
+Das tückischste Fehlerbild. Fast immer blockiert die **Content Security Policy**
+in [`frontend/_headers`](../frontend/_headers) einen Aufruf, still und ohne
+Fehlertext.
+
+1. Konsole öffnen und nach «Refused to» oder «Content Security Policy» suchen.
+2. Die fehlende Adresse in `_headers` in der passenden Zeile ergänzen und neu
+   veröffentlichen. Typisch: Ein Flow wurde neu erstellt und hat eine neue Adresse.
+
+Zweite mögliche Ursache: Eine der Dateien `konfig.js`, `auth.js` oder `graph.js`
+fehlt (404 in der Netzwerkanalyse). Den ganzen Ordner `frontend` neu veröffentlichen.
+
+### 4.11 Tagesmenüs fehlen oder stehen falsch
+
+**Fehlen die Menütexte** («Die Tagesmenüs sind zurzeit nicht abrufbar»): Das
+Menüblatt ist trotzdem vollständig, nur die Beschreibungen fehlen.
+
+1. Gästeseite eines heutigen Termins öffnen: Fehlen sie dort auch, liegt es an
+   Flow B oder Lunchgate.
+2. Flow-B-Läufe ansehen ([3.3](#33-flow-läufe-ansehen)). Kommen von Lunchgate
+   `key_0`, `key_1` und `key_2` zurück? Kommt nur `key_0`, steht in der Abfrage
+   fälschlich `&limit=1`.
+3. Als Notlösung die Spalten `Suppe`, `Salat`, `Menu1`, `Menu2`, `Dessert` des
+   Termins in SharePoint von Hand füllen. Flow B nimmt sie, wenn Lunchgate nichts liefert.
+
+**Steht die ganze Vorspeisenzeile bei «Tagessuppe»:** Flow B trennt die Zeile am
+Wort « oder ». Hat die Küche anders geschrieben (zum Beispiel mit «/»), greift
+das nicht. Lösung: Das Restaurant bitten, «Tagessuppe oder Tagessalat» zu schreiben.
+
+### 4.12 QR-Code lässt sich nicht scannen
+
+| Ursache | Lösung |
+|---|---|
+| Ausdruck verkleinert | Im Druckdialog 100 % wählen, «An Seite anpassen» aus. Das Symbol misst rund 63 mm. |
+| Schlechter Ausdruck, Knick, graues Papier | Auf weissem Papier neu drucken. |
+| Weisser Rand um den Code fehlt | Jemand hat `margin` im Code verändert, siehe [Hinweise zum Quellcode](06_Hinweise_Quellcode.md). |
+| Handy kann keine QR-Codes | Der Link steht als Text unter dem Code. |
+
+### 4.13 Bestellungen fehlen in der Verwaltung
+
+Gäste sagen, sie hätten bestellt, aber die Verwaltung zeigt nichts.
+
+1. **Richtiger Termin?** Zwei ähnliche Termine am selben Tag verwechselt?
+2. **Neu laden** (F5) und den Termin nochmals anklicken.
+3. **In SharePoint nachsehen**, Liste «Bestellungen», nach `KlasseCode` filtern.
+   Stehen sie dort, ist die `KlasseID` falsch (zum Beispiel weil der Termin
+   gelöscht und neu angelegt wurde). Fehlen sie, hat Flow C nicht gespeichert:
+   Flow-C-Läufe prüfen.
+4. Wer die Bestätigung «Danke, …!» nicht gesehen hat, hat **nicht** bestellt.
+   Bei «Senden fehlgeschlagen» wurde nichts gespeichert.
+
+**Doppelte Namen auf dem Menüblatt:** Die Gästeseite merkt sich die Bestellung
+nur auf dem Gerät. Wer auf einem anderen Handy nochmals bestellt, erzeugt einen
+zweiten Eintrag. Die Réception löscht den überzähligen in der Verwaltung.
+
+### 4.14 Reiter «Firmen» meldet, die Liste fehle
+
+Die Verwaltung findet die Liste «Firmen» nicht. Die Terminverwaltung läuft
+trotzdem weiter.
+
+- Liste fehlt: Knopf «Liste jetzt anlegen» klicken.
+- Liste heisst anders: in SharePoint genau «Firmen» nennen.
+- In `konfig.js` steht unter `listeFirmen` eine falsche ID: korrigieren oder leeren.
+
+### 4.15 Weitere Meldungen
+
+| Meldung | Bedeutung und Lösung |
+|---|---|
+| «Senden fehlgeschlagen. Bitte versuche es nochmals.» | Flow C nicht erreichbar. Nichts gespeichert. Nochmals senden, sonst Flow C prüfen. |
+| «Das Menü konnte nicht geladen werden.» | Gästeseite erreicht Flow B nicht. «Nochmals versuchen», sonst Flow B prüfen. |
+| «Fehler von Microsoft Graph (HTTP *nnn*)» | Graph-Fehler ohne eigenen Text. Nummer ins Ticket. |
+| «Kopieren nicht möglich, bitte von Hand markieren.» | Zwischenablage gesperrt. Link von Hand kopieren; Seite über `https://` geöffnet? |
+| «Field 'Teilnehmer' is not recognized» | Spalte `Teilnehmer` fehlt in der Liste «Klassen». Anlegen (Typ Zahl). |
+| Kursblatt ist deutsch statt französisch | Beim Öffnen stand das Klappfeld auf «DE». Neu öffnen mit «FR». |
+
+Meldungen, die **kein** Fehler sind (fehlender Titel, Firma doppelt, zweiter
+Firmen-Termin am selben Tag usw.), erklärt die Seite selbst.
 
 ---
 
 ## 5. Wiederkehrende Aufgaben
 
-### 5.1 Neue Person der Réception Zugriff geben
+### 5.1 Zugriff geben oder entziehen
 
-1. `https://entra.microsoft.com` öffnen, als Administrator anmelden.
-2. **Identität → Anwendungen → Unternehmensanwendungen → Menuewahl BAULUUT Admin**.
-3. **Benutzer und Gruppen → Benutzer hinzufügen**, die Person auswählen, zuweisen.
-4. Prüfen, ob dieselbe Person Zugriff auf die SharePoint-Site «Reception» hat. Ohne diesen zweiten Schritt kann sie sich zwar anmelden, sieht danach aber die Meldung «Keine Berechtigung für diese Liste …». Nötigenfalls von den Besitzenden der Site als Mitglied hinzufügen lassen.
-5. Gegenprüfen: Die Person öffnet `https://menue.campus-sursee.ch/admin.html` und sollte die Klassenliste sehen.
+Zugriff braucht **zwei Dinge**: die Zuweisung in Entra ID **und** Zugriff auf
+die SharePoint-Site «Reception».
 
-Ohne Entra ID P1 lassen sich nur einzelne Personen zuweisen, keine Gruppen. Bei einer Handvoll Leuten ist das vertretbar, es muss aber bei jedem Personalwechsel von Hand nachgeführt werden.
+**Neue Person:**
 
-### 5.2 Person entfernen
+1. [entra.microsoft.com](https://entra.microsoft.com) → **Unternehmensanwendungen**
+   → «Menuewahl BAULUUT Admin» → **Benutzer und Gruppen** → **Benutzer hinzufügen**.
+2. Prüfen, ob die Person Mitglied der [Site «Reception»](https://campussursee.sharepoint.com/sites/hot-reze) ist.
+3. Person öffnet [menue.campus-sursee.ch/admin](https://menue.campus-sursee.ch/admin) und sieht die Termine.
 
-1. Gleicher Weg: **Unternehmensanwendungen → Menuewahl BAULUUT Admin → Benutzer und Gruppen**.
-2. Die Person markieren und **Entfernen**.
-3. Die Person erhält beim nächsten Aufruf `AADSTS50105`. Eine bereits offene Sitzung läuft, bis das Token abläuft oder der Tab geschlossen wird; für einen sofortigen Entzug zusätzlich in Entra ID die Anmeldesitzungen des Kontos widerrufen.
-4. Bei einem Austritt aus dem Unternehmen genügt in der Regel die Deaktivierung des Kontos; die Zuweisung sollte trotzdem aufgeräumt werden, damit die Liste aussagekräftig bleibt.
+**Person entfernen:** Gleicher Weg, Person markieren, **Entfernen**. Eine offene
+Sitzung läuft noch, bis der Tab geschlossen wird; für sofortigen Entzug die
+Anmeldesitzungen des Kontos in Entra ID widerrufen.
 
-### 5.3 Bibliotheksversion anheben und Prüfsumme neu berechnen
+Ohne Entra ID P1 lassen sich nur einzelne Personen zuweisen, keine Gruppen. Das
+gehört deshalb in den Prozess für Ein- und Austritte.
 
-Betroffen sind zwei Bibliotheken: `@azure/msal-browser` (aktuell 4.30.0, eingebunden in `admin.html`, `kursblatt.html` und `menueblatt.html`) und `qrcode-generator` (aktuell 1.4.4, nur in `kursblatt.html`).
+### 5.2 Änderung veröffentlichen oder zurücknehmen
 
-1. Neue Version auf jsDelivr bestimmen und die vollständige Adresse notieren, zum Beispiel
-   `https://cdn.jsdelivr.net/npm/@azure/msal-browser@X.Y.Z/lib/msal-browser.min.js`.
-2. Prüfsumme berechnen:
-   ```bash
-   curl -sL <URL> | openssl dgst -sha384 -binary | openssl base64 -A
-   ```
-3. In **allen** betroffenen Seiten in `frontend\` sowohl die Versionsnummer in der Adresse als auch den Wert im Attribut `integrity="sha384-…"` ersetzen. Beides muss zusammenpassen, sonst verweigert der Browser das Laden und die Seite meldet «Die Anmeldebibliothek konnte nicht geladen werden. …».
-4. Zuerst lokal oder mit `?mock=1` prüfen, danach veröffentlichen (Abschnitt 5.4).
-5. Nach der Veröffentlichung `admin.html` und `menueblatt.html` einmal echt anmelden und das Kursblatt einmal mit QR-Code öffnen, letzteres **ohne** Anmeldung.
-
-Anlass für eine Anhebung ist eine Sicherheitsmeldung zur Bibliothek oder ein konkreter Fehler. Ohne Anlass ist die feste Fassung die sicherere Wahl.
-
-### 5.4 Änderung an der Webseite veröffentlichen
-
-Cloudflare Pages ist an das Git-Repository angebunden. Ein Push auf `main` veröffentlicht automatisch, ein eigener Schritt in Cloudflare entfällt.
-
-1. Änderung in `frontend\` vornehmen.
-2. Lokal prüfen: `code\serve.ps1` starten, `http://localhost:8123/` öffnen. Für Seiten mit Anmeldung müssen die `localhost:8123`-Umleitungsadressen in der App-Registrierung eingetragen sein, siehe `04_Einrichtung_und_Deployment.md`, Abschnitt 2.2.
-3. Committen und auf `main` pushen.
-4. In Cloudflare unter **Workers & Pages, `baulueuet-menue`, Deployments** verfolgen, bis der Deploy als «Success» markiert ist. Das dauert üblicherweise weniger als eine Minute.
-5. Gegenprüfen: `admin.html` öffnen, eine Klasse auswählen, Kursblatt und Menüblatt aufrufen und einen Gästelink testen. Beim Prüfen den Browsercache umgehen (Strg und F5).
-
-Eine fehlerhafte Veröffentlichung lässt sich in Cloudflare Pages über die Liste **Deployments** sofort auf einen früheren Stand zurücksetzen (beim gewünschten älteren Eintrag im Menü der drei Punkte «Rollback to this deployment»). Das ist der schnellste Ausweg, wenn nach einer Änderung nichts mehr geht; der Fehler im Repository ist danach in Ruhe zu bereinigen, sonst holt der nächste Push den kaputten Stand zurück.
-
-**Wenn ein Deploy gar nicht erst startet:** prüfen, ob `wrangler.toml` im Wurzelverzeichnis noch vorhanden und gültig ist. Fehlt darin `pages_build_output_dir = "frontend"`, veröffentlicht Cloudflare das Wurzelverzeichnis statt der Webseite; die Site zeigt dann eine Dateiliste oder einen 404. Bricht der Build mit einer Meldung zum Projektnamen ab, stimmt `name` in dieser Datei nicht mit dem Projektnamen in Cloudflare überein.
-
-### 5.5 Neuen Termin anlegen (Réception, zur Auskunft)
-
-1. `https://menue.campus-sursee.ch/admin.html` öffnen.
-2. «Neuer Termin» links zuoberst, dann Titel, Firma, Datum, Essenszeit und wahlweise die erwartete Teilnehmeranzahl erfassen. Datum ist auf heute vorbelegt, Essenszeit auf 12:00, Status automatisch «offen».
-3. Speichern. Der Code entsteht dabei automatisch und ist danach in der Detailansicht sichtbar.
-4. «Link kopieren» für den Gästelink, «Kursblatt drucken» für den Aushang mit QR-Code.
-5. Am Kurstag «Menüblatt drucken» für die Küche.
-
-### 5.6 Firma mit dauerhaftem QR-Code aufnehmen (Réception, zur Auskunft)
-
-1. In `admin.html` oben auf den Reiter **«Firmen»** wechseln.
-2. Links unter «Neue Firma» den Firmennamen erfassen und speichern. Der Schlüssel (`SORBA-K7M2`) entsteht dabei automatisch aus dem Namen und vier Zufallszeichen und lässt sich danach nicht mehr ändern.
-3. Auf der Firmenkarte «Firmenblatt» öffnen, Sprache im Klappfeld daneben, und ausdrucken. Dieses Blatt gilt dauerhaft.
-4. **Jeden Kurstag** wie gewohnt einen Termin anlegen und dabei im Feld «Firma» die Firma aus dem Klappfeld wählen. Ohne Termin für den heutigen Tag zeigt der QR-Code «Kein Kurs gefunden», siehe 3.5a.
-5. Umbenennen und Löschen im Verzeichnis verändern bestehende Termine nicht; sie tragen Firmenname und Code als eigene Kopie.
-
-Ausführlich steht das in `01_Anleitung_Reception.md`, Abschnitt 3a.
+Siehe [Einrichtung, Abschnitt 4](04_Einrichtung_und_Deployment.md#4-eine-änderung-veröffentlichen).
+Kurz: Push auf `main` veröffentlicht automatisch. Geht danach etwas nicht mehr,
+in Cloudflare unter **Deployments** beim letzten guten Stand «Rollback to this
+deployment» wählen.
 
 ---
 
-## 6. Grenzen und bekannte Schwächen
+## 6. Bekannte Grenzen
 
-Diese Punkte sind bekannt und bewusst in Kauf genommen. Sie gehören ins Gespräch, bevor jemand sie für einen Fehler hält.
+Bewusst in Kauf genommen. Begründungen in [Entscheide und Verlauf](05_Entscheide_und_Verlauf.md).
 
-1. **Flow C prüft weder Datum noch Uhrzeit serverseitig.** Die Regeln «nur am Tag des Mittagessens» und «nur bis 10:00 Uhr» setzt allein die Gästeseite durch. Wer die Schnittstelle direkt aufruft, kann eine Bestellung auch an einem anderen Tag absetzen. Die Aufrufadresse mit Signatur steht im Quelltext der öffentlich zugänglichen Gästeseite; sie ist damit für jeden lesbar, der die Seite öffnet. Für diesen Anwendungsfall, eine Menüwahl ohne schutzwürdige Daten, ist das vertretbar, aber es ist keine Sicherheitsgrenze. Eine serverseitige Prüfung von Datum und Uhrzeit in Flow C steht auf der Liste der offenen Punkte; der nötige Eingriff ist in `03_Technische_Dokumentation.md`, Abschnitt 7.1, beschrieben. Dasselbe gilt sinngemäss für Flow B: Er liefert Klassendaten an jeden, der einen gültigen Code kennt. Genau darauf beruht das öffentliche Kursblatt, siehe `05_Entscheide_und_Verlauf.md`, Abschnitt 5.
-2. **Die Aufteilung der Vorspeisenzeile ist textabhängig.** Flow B trennt das Lunchgate-Feld `P3` am Wort « oder ». Schreibt die Küche anders, landet die ganze Zeile im Suppe-Feld. Das fällt niemandem im System auf, es fällt erst auf dem gedruckten Blatt auf. Siehe Abschnitt 3.8.
-3. **Beim Löschen einer Klasse bleiben deren Bestellungen stehen.** Sie verlieren ihren Bezug und verschwinden aus jeder Ansicht, stehen aber weiter in der Liste «Bestellungen», bis der Aufräum-Flow sie nach 30 Tagen entfernt. Die Verwaltung warnt beim Löschen ausdrücklich davor. Der Aufräum-Flow könnte erweitert werden, sodass er verwaiste Bestellungen mit entfernt; das ist noch nicht umgesetzt.
-4. **Zugriff auf die Verwaltung muss bei Personalwechsel von Hand nachgeführt werden.** Ohne Entra ID P1 lassen sich nur einzelne Personen zuweisen, keine Gruppen. Es gibt keinen automatischen Abgleich mit einer Abteilung oder einer AD-Gruppe. Wer austritt, bleibt zugewiesen, bis jemand die Zuweisung entfernt.
-5. **Abhängigkeit von einem fremden CDN.** Anmeldung und QR-Code setzen voraus, dass `cdn.jsdelivr.net` erreichbar ist. Fällt der Dienst aus oder wird er im Netz blockiert, sind die beiden Seiten mit Anmeldung (`admin.html`, `menueblatt.html`) nicht benutzbar. Sie melden das im Klartext, statt leer zu bleiben. Die Gästeseite ist nicht betroffen: Sie lädt keine Bibliothek und funktioniert weiter. Das Kursblatt lädt und zeigt seine Angaben ebenfalls weiter, nur der QR-Code fehlt dann; der Gästelink darunter bleibt als Ersatz lesbar. Als Gegengewicht sind beide Bibliotheken auf feste Fassungen genagelt und mit Prüfsumme abgesichert; ein manipuliertes Auslieferungspaket würde nicht geladen.
-6. **Kein serverseitiger Filter.** Die Seiten holen ganze Listen und filtern im Browser, weil serverseitige Filter auf SharePoint-Listenspalten einen Index voraussetzen und sonst sporadisch fehlschlagen. Bei 30 Tagen Aufbewahrung sind das wenige hundert Einträge, das trägt problemlos. Würde die Aufbewahrung stark verlängert, müsste dieser Punkt neu bewertet werden.
-7. **Die Uhrzeit des Annahmeschlusses steht an zwei Stellen im Quellcode.** `KONFIG.annahmeschluss` in `frontend\konfig.js` gilt für die Admin-Seiten, `ANNAHMESCHLUSS` im Kopf von `frontend\index.html` für die Gästeseite. Die Gästeseite lädt `konfig.js` bewusst nicht, weil sie ohne Anmeldung auskommt. Wird die Zeit nur an einer Stelle geändert, widersprechen sich Kursblatt und Gästeseite. Siehe `03_Technische_Dokumentation.md`, Abschnitt 7.1.
-8. **Der dauerhafte Firmen-QR-Code setzt voraus, dass der Termin erfasst ist.** Er löst das Verteilen von Links und Blättern, nicht das Erfassen. Fehlt der Termin des Tages, zeigt der Code «Kein Kurs gefunden» statt der Menüwahl, siehe 3.5a. Bewusst in Kauf genommen wurde dabei zweierlei: Das Firmenblatt kann keine Essenszeit nennen, weil sie von Kurstag zu Kurstag wechselt, und der Code eines Termins mit Firmen-QR-Code wird beim Ändern des Datums neu gebildet — die einzige Stelle, an der ein einmal vergebener Code je wechselt. Begründung in `05_Entscheide_und_Verlauf.md`, Abschnitt 5g.
-9. **Pro Firma und Kurstag ist nur ein Termin mit Firmen-QR-Code möglich.** Der Code enthält den Kurstag und ist damit je Tag eindeutig; ein zweiter Kurs derselben Firma am selben Tag läuft über einen gewöhnlichen Zufallscode. Die Verwaltung prüft das beim Speichern und weist darauf hin. Die Prüfung läuft im Browser über die geladene Terminliste, nicht in SharePoint; theoretisch könnten zwei Personen gleichzeitig denselben Code anlegen. Praktisch fiele das sofort auf, weil beide Termine dieselbe Marke «Firmen-QR» und denselben Code trügen.
-10. **Die Gästeseite merkt sich die Bestellung nur lokal.** Sie speichert die abgesendete Wahl im `localStorage` des Geräts, damit die Bestätigung nach dem Neuladen wieder erscheint und die Wahl bearbeitet werden kann. Auf einem anderen Gerät oder in einem privaten Fenster ist diese Erinnerung weg; eine erneute Bestellung erzeugt dann einen zweiten Eintrag in der Liste. Doppelte Namen auf dem Menüblatt haben in der Regel diese Ursache.
+1. **Datum und 10-Uhr-Frist prüft nur der Browser**, nicht Flow C. Wer die
+   Schnittstelle direkt aufruft, könnte trotzdem bestellen. Für ein Mittagsmenü vertretbar.
+2. **Die Trennung Suppe/Salat hängt am Wort « oder »** in Lunchgate ([4.11](#411-tagesmenüs-fehlen-oder-stehen-falsch)).
+3. **Gelöschte Termine hinterlassen ihre Bestellungen** in SharePoint, bis der
+   Aufräum-Flow sie nach 30 Tagen entfernt.
+4. **Zugriff wird von Hand gepflegt**, bei jedem Personalwechsel.
+5. **Anmeldung und QR-Code brauchen `cdn.jsdelivr.net`.** Die Gästeseite nicht.
+6. **Die Gästeseite merkt sich die Bestellung nur auf dem Gerät** ([4.13](#413-bestellungen-fehlen-in-der-verwaltung)).
+7. **Der Firmen-QR-Code braucht trotzdem einen Termin pro Kurstag**, und pro
+   Firma und Tag ist nur einer möglich.
 
 ---
 
 ## 7. Eskalation
 
-### 7.1 Wenn nichts hilft
+**Wenn nichts hilft, in dieser Reihenfolge:**
 
-In dieser Reihenfolge vorgehen:
+1. Mit `?mock=1` eingrenzen ([3.1](#31-testmodus-mock1)).
+2. Mit zweitem Konto und zweitem Gerät gegenprüfen. Betrifft es nur eine Person,
+   liegt es an Berechtigung oder Browser.
+3. Nach einer Veröffentlichung: in Cloudflare auf den letzten guten Stand zurücksetzen.
+4. **Notbetrieb:** Die Küche braucht die Bestellungen, nicht die Webseite. In
+   SharePoint die Liste «Bestellungen» nach `KlasseCode` filtern und drucken.
+   Fällt alles aus: Papierblatt.
+5. Ticket eröffnen.
 
-1. **Eingrenzen mit `?mock=1`.** Trennt Anzeigeproblem von Datenproblem, siehe 4.1.
-2. **Zweites Konto und zweites Gerät.** Tritt der Fehler nur bei einer Person auf, ist es Berechtigung oder Browserprofil, nicht das System.
-3. **Deploy in Cloudflare Pages zurücksetzen.** Trat der Fehler nach einer Veröffentlichung auf, im Deploy-Verlauf auf den letzten funktionierenden Stand zurückgehen. Das ist der schnellste Weg zurück in den Betrieb.
-4. **Notbetrieb sicherstellen.** Die Küche braucht die Bestellungen, nicht die Webseite. Solange SharePoint erreichbar ist, lassen sich die Bestellungen einer Klasse direkt aus der Liste «Bestellungen» filtern (Spalte `KlasseCode`) und ausdrucken. Fällt alles aus, ist das Papierblatt als Rückfallebene weiterhin möglich.
-5. **Ticket eröffnen** mit den Angaben aus 7.2.
+**Ein Ticket enthält:** Code und Name des Termins · Zeitpunkt auf die Minute ·
+Konto (oder «Gästeseite») · Fehlermeldung wörtlich oder als Bildschirmfoto ·
+Browser und Gerät · betroffene Seite · ob es immer oder nur einmal auftritt.
 
-### 7.2 Was ein Ticket enthalten muss
-
-- **Klassencode** (8 Zeichen) und Name der Klasse. Bei einem Termin mit Firmen-QR-Code stattdessen der vollständige Code der Form `SCHLUESSEL-JJMMTT` sowie der Firmenschlüssel
-- **Zeitpunkt** mit Datum und Uhrzeit auf die Minute genau, damit sich der Flow-Lauf zuordnen lässt
-- **Konto**, mit dem gearbeitet wurde, oder der Hinweis, dass es die anonyme Gästeseite war
-- **Fehlermeldung im Wortlaut**, samt Überschrift der Fehlerkarte und einem allfälligen `AADSTS`-Code oder HTTP-Statuscode. Ein Bildschirmfoto der ganzen Seite ist besser als eine Umschreibung.
-- **Browser und Gerät**, zum Beispiel «Edge auf dem Arbeitsplatz-PC» oder «iPhone, Safari»
-- **Betroffene Seite**: Gästeseite, Verwaltung, Kursblatt oder Menüblatt
-- **Reproduzierbarkeit**: einmalig, bei jedem Versuch, nur bei einer Person, nur bei einer Klasse
-- Falls schon geprüft: Ergebnis des Aufrufs mit `?mock=1`
-
-### 7.3 Wer wofür
-
-| Fall | Nächste Stelle |
+| Thema | Zuständig |
 |---|---|
 | Anmeldung, Zuweisung, App-Registrierung | ICT-Services, Entra-ID-Administration |
 | Berechtigung auf die Site «Reception» | Besitzende der SharePoint-Site |
-| Flows, Verbindungen, Lunchgate-Anbindung | ICT-Services, Konto `powerplatform@campus-sursee.ch` |
-| Webseite, Veröffentlichung, CSP, Bibliotheken | ICT-Services |
+| Flows, Lunchgate-Anbindung | ICT-Services, Konto `powerplatform@campus-sursee.ch` |
+| Webseite, Veröffentlichung | ICT-Services |
 | Inhalt der Tagesmenüs | Restaurant BAULÜÜT |
-| Störung bei Cloudflare Pages, jsDelivr oder Lunchgate | fremder Dienst, Statusseite des Anbieters prüfen und abwarten |
+| Störung bei Cloudflare, jsDelivr oder Lunchgate | Statusseite des Anbieters prüfen, abwarten |

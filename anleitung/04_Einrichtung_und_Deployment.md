@@ -1,97 +1,57 @@
 # Einrichtung und Veröffentlichung
 
-**Stand:** 14.09.2026
+Wie das System eingerichtet ist und wie eine Änderung live geht. Für Störungen
+im laufenden Betrieb: [Betriebshandbuch](02_Betriebshandbuch_Support.md).
 
-Dieses Dokument beschreibt, wie das System eingerichtet wird und wie eine Änderung live geht. Wer nur eine bestehende Installation betreut, findet die häufigen Fälle in `02_Betriebshandbuch_Support.md`.
+**Stand:** 28.09.2026
 
 ---
 
 ## Inhalt
 
-1. [Was einmalig eingerichtet werden muss](#1-was-einmalig-eingerichtet-werden-muss)
+1. [Die Bausteine](#1-die-bausteine)
 2. [App-Registrierung in Entra ID](#2-app-registrierung-in-entra-id)
-3. [Zugang auf die Réception einschränken](#3-zugang-auf-die-réception-einschränken)
+3. [SharePoint-Listen](#3-sharepoint-listen)
 4. [Eine Änderung veröffentlichen](#4-eine-änderung-veröffentlichen)
-5. [Erstinbetriebnahme, Prüfliste](#5-erstinbetriebnahme-prüfliste)
-6. [Bibliotheksversion anheben](#6-bibliotheksversion-anheben)
-7. [Von Null wieder aufbauen](#7-von-null-wieder-aufbauen)
+5. [Bibliotheksversion anheben](#5-bibliotheksversion-anheben)
+6. [Von Null wieder aufbauen](#6-von-null-wieder-aufbauen)
 
 ---
 
-## 1. Was einmalig eingerichtet werden muss
+## 1. Die Bausteine
 
-| Baustein | Zustand | Wer |
+| Baustein | Wo | Link |
 |---|---|---|
-| SharePoint-Listen «Klassen» und «Bestellungen» | vorhanden | ICT |
-| SharePoint-Liste «Firmen» (Firmenverzeichnis) | **noch anzulegen**, siehe Kasten unten | ICT oder Réception |
-| Spalte `Teilnehmer` in der Liste «Klassen» | vorhanden (am 08.09.2026 über Graph zudem `Sprache` angelegt und `Menu1Preis`, `Menu2Preis`, `Bemerkung` entfernt; `Sprache` ist seit dem 09.09.2026 unbenutzt und darf bleiben oder weg) | ICT |
-| Power Automate Flows B, C und Aufräum-Flow | vorhanden und in Betrieb | ICT |
-| Cloudflare-Pages-Projekt auf `menue.campus-sursee.ch` | vorhanden | ICT |
-| App-Registrierung in Entra ID | angelegt, Client-ID eingetragen | ICT |
-| Benutzerzuweisung der Réception | **noch zu prüfen** | ICT |
-| Erste Veröffentlichung der neuen Seiten | **noch offen** | ICT |
+| Listen «Klassen», «Bestellungen», «Firmen» | SharePoint-Site «Reception» | [Websiteinhalte](https://campussursee.sharepoint.com/sites/hot-reze/_layouts/15/viewlsts.aspx) |
+| Flow B, Flow C, Aufräum-Flow | Power Automate, Konto `powerplatform@campus-sursee.ch` | [Flows](https://make.powerautomate.com/environments/Default-2553fb74-5dcc-4072-8bb5-399d18f72af9/flows) |
+| App «Menuewahl BAULUUT Admin» | Entra ID | [App-Registrierung](https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Overview/appId/9d344eb0-8af8-44d1-ad64-916d564e5975) |
+| Webseite auf `menue.campus-sursee.ch` | Cloudflare Pages, Projekt `baulueuet-menue` | [Cloudflare](https://dash.cloudflare.com/?to=/:account/pages/view/baulueuet-menue) |
+| Quellcode | GitHub | [Repository](https://github.com/CAMPUS-SURSEE/baulueuet-menue) |
 
-> **Vor dem Veröffentlichen der Fassung vom 04.09.2026: Spalte `Teilnehmer` anlegen.**
-> In der SharePoint-Liste «Klassen» eine Spalte vom Typ **Zahl** mit dem internen
-> Namen `Teilnehmer` erstellen, ohne Vorgabewert und nicht erforderlich. Sie nimmt
-> die erwartete Teilnehmeranzahl eines Termins auf.
->
-> Fehlt die Spalte, **liest** die Verwaltung weiter (`graph.js` fällt auf den Abruf
-> ohne Feldauswahl zurück und zeigt keinen Massstab), **speichern** lässt sich ein
-> Termin dann aber nicht mehr: Graph weist das unbekannte Feld ab. Die Spalte ist
-> deshalb anzulegen, bevor die neue Fassung live geht, nicht danach.
-
-> **Vor dem Veröffentlichen der Fassung vom 14.09.2026: Liste «Firmen» anlegen.**
-> Sie hält das Firmenverzeichnis für den dauerhaften Firmen-QR-Code. Nötig sind der
-> **Anzeigename** `Firmen` und eine einzelne Textspalte mit dem internen Namen
-> `Schluessel`; `Title` bringt SharePoint selbst mit und trägt den Firmennamen.
->
-> Zwei Wege führen zum Ziel:
->
-> 1. **Aus der Verwaltung heraus.** In `admin.html` auf den Reiter «Firmen» wechseln und
->    den Knopf «Liste jetzt anlegen» klicken. Die Seite legt Liste und Spalte über Graph
->    an. Das ist der einfachere Weg und braucht keine zusätzliche Berechtigung.
-> 2. **Von Hand in SharePoint.** Auf der Site «Reception» unter *Websiteinhalte* eine
->    leere Liste mit dem Namen `Firmen` erstellen und darin eine Spalte vom Typ
->    **Einzelne Textzeile** mit dem internen Namen `Schluessel` anlegen. Auf die
->    Schreibweise achten: gesucht wird der Anzeigename genau als «Firmen».
->
-> **Die Liste ist nicht zwingend.** Fehlt sie, läuft alles Bisherige unverändert weiter;
-> im Terminformular steht dann nur «Firma frei eingeben» zur Verfügung und der Reiter
-> «Firmen» zeigt die Karte mit dem Knopf zum Anlegen. Anders als bei der Spalte
-> `Teilnehmer` scheitert dadurch **kein** Speichern.
->
-> Die Listen-ID darf anschliessend in `frontend\konfig.js` unter `listeFirmen`
-> eingetragen werden. Bleibt der Wert leer, sucht die Verwaltung die Liste beim Start
-> einmal über ihren Anzeigenamen; das kostet einen zusätzlichen Graph-Aufruf je Sitzung
-> und ist sonst gleichwertig.
-
-> **Spalte `Sprache` wird seit der Fassung vom 09.09.2026 nicht mehr gebraucht.**
-> Die Fassung vom 08.09.2026 hatte sie verlangt; seit die Sprache beim Drucken des
-> Kursblatts gewählt wird statt am Termin, liest und schreibt die Verwaltung die
-> Spalte nicht mehr. Sie darf in der Liste stehen bleiben oder entfernt werden.
+Alle Kennungen, die die Webseite braucht, stehen in
+[`frontend/konfig.js`](../frontend/konfig.js). Die Gästeseite hat zusätzlich
+eigene Einträge im Kopf von [`frontend/index.html`](../frontend/index.html).
 
 ---
 
 ## 2. App-Registrierung in Entra ID
 
-Die Registrierung besteht bereits unter dem Namen **«Menuewahl BAULUUT Admin»** mit der Client-ID `9d344eb0-8af8-44d1-ad64-916d564e5975`. Die folgenden Schritte sind zum Nachvollziehen und zum Prüfen gedacht.
+Die Registrierung besteht bereits. Die Schritte dienen zum Prüfen und für einen
+Neuaufbau.
 
 ### 2.1 Anlegen
 
-1. `https://entra.microsoft.com` öffnen, als Administrator anmelden.
-2. **Identität, Anwendungen, App-Registrierungen, Neue Registrierung**
-3. Ausfüllen:
-   - **Name:** `Menuewahl BAULUUT Admin`
-   - **Unterstützte Kontotypen:** nur Konten in diesem Organisationsverzeichnis, einzelner Mandant
-   - **Umleitungs-URI:** Plattform **Single-Page-Anwendung (SPA)**, Wert `https://menue.campus-sursee.ch/admin` (ohne `.html`, Begründung in Abschnitt 2.2)
-4. Registrieren.
+1. [entra.microsoft.com](https://entra.microsoft.com) → **App-Registrierungen** → **Neue Registrierung**.
+2. Name `Menuewahl BAULUUT Admin`, nur Konten dieses Mandanten.
+3. Umleitungs-URI: Plattform **Single-Page-Anwendung (SPA)**, Wert
+   `https://menue.campus-sursee.ch/admin`.
 
-> Die Plattform muss **SPA** sein, nicht «Web». Nur bei SPA erlaubt Microsoft den Tokentausch direkt aus dem Browser. Bei falscher Einstellung erscheint nach der Anmeldung `AADSTS9002326`.
+> Die Plattform muss **SPA** sein, nicht «Web». Sonst scheitert die Anmeldung
+> mit `AADSTS9002326`.
 
 ### 2.2 Umleitungsadressen
 
-**Verwalten, Authentifizierung**, unter der Plattform *Single-Page-Anwendung* müssen diese Adressen stehen:
+Unter **Authentifizierung**, Plattform *Single-Page-Anwendung*:
 
 ```
 https://menue.campus-sursee.ch/admin
@@ -105,161 +65,150 @@ http://localhost:8123/menueblatt.html
 http://localhost:8123/kursblatt.html
 ```
 
-> **Wegen Cloudflare Pages nötig: die drei Adressen ohne `.html`.** Cloudflare Pages beantwortet `/admin.html` mit einer Umleitung auf `/admin`. Die Seite meldet sich immer auf der Adresse an, auf der sie tatsächlich läuft, also auf der Fassung ohne Endung. Fehlen diese drei Einträge, scheitert die Anmeldung mit `AADSTS50011`.
->
-> **Die Adressen mit `.html` bleiben trotzdem stehen.** Sie kosten nichts und decken den lokalen Betrieb sowie den Fall ab, dass die Seiten je wieder auf einem Hoster ohne diese Umleitung liegen.
->
-> **`termine` ist weggefallen.** Die Seite «Alle Termine» gibt es seit dem 04.09.2026 nicht mehr; ihr Inhalt steht jetzt in der linken Spalte von `admin.html`. Ein bereits eingetragener `termine`-Eintrag stört nicht und darf bei Gelegenheit entfernt werden.
->
-> **`kursblatt` bleibt in der Liste**, obwohl das Kursblatt seit dem 04.09.2026 im Normalfall ohne Anmeldung lädt. Auf seiner Fehlerkarte gibt es den Knopf «Mit Konto anmelden» als Rückfall, wenn Flow B nicht antwortet; ohne den Eintrag scheitert dieser Weg.
-
-Die `localhost`-Adressen dienen dem lokalen Testen und können weggelassen werden, wenn nie lokal getestet wird. Sie tragen weiterhin `.html`, weil `code\serve.ps1` die Dateien direkt ausliefert und nicht umleitet.
-
-Jede Seite meldet sich auf ihrer eigenen Adresse an, daher die getrennten Einträge. Abfragezeichenfolgen wie `?klasse=CODE` gehören **nicht** dazu; MSAL merkt sich die vollständige Adresse selbst und kehrt am Ende dorthin zurück.
-
-Speichern nicht vergessen.
+- **Die Adressen ohne `.html` sind die wichtigen.** Cloudflare leitet
+  `/admin.html` auf `/admin` um, und die Seite meldet sich dort an. Fehlen sie,
+  kommt `AADSTS50011`.
+- Die Fassungen mit `.html` schaden nicht und decken andere Hoster ab.
+- `localhost` braucht es nur für Tests auf dem eigenen PC.
+- `kursblatt` braucht es für den Notweg «Mit Konto anmelden».
+- Nie `?klasse=…` mit eintragen.
 
 ### 2.3 Berechtigungen
 
-**Verwalten, API-Berechtigungen, Berechtigung hinzufügen, Microsoft Graph, Delegierte Berechtigungen**
+**API-Berechtigungen** → Microsoft Graph → **Delegiert**:
 
 | Berechtigung | Wofür |
 |---|---|
-| `Sites.ReadWrite.All` | Klassen, Bestellungen und Firmen lesen und schreiben, dazu das Anlegen der Liste «Firmen» |
-| `User.Read` | Name der angemeldeten Person anzeigen, meist schon vorhanden |
+| `Sites.ReadWrite.All` | Listen lesen und schreiben, Liste «Firmen» anlegen |
+| `User.Read` | Namen der angemeldeten Person anzeigen |
 
-Danach **Administratorzustimmung für Campus Sursee erteilen**.
+Danach **Administratorzustimmung erteilen**.
 
-> *Delegiert* heisst: Das Token kann nur das, was die angemeldete Person in SharePoint ohnehin darf. Wer keinen Zugriff auf die Site «Reception» hat, bekommt über diese Seiten auch keinen. Es ist kein Generalschlüssel.
+### 2.4 Zugang auf die Réception beschränken
 
-### 2.4 Client-ID in der Webseite
+**Das ist der eigentliche Türsteher.** Ohne diesen Schritt könnte sich jede
+Person bei Campus Sursee anmelden.
 
-In `frontend\konfig.js` steht bereits:
+1. **Unternehmensanwendungen** → «Menuewahl BAULUUT Admin».
+2. **Eigenschaften** → **Zuweisung erforderlich = Ja**.
+3. **Benutzer und Gruppen** → die Personen der Réception hinzufügen.
 
-```js
-mandantId: "2553fb74-5dcc-4072-8bb5-399d18f72af9",
-clientId:  "9d344eb0-8af8-44d1-ad64-916d564e5975",
-```
-
-Nur falls je eine neue Registrierung angelegt wird, muss die Anwendungs-ID von deren Übersichtsseite hier ersetzt werden.
-
-Ebenfalls in `konfig.js` steht seit dem 14.09.2026:
-
-```js
-listeFirmen: "",
-```
-
-Das ist die ID der Liste «Firmen». Der Eintrag ist **wahlweise**: Bleibt er leer, sucht die Verwaltung die Liste beim Start über ihren Anzeigenamen «Firmen» und bietet an, sie anzulegen. Wer die ID einträgt, spart diesen zusätzlichen Aufruf. Eine falsche ID ist schlechter als eine leere: Sie führt zu einem Graph-Fehler «Liste oder Eintrag nicht gefunden» statt zur Karte mit dem Knopf «Liste jetzt anlegen».
-
-> Client-ID und Mandanten-ID stehen anschliessend im öffentlich lesbaren Quelltext. Das ist bei Single-Page-Anwendungen so vorgesehen und unbedenklich: Es sind Kennungen, keine Geheimnisse. Der Schutz kommt aus der Anmeldung und aus der Benutzerzuweisung im nächsten Abschnitt.
+Zusätzlich braucht jede Person Zugriff auf die SharePoint-Site «Reception».
 
 ---
 
-## 3. Zugang auf die Réception einschränken
+## 3. SharePoint-Listen
 
-**Das ist der eigentliche Türsteher.** Ohne diesen Schritt könnte sich jede Person im Mandanten an der Verwaltung anmelden.
+Die Spalten sind in der [Technischen Dokumentation](03_Technische_Dokumentation.md#3-datenmodell)
+beschrieben. Beim Anlegen zählt der **interne Spaltenname**; er muss genau
+stimmen, sonst findet `graph.js` die Daten nicht.
 
-1. **Identität, Anwendungen, Unternehmensanwendungen, `Menuewahl BAULUUT Admin`**
-2. **Eigenschaften, Zuweisung erforderlich = Ja**, speichern
-3. **Benutzer und Gruppen, Benutzer hinzufügen**, die Personen der Réception auswählen
+- **«Klassen»** und **«Bestellungen»**: von Hand anlegen, IDs in `konfig.js`
+  unter `listeKlassen` und `listeBestellungen` eintragen.
+- **«Firmen»**: am einfachsten in der Verwaltung, Reiter «Firmen», Knopf
+  **«Liste jetzt anlegen»**. Oder von Hand: Liste mit Namen `Firmen` und
+  Textspalte `Schluessel`. Die ID darf unter `listeFirmen` in `konfig.js`
+  stehen; leer ist auch erlaubt.
 
-Ohne Entra ID P1 lassen sich nur einzelne Personen zuweisen, keine Gruppen. Bei einer Handvoll Leuten ist das kein Problem, es **muss aber bei Personalwechsel nachgeführt werden**. Diese Aufgabe gehört in den Prozess für Ein- und Austritte.
-
-Wer nicht zugewiesen ist, erhält bei der Anmeldung `AADSTS50105`.
+> **Neue Spalte in «Klassen»?** Erst in SharePoint anlegen, dann die neue
+> Fassung der Webseite veröffentlichen. Sonst schlägt das Speichern fehl.
 
 ---
 
 ## 4. Eine Änderung veröffentlichen
 
-Cloudflare Pages ist an das Git-Repository `CAMPUS-SURSEE/baulueuet-menue` angebunden und veröffentlicht bei jedem Push auf `main` automatisch.
+Cloudflare Pages ist mit diesem Repository verbunden. **Jeder Push auf `main`
+geht automatisch live**, meist in unter einer Minute.
 
-1. Änderung lokal machen und mit `?mock=1` prüfen, siehe `03_Technische_Dokumentation.md`, Abschnitt 11.
-2. Committen und auf `main` pushen.
-3. In Cloudflare unter **Workers & Pages, `baulueuet-menue`, Deployments** verfolgen, bis der Eintrag «Success» heisst.
-4. Danach die Seite mit geleertem Zwischenspeicher aufrufen und kurz gegenprüfen.
+1. Änderung machen und lokal mit `?mock=1` prüfen
+   ([Lokal testen](03_Technische_Dokumentation.md#9-lokal-testen)).
+2. Auf `main` bringen (direkt oder über einen Pull Request).
+3. In [Cloudflare](https://dash.cloudflare.com/?to=/:account/pages/view/baulueuet-menue)
+   unter **Deployments** warten, bis «Success» steht.
+4. Seite mit Strg + F5 neu laden und kurz prüfen: Verwaltung öffnen, Termin
+   wählen, Kursblatt und Menüblatt öffnen, einen Gästelink testen.
 
-Der ausgelieferte Ordner steht in `wrangler.toml` im Wurzelverzeichnis:
+**Etwas ist kaputt?** In Cloudflare unter **Deployments** beim letzten guten
+Stand über das Menü «…» **Rollback to this deployment** wählen. Danach den
+Fehler im Repository beheben, sonst bringt der nächste Push ihn zurück.
 
-| Einstellung | Wert | Warum |
+**Vorschau:** Pull Requests und andere Zweige erhalten bei Cloudflare eine
+eigene Vorschau-Adresse (`….pages.dev`). Dort funktioniert nur `?mock=1`, weil
+diese Adressen nicht in Entra ID eingetragen sind.
+
+**Einstellungen** stehen in [`wrangler.toml`](../wrangler.toml):
+
+| Einstellung | Wert | Bedeutung |
 |---|---|---|
-| `pages_build_output_dir` | `frontend` | nur dieser Ordner geht ins Netz, `anleitung`, `code` und `Vorlagen` bleiben aussen vor |
-| `name` | `baulueuet-menue` | muss gleich lauten wie das Projekt in Cloudflare Pages, sonst bricht der Build ab |
-| `compatibility_date` | Datum | von Cloudflare in dieser Datei erwartet, ohne Wirkung, solange es keine Pages Functions gibt |
+| `name` | `baulueuet-menue` | muss gleich heissen wie das Projekt in Cloudflare |
+| `pages_build_output_dir` | `frontend` | nur dieser Ordner geht ins Netz |
 
-Diese Datei hat Vorrang vor den entsprechenden Feldern in der Cloudflare-Oberfläche; dort sind sie nur noch lesbar. Wird sie geändert, gilt die Änderung ab dem nächsten Deploy.
+In der Cloudflare-Oberfläche bleiben **Build command** und **Root directory**
+leer. **Rocket Loader** und ähnliche Skript-Optimierungen müssen ausgeschaltet
+bleiben, sonst stimmen die Prüfsummen der Bibliotheken nicht mehr.
 
-Zwei Felder stehen weiterhin nur in der Oberfläche, unter **Settings, Build**:
+Sicherheitsheader stehen nur in [`frontend/_headers`](../frontend/_headers),
+nicht in `wrangler.toml`.
 
-| Feld | Wert |
-|---|---|
-| Build command | leer |
-| Root directory | leer, also `/` |
-
-> **Nichts nachbearbeiten lassen.** Die Seiten binden zwei Bibliotheken mit fester Version und Prüfsumme (`integrity="sha384-..."`) ein. Cloudflare Pages liefert die Dateien unverändert aus; wichtig ist nur, dass für die Domäne **Rocket Loader** und ähnliche Skriptoptimierungen ausgeschaltet bleiben, sonst verweigert der Browser das Laden.
-
-> **Ohne Git veröffentlichen** geht weiterhin: im Projekt **Create deployment, Upload assets**, dort den Ordner `frontend` hochladen. Dabei muss immer der **ganze Ordner** hochgeladen werden, nicht einzelne Dateien; Cloudflare ersetzt den Inhalt vollständig. Dieser Weg umgeht das Repository und sollte die Ausnahme bleiben, weil der veröffentlichte Stand danach nicht mehr dem Repository entspricht.
-
-Seit der Anbindung an Git ist dieses Repository der massgebende Stand: Was in `frontend\` liegt, ist das, was im Netz steht. Ein separates Arbeitsverzeichnis, aus dem nachträglich zurückgespielt werden müsste, gibt es nicht mehr.
+> **Ohne Git** lässt sich im Notfall der ganze Ordner `frontend` in Cloudflare
+> unter **Create deployment → Upload assets** hochladen. Danach entspricht der
+> Stand im Netz aber nicht mehr dem Repository; darum die Ausnahme.
 
 ---
 
-## 5. Erstinbetriebnahme, Prüfliste
+## 5. Bibliotheksversion anheben
 
-- [ ] Cloudflare Pages mit dem Git-Repository verbunden, erster Deploy aus `main` ist «Success»
-- [ ] `https://menue.campus-sursee.ch/admin.html` öffnet sich, landet auf `/admin` und die Anmeldung gelingt
-      *Dieser eine Schritt belegt auf einmal, dass Umleitungsadresse, Graph-Berechtigung und Benutzerzuweisung stimmen.*
-- [ ] Spalte `Teilnehmer` in der Liste «Klassen» vorhanden (Zahl, darf leer sein)
-- [ ] Liste «Firmen» auf der Site «Reception» vorhanden, mit der Textspalte `Schluessel`; der Reiter «Firmen» in `admin.html` zeigt das Verzeichnis und nicht die Karte «Liste jetzt anlegen»
-- [ ] Testfirma angelegt; der Schlüssel entstand automatisch und hat die Form `NAME-XXXX`
-- [ ] Testtermin mit dieser Firma aus dem Klappfeld angelegt: Der Code lautet `SCHLUESSEL-JJMMTT` und die Zeile trägt die Marke «Firmen-QR»
-- [ ] Firmenblatt geöffnet und gedruckt: ohne Kurstitel, Datum und Essenszeit, QR-Code zeigt auf `…/?firma=SCHLUESSEL`
-- [ ] Diesen Link an einem Tag **ohne** Termin dieser Firma geöffnet: Es erscheint «Kein Kurs gefunden»; am Tag des Testtermins erscheint die Menüwahl
-- [ ] Testtermin angelegt, Zugangscode wurde automatisch erzeugt
-- [ ] Beim Testtermin «Erwartete Teilnehmeranzahl» gesetzt; die Liste links zeigt «0 / *n* Best.», danach das Feld wieder geleert und gespeichert
-- [ ] In den Details des Testtermins steht die kleine Zeile «Erstellt … von …» mit dem eigenen Namen
-- [ ] Gästelink kopiert, Gästeseite zeigt den Kurs und die Tagesmenüs
-- [ ] Eine Testbestellung abgegeben, sie erscheint in der Verwaltung
-- [ ] **Kursblatt-Adresse in einem privaten Fenster geöffnet**, ohne Anmeldung: Das Blatt erscheint samt QR-Code
-- [ ] Klappfeld neben «Kursblatt drucken» auf «FR» gestellt und geklickt: Blatt ist französisch, die Adresse endet auf `&fr`, der Link unter dem QR-Code ebenfalls; Gästeseite über diesen Link ist französisch, und die Schalter «DE / EN / FR» oben auf der Gästeseite stellen sie um
-- [ ] in `admin.html` steht der Testtermin unter seinem Kurstag; «Filter» blendet zukünftige und vergangene Termine ein
-- [ ] Kursblatt gedruckt, **QR-Code mit einer echten Handykamera gescannt** und der Link führt zum richtigen Kurs
-- [ ] Menüblatt gedruckt, Namen, Vorspeisen, Hauptgänge und Bemerkungen stimmen
-- [ ] Ein Konto **ohne** Zuweisung ausprobiert, die Anmeldung wird abgelehnt
-- [ ] Réception eingewiesen, `01_Anleitung_Reception.md` abgegeben
-- [ ] Alte Power App «Menuewahl BAULUUT Admin» gelöscht oder deaktiviert, damit niemand parallel damit arbeitet
+Nur bei einer Sicherheitsmeldung oder einem konkreten Fehler. Sonst ist die
+feste Version die sicherere Wahl.
 
----
-
-## 6. Bibliotheksversion anheben
-
-Die Seiten laden zwei Bibliotheken von `cdn.jsdelivr.net`, festgenagelt auf eine Version und abgesichert mit einer Prüfsumme.
-
-| Bibliothek | Version | Eingebunden in |
+| Bibliothek | Version | In |
 |---|---|---|
 | `@azure/msal-browser` | 4.30.0 | `admin.html`, `menueblatt.html`, `kursblatt.html` |
 | `qrcode-generator` | 1.4.4 | `kursblatt.html` |
 
-Vorgehen beim Anheben:
-
-1. Neue Adresse zusammensetzen, zum Beispiel
+1. Neue Adresse bilden, zum Beispiel
    `https://cdn.jsdelivr.net/npm/@azure/msal-browser@4.31.0/lib/msal-browser.min.js`
 2. Prüfsumme berechnen:
    ```
    curl -sL <URL> | openssl dgst -sha384 -binary | openssl base64 -A
    ```
-3. In **allen** betroffenen Dateien sowohl die Adresse als auch den Wert im `integrity`-Attribut ersetzen. Beides muss zusammenpassen, sonst verweigert der Browser das Laden und die Seite meldet, die Anmeldebibliothek sei nicht ladbar.
-4. Mit `?mock=1` und danach mit echter Anmeldung prüfen, erst dann veröffentlichen.
+3. In **allen** betroffenen Dateien Adresse **und** `integrity="sha384-…"`
+   ersetzen. Passen sie nicht zusammen, lädt der Browser die Bibliothek nicht.
+4. Mit `?mock=1`, dann mit echter Anmeldung prüfen, dann veröffentlichen.
 
 ---
 
-## 7. Von Null wieder aufbauen
+## 6. Von Null wieder aufbauen
 
-Falls die Webseite je vollständig neu aufgesetzt werden muss:
+1. **SharePoint:** Listen nach [Abschnitt 3](#3-sharepoint-listen) anlegen, IDs
+   in `konfig.js` eintragen.
+2. **Power Automate:** Flow B, Flow C und den Aufräum-Flow neu bauen
+   ([Technische Dokumentation, Abschnitt 6](03_Technische_Dokumentation.md#6-power-automate-flows)).
+   Neue Adressen in `konfig.js`, im Kopf von `index.html` **und** in
+   `frontend/_headers` (`connect-src`) eintragen.
+3. **Entra ID:** nach [Abschnitt 2](#2-app-registrierung-in-entra-id).
+   Neue Client-ID in `konfig.js`.
+4. **Cloudflare Pages:** neues Projekt aus dem Repository, Vorlage «None»,
+   Build command leer. Projektname wie `name` in `wrangler.toml`. Unter
+   **Custom domains** `menue.campus-sursee.ch` verbinden.
+5. Prüfliste unten abarbeiten.
 
-1. **SharePoint:** Listen «Klassen» und «Bestellungen» mit den Spalten aus `03_Technische_Dokumentation.md`, Abschnitt 4, einschliesslich `Teilnehmer`. Die internen Feldnamen müssen genau stimmen, sonst greift `graph.js` ins Leere. Neue Listen-IDs in `konfig.js` eintragen. Dazu die Liste «Firmen» mit der Textspalte `Schluessel`, entweder von Hand oder aus der Verwaltung heraus über den Reiter «Firmen»; ihre ID gehört wahlweise unter `listeFirmen`. Ohne sie fehlt nur das Firmenverzeichnis, die Termine laufen weiter. **Achtung:** Aus einem alten Bestand übernommene Termine mit einem Code der Form `SCHLUESSEL-JJMMTT` bleiben gültig, ihre Firma muss aber im Verzeichnis neu erfasst werden — und sie bekommt dabei einen anderen Schlüssel. Gedruckte Firmenblätter sind nach einem Neuaufbau des Verzeichnisses also neu zu drucken.
-2. **Power Automate:** Flow B und Flow C neu bauen, Aufbau und Lunchgate-Anbindung siehe `03_Technische_Dokumentation.md`, Abschnitt 7. Neue Aufruf-Adressen in `konfig.js` und im Kopf von `index.html` eintragen. Den Aufräum-Flow nicht vergessen.
-3. **Entra ID:** App-Registrierung nach Abschnitt 2 dieses Dokuments.
-4. **Cloudflare Pages:** neues Projekt aus dem Git-Repository anlegen, Framework-Vorlage «None», Build command leer lassen. Der ausgelieferte Ordner kommt aus `wrangler.toml`; der Projektname muss dem Feld `name` darin entsprechen. Anschliessend unter **Custom domains** die Domäne `menue.campus-sursee.ch` verbinden.
-5. Prüfliste aus Abschnitt 5 abarbeiten.
+> Wird das **Firmenverzeichnis** neu aufgebaut, bekommen die Firmen neue
+> Schlüssel. Alle gedruckten Firmenblätter müssen dann neu gedruckt werden.
 
-Der vollständige Quellcode liegt in `frontend\`. Er enthält keine Abhängigkeit zu einem Bauprozess: Was dort liegt, ist genau das, was ausgeliefert wird.
+### Prüfliste
+
+- [ ] [/admin](https://menue.campus-sursee.ch/admin) öffnet sich und die Anmeldung
+      gelingt. *Das belegt auf einmal Umleitungsadresse, Berechtigung und Zuweisung.*
+- [ ] Ein Konto **ohne** Zuweisung wird abgelehnt.
+- [ ] Testtermin anlegen: Code entsteht, die Zeile «Erstellt … von …» zeigt den eigenen Namen.
+- [ ] Gästelink öffnen: Kurs und Tagesmenüs erscheinen. Testbestellung abgeben;
+      sie erscheint in der Verwaltung.
+- [ ] Kursblatt-Link **im privaten Fenster** öffnen: Blatt erscheint ohne Anmeldung.
+- [ ] Kursblatt auf «FR» öffnen: Blatt und QR-Code-Link sind französisch.
+- [ ] Kursblatt drucken und den QR-Code **mit einem echten Handy** scannen.
+- [ ] Menüblatt drucken: Namen, Menüs und Bemerkungen stimmen.
+- [ ] Reiter «Firmen» zeigt das Verzeichnis. Testfirma anlegen, Termin mit ihr
+      anlegen (Code `SCHLUESSEL-JJMMTT`, Marke «Firmen-QR»), Firmenblatt drucken.
+- [ ] Firmen-Link an einem Tag **ohne** Termin öffnen: «Kein Kurs gefunden».
+- [ ] Réception eingewiesen, [Anleitung](01_Anleitung_Reception.md) abgegeben.

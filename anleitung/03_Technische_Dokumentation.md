@@ -107,6 +107,7 @@ steht «Termin».
 | `Firma` | Text | Auftraggeber |
 | `Datum` | Datum | Kurstag (siehe [Datumsfalle](06_Hinweise_Quellcode.md#die-fallen-im-code)) |
 | `Essenszeit` | Text | `HH:MM` |
+| `Annahmeschluss` | Text | eigene Frist der Menüwahl, `HH:MM`. Leer heisst Standard 10:00 |
 | `Code` | Text | Zugangscode: acht Zufallszeichen (`M2VJ8KWS`) oder bei einem Firmen-Termin `SCHLUESSEL-JJMMTT` (`SORBA-K7M2-260914`) |
 | `Status` | Auswahl | `offen` oder `geschlossen`. Die Verwaltung setzt beim Anlegen `offen` und fasst die Spalte danach nicht mehr an |
 | `Teilnehmer` | Zahl | erwartete Teilnehmeranzahl. Leer heisst «unbekannt», nicht 0 |
@@ -231,7 +232,7 @@ Die Aufrufadressen (mit Signatur) stehen in `konfig.js` und im Kopf von
 
 ```json
 {"ok":true,"offen":true,"klasse":"…","firma":"…","datum":"2026-08-28",
- "datumText":"Freitag, 28.08.2026","essenszeit":"12:00",
+ "datumText":"Freitag, 28.08.2026","essenszeit":"12:00","annahmeschluss":"10:15",
  "suppe":"…","salat":"…","menu1":"…","menu2":"…","dessert":"…"}
 ```
 
@@ -276,19 +277,26 @@ gespeichert. Die Réception wählt sie beim Öffnen des Kursblatts; der QR-Code
 Menüblatt für die Küche bleiben deutsch. Die Texte stehen je Seite im Objekt
 `TEXTE` mit den Schlüsseln `de`, `fr`, `en`.
 
-### 7.3 Annahmeschluss 10:00 Uhr
+### 7.3 Annahmeschluss (Standard 10:00 Uhr)
 
-Die Gästeseite lässt Bestellen und Ändern nur bis 10:00 Uhr am Kurstag zu. Sie
-prüft beim Laden, beim Anzeigen der Bestätigung und nochmals beim Absenden; ein
-Timer schaltet eine offene Seite um 10:00 von selbst um.
+Die Gästeseite lässt Bestellen und Ändern nur bis zum Annahmeschluss am Kurstag
+zu. Sie prüft beim Laden, beim Anzeigen der Bestätigung und nochmals beim
+Absenden; ein Timer schaltet eine offene Seite zu dieser Zeit von selbst um.
+
+**Welche Zeit gilt:** Standard ist 10:00. Ein Termin kann in der Spalte
+`Annahmeschluss` eine eigene Zeit (`HH:MM`) tragen; die Verwaltung setzt sie im
+Feld «Menüwahl bis». Leer heisst Standard. Flow B gibt die Spalte als
+`annahmeschluss` weiter; fehlt das Feld oder ist es ungültig, gilt der
+Standard. Das Firmenblatt gehört zu keinem Termin und nennt deshalb immer den
+Standard.
 
 - Die Prüfung läuft **im Browser**, nicht in Flow C. Das genügt für den Zweck
   (verlässliche Zahlen für die Küche). Soll die Frist hart gelten, müsste Flow C
   vor dem Speichern die Uhrzeit prüfen und mit HTTP 403 antworten; die
   Gästeseite zeigt dann bereits «Bestellung geschlossen».
 - **Die Verwaltung kennt keine Frist.** Sie schreibt direkt über Graph.
-- Die Stunde steht an **zwei Stellen**: `annahmeschluss` in `konfig.js` und
-  `ANNAHMESCHLUSS` in `index.html`.
+- Der Standard steht an **zwei Stellen**: `annahmeschluss` in `konfig.js` und
+  `ANNAHMESCHLUSS_STANDARD` in `index.html`.
 
 ### 7.4 Dauerhafter Firmen-QR-Code
 
@@ -368,7 +376,8 @@ jede Seite Beispieldaten, ohne Anmeldung und ohne Netz:
 | `/admin.html?mock=1` | Verwaltung mit Beispielterminen und zwei Firmen; Anlegen, Ändern, Löschen funktionieren im Speicher |
 | `/index.html?mock=1` | Gästeseite |
 | `/index.html?mock=1&falschertag=1` | Gästeseite am falschen Tag |
-| `/index.html?mock=1&spaet=1` bzw. `&spaet=0` | nach bzw. vor 10:00 Uhr |
+| `/index.html?mock=1&spaet=1` bzw. `&spaet=0` | nach bzw. vor dem Annahmeschluss |
+| `/index.html?mock=1&bis=10:15` | Termin mit eigener Frist (auch beim Kursblatt) |
 | `/index.html?mock=1&keinkurs=1` | Firmen-QR-Code ohne Termin: «Kein Kurs gefunden» |
 | `/kursblatt.html?mock=1` | Kursblatt |
 | `/kursblatt.html?firma=SORBA-K7M2&name=SORBA` | Firmenblatt (braucht kein `mock`) |

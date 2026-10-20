@@ -19,8 +19,9 @@ flowchart LR
    entsteht automatisch ein Zugangscode, zum Beispiel `M2VJ8KWS`.
 2. **Der Kurs erhält einen Link oder ein Blatt mit QR-Code.** Niemand braucht
    ein Konto oder eine App.
-3. **Die Teilnehmenden wählen am Kurstag bis 10:00 Uhr** Vorspeise, Hauptgang
-   und geben Allergien an. Danach nimmt die Réception Änderungen entgegen.
+3. **Die Teilnehmenden wählen am Kurstag bis 10:00 Uhr** (pro Termin anpassbar)
+   Vorspeise und Hauptgang und geben Allergien an. Danach nimmt die Réception
+   Änderungen entgegen.
 4. **Die Réception druckt das Menüblatt** mit allen Bestellungen für die Küche.
 
 Firmen, die oft am Campus sind, können einen **dauerhaften QR-Code** bekommen,

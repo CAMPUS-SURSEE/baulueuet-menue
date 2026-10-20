@@ -90,7 +90,8 @@ SharePoint und ohne Flows.
   [menueblatt?mock=1](https://menue.campus-sursee.ch/menueblatt?mock=1) ·
   [?mock=1](https://menue.campus-sursee.ch/?mock=1)
 - Gästeseite in Sonderlagen: `&falschertag=1` (falscher Tag), `&spaet=1` (nach
-  10 Uhr), `&keinkurs=1` (Firmen-QR-Code ohne Termin)
+  Annahmeschluss), `&keinkurs=1` (Firmen-QR-Code ohne Termin), `&bis=10:15`
+  (Termin mit eigener Frist; geht auch beim Kursblatt)
 
 **So trennt man Anzeige- von Datenproblemen:** Sieht die Seite im Testmodus
 richtig aus, im Echtbetrieb aber nicht, liegt es an Daten, Berechtigungen, Flows
@@ -238,15 +239,21 @@ oder die Uhr am Handy ist falsch gestellt.
 
 ### 4.8 Gast sieht «Menüwahl geschlossen» oder «Änderungen nicht mehr möglich»
 
-Gewollt: Nach 10:00 Uhr kann niemand mehr selbst bestellen oder ändern. Die
-Réception erfasst oder ändert die Bestellung in der Verwaltung, dort gilt keine
-Frist.
+Gewollt: Nach 10:00 Uhr kann niemand mehr selbst bestellen oder ändern. Hat
+der Termin unter «Menüwahl bis» eine eigene Zeit, gilt diese. Die Réception
+erfasst oder ändert die Bestellung in der Verwaltung, dort gilt keine Frist.
 
-Erscheint die Meldung **vor** 10:00 Uhr:
+Erscheint die Meldung **vor** dieser Zeit:
 
 1. Uhrzeit am Handy prüfen (die Frist wird im Browser geprüft).
-2. Tritt es auf mehreren Geräten mit richtiger Uhrzeit auf: Wert
-   `ANNAHMESCHLUSS` in `frontend/index.html` prüfen, er muss `10` sein.
+2. In der Verwaltung den Termin öffnen: Steht unter der Essenszeit «Menüwahl
+   bis …», gilt diese Zeit. Sonst gilt 10:00.
+3. Eigene Zeit gesetzt, aber die Gästeseite nennt 10:00: Antwort von Flow B
+   prüfen (Netzwerkanalyse, [3.2](#32-browser-konsole-und-netzwerkanalyse-f12)), sie muss `annahmeschluss`
+   enthalten.
+4. Tritt es auf mehreren Geräten mit richtiger Uhrzeit auf: Wert
+   `ANNAHMESCHLUSS_STANDARD` in `frontend/index.html` prüfen, er muss `"10:00"`
+   sein.
 
 ### 4.9 Kursblatt verlangt eine Anmeldung oder ist «nicht abrufbar»
 
@@ -374,7 +381,7 @@ deployment» wählen.
 
 Bewusst in Kauf genommen. Begründungen in [Entscheide und Verlauf](05_Entscheide_und_Verlauf.md).
 
-1. **Datum und 10-Uhr-Frist prüft nur der Browser**, nicht Flow C. Wer die
+1. **Datum und Annahmeschluss prüft nur der Browser**, nicht Flow C. Wer die
    Schnittstelle direkt aufruft, könnte trotzdem bestellen. Für ein Mittagsmenü vertretbar.
 2. **Die Trennung Suppe/Salat hängt am Wort « oder »** in Lunchgate ([4.11](#411-tagesmenüs-fehlen-oder-stehen-falsch)).
 3. **Gelöschte Termine hinterlassen ihre Bestellungen** in SharePoint, bis der

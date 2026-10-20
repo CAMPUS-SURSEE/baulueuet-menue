@@ -436,6 +436,7 @@
   .detail-kopf .d-datum { font-weight: 500; font-size: 0.95rem; margin-top: 10px; }
   .detail-kopf .d-zeit { color: var(--grau); font-size: 0.9rem; }
   .detail-kopf .d-erwartet { color: var(--grau); font-size: 0.9rem; }
+  .detail-kopf .d-frist { color: var(--grau); font-size: 0.9rem; }
 
   /* Wer wann angelegt und zuletzt geändert hat. Bewusst sehr klein: die
      Angabe wird selten gebraucht, soll aber ohne Umweg über SharePoint
@@ -802,6 +803,7 @@
             <div class="d-firma" id="d-firma"></div>
             <div class="d-datum" id="d-datum"></div>
             <div class="d-zeit" id="d-zeit"></div>
+            <div class="d-frist" id="d-frist" style="display:none"></div>
             <div class="d-erwartet" id="d-erwartet"></div>
             <div class="spur" id="d-spur"></div>
           </div>
@@ -876,6 +878,10 @@
 
             <label class="feldlabel" for="f-zeit">Essenszeit</label>
             <input type="time" id="f-zeit">
+
+            <label class="feldlabel" for="f-annahmeschluss">Menüwahl bis</label>
+            <input type="time" id="f-annahmeschluss">
+            <div class="feldhinweis" id="f-annahmeschluss-hinweis"></div>
 
             <label class="feldlabel" for="f-erwartet">Erwartete Teilnehmeranzahl</label>
             <input type="number" id="f-erwartet" min="0" max="999" step="1"
@@ -1070,7 +1076,7 @@ function mockBauen() {
       geaendert: stempel(4, 11), geaendertVon: "Martin Kaufmann" },
     { id: "3", titel: "Polierkurs Modul 4", firma: "Implenia Schweiz AG",
       datum: tagVerschoben(0), essenszeit: "12:15", code: "M2VJ8KWS",
-      status: "offen", erwartet: 18,
+      annahmeschluss: "10:30", status: "offen", erwartet: 18,
       erstellt: stempel(11, 8), erstelltVon: "Vreni Bühler",
       geaendert: stempel(1, 16), geaendertVon: "Vreni Bühler" },
     /* Zwei Termine am selben Tag, damit im Mock-Modus zu sehen ist, wie sich
@@ -1189,6 +1195,7 @@ function mockBauen() {
         firma: daten.firma || "",
         datum: daten.datum || "",
         essenszeit: daten.essenszeit || "",
+        annahmeschluss: daten.annahmeschluss || "",
         code: daten.code || "",
         status: daten.status || "offen",
         erwartet: Number(daten.erwartet) || 0,
@@ -1205,7 +1212,7 @@ function mockBauen() {
       if (!k) throw new Error("Klasse nicht gefunden (Mock).");
       /* «code» steht hier mit, obwohl er sonst beim Ändern nie mitkommt: bei
          einem Firmen-Termin wird er mit dem Datum neu gebildet. */
-      ["titel", "firma", "datum", "essenszeit", "status", "code"].forEach(f => {
+      ["titel", "firma", "datum", "essenszeit", "annahmeschluss", "status", "code"].forEach(f => {
         if (daten[f] !== undefined) k[f] = daten[f];
       });
       if (daten.erwartet !== undefined) k.erwartet = Number(daten.erwartet) || 0;
@@ -1614,6 +1621,11 @@ function ansichtKopfZeichnen() {
   el("d-datum").textContent = Hilfe.datumText(k.datum) || "ohne Datum";
   el("d-zeit").textContent = k.essenszeit ? "Mittagessen um " + k.essenszeit + " Uhr" : "";
 
+  /* Nur eine abweichende Frist wird erwähnt; der Standard versteht sich. */
+  const frist = el("d-frist");
+  frist.textContent = k.annahmeschluss ? "Menüwahl bis " + k.annahmeschluss + " Uhr" : "";
+  frist.style.display = k.annahmeschluss ? "block" : "none";
+
   const erwartet = el("d-erwartet");
   erwartet.textContent = k.erwartet ? "Erwartete Teilnehmeranzahl: " + k.erwartet : "";
   erwartet.style.display = k.erwartet ? "block" : "none";
@@ -1849,6 +1861,12 @@ function formularOeffnen(klasse) {
   el("f-datum").value = klasse ? (klasse.datum || "") : Hilfe.heute();
   firmenWahlFuellen(klasse);
   el("f-zeit").value = klasse ? (klasse.essenszeit || "") : "12:00";
+  /* Leer heisst Standard; das Feld zeigt dann den Standard nur als Hinweis,
+     damit ein Speichern ohne Änderung keine eigene Frist anlegt. */
+  el("f-annahmeschluss").value = klasse ? (klasse.annahmeschluss || "") : "";
+  el("f-annahmeschluss-hinweis").textContent = "Leer lassen für den Standard ("
+    + Hilfe.annahmeschlussStandard() + " Uhr). Bis dahin wählen die Teilnehmenden "
+    + "am Kurstag selbst, danach nur noch über die Réception.";
   el("f-erwartet").value = (klasse && klasse.erwartet) ? String(klasse.erwartet) : "";
 
   el("btn-speichern").textContent = klasse ? "Änderungen speichern" : "Termin speichern";
@@ -1898,6 +1916,18 @@ async function formularSpeichern(ereignis) {
     }
   }
 
+  /* Eigene Frist: leer heisst Standard. Nach dem Mittagessen wäre sie
+     sinnlos, das ist fast sicher ein Tippfehler. */
+  const annahmeschluss = Hilfe.zeitNormieren(el("f-annahmeschluss").value);
+  const essenszeit = Hilfe.zeitNormieren(el("f-zeit").value);
+  if (annahmeschluss && essenszeit && annahmeschluss > essenszeit) {
+    fehlerfeld.textContent = "Menüwahl bis: die Zeit liegt nach der Essenszeit ("
+      + essenszeit + " Uhr).";
+    fehlerfeld.style.display = "block";
+    el("f-annahmeschluss").focus();
+    return;
+  }
+
   /* Der Firmenname kommt aus dem Textfeld, nicht aus dem Verzeichnis: bei
      einer Wahl im Klappfeld hat `firmenWahlAnwenden()` ihn dort bereits
      eingesetzt, bei einem bestehenden Termin steht dort weiterhin der Name,
@@ -1910,6 +1940,13 @@ async function formularSpeichern(ereignis) {
     essenszeit: el("f-zeit").value,
     erwartet: erwartet
   };
+
+  /* Nur schreiben, was sich geändert hat: so bleibt ein neuer Termin ohne
+     eigene Frist ganz ohne Wert in der Spalte. */
+  const bisherFrist = bearbeiteId
+    ? ((alleKlassen.find(k => String(k.id) === String(bearbeiteId)) || {}).annahmeschluss || "")
+    : "";
+  if (annahmeschluss !== bisherFrist) satz.annahmeschluss = annahmeschluss;
 
   /* ---- Code des Termins ----
      Zielschlüssel ist die Wahl im Klappfeld, alter Schlüssel der des

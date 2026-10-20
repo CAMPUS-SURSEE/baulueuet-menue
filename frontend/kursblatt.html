@@ -425,7 +425,8 @@ function blattdaten(klasse) {
     klasse:     klasse.titel,
     firma:      klasse.firma,
     datum:      klasse.datum,
-    essenszeit: klasse.essenszeit
+    essenszeit: klasse.essenszeit,
+    annahmeschluss: klasse.annahmeschluss
   };
 }
 
@@ -450,7 +451,7 @@ async function ladeKlasse(mitKonto) {
     let daten;
     if (mock) {
       await new Promise(r => setTimeout(r, 300));
-      daten = MOCK_DATEN;
+      daten = Object.assign({}, MOCK_DATEN, { annahmeschluss: params.get("bis") || "" });
     } else if (mitKonto) {
       await Auth.anmeldungSicherstellen();
       const klasse = await Graph.klasseNachCode(code);
@@ -479,7 +480,7 @@ async function ladeKlasse(mitKonto) {
 
     qrZeichnen(Hilfe.gastLinkMitSprache(code || "MOCK", sprache));
 
-    el("frist-text").textContent = T.frist(Hilfe.annahmeschlussText());
+    el("frist-text").textContent = T.frist(Hilfe.annahmeschlussText(daten));
 
     document.title = T.dokument + " " + (daten.klasse || "");
     zeige("blatt");

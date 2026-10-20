@@ -230,18 +230,30 @@ const Hilfe = (function () {
     return gastLink(code) + spracheZusatz(sprache);
   }
 
-  /* Annahmeschluss: am Kurstag bis KONFIG.annahmeschluss (Stunde, lokal).
-     Danach ist die Menüwahl geschlossen und Änderungen laufen über die
-     Réception. Die Zeit steht in konfig.js, damit sie sich an einer Stelle
-     ändern lässt. `index.html` kennt konfig.js nicht und trägt denselben Wert
-     nochmals; wird er hier geändert, ist er dort mitzuziehen. */
-  function annahmeschlussStunde() {
-    const wert = (typeof KONFIG !== "undefined" && KONFIG.annahmeschluss);
-    return (typeof wert === "number") ? wert : 10;
+  /* «9:5», «09:05», «0905» -> «09:05»; alles andere -> "". Für die Spalte
+     Annahmeschluss, die in SharePoint ein freies Textfeld ist. */
+  function zeitNormieren(wert) {
+    const t = String(wert || "").trim().match(/^(\d{1,2}):?(\d{2})$/);
+    if (!t) return "";
+    const h = Number(t[1]), m = Number(t[2]);
+    if (h > 23 || m > 59) return "";
+    return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
   }
 
-  function annahmeschlussText() {
-    return String(annahmeschlussStunde()).padStart(2, "0") + ":00";
+  /* Annahmeschluss: am Kurstag bis zu dieser Uhrzeit (lokal). Danach ist die
+     Menüwahl geschlossen und Änderungen laufen über die Réception.
+     Standard ist KONFIG.annahmeschluss; ein Termin kann in der Spalte
+     Annahmeschluss eine eigene Zeit tragen. `index.html` kennt konfig.js
+     nicht und trägt den Standard nochmals; wird er hier geändert, ist er dort
+     mitzuziehen. */
+  function annahmeschlussStandard() {
+    const wert = (typeof KONFIG !== "undefined") ? KONFIG.annahmeschluss : "";
+    return zeitNormieren(typeof wert === "number" ? wert + ":00" : wert) || "10:00";
+  }
+
+  /* Ohne Termin (Firmenblatt) oder bei leerer Spalte gilt der Standard. */
+  function annahmeschlussText(klasse) {
+    return (klasse && zeitNormieren(klasse.annahmeschluss)) || annahmeschlussStandard();
   }
 
   return {
@@ -266,7 +278,8 @@ const Hilfe = (function () {
     spracheNormieren: spracheNormieren,
     spracheName: spracheName,
     spracheZusatz: spracheZusatz,
-    annahmeschlussStunde: annahmeschlussStunde,
+    zeitNormieren: zeitNormieren,
+    annahmeschlussStandard: annahmeschlussStandard,
     annahmeschlussText: annahmeschlussText
   };
 })();
@@ -280,7 +293,7 @@ const Graph = (function () {
   const LISTE_KLASSEN = "/sites/" + KONFIG.siteId + "/lists/" + KONFIG.listeKlassen;
   const LISTE_BESTELLUNGEN = "/sites/" + KONFIG.siteId + "/lists/" + KONFIG.listeBestellungen;
 
-  const FELDER_KLASSE = "Title,Firma,Datum,Essenszeit,Code,Status,Teilnehmer,Suppe,Salat,Menu1,Menu2,Dessert";
+  const FELDER_KLASSE = "Title,Firma,Datum,Essenszeit,Annahmeschluss,Code,Status,Teilnehmer,Suppe,Salat,Menu1,Menu2,Dessert";
   const FELDER_BESTELLUNG = "Title,KlasseID,KlasseCode,Vorname,Nachname,Vorspeise,Hauptgang,Bemerkung";
 
   async function anfrage(pfad, optionen) {
@@ -385,6 +398,8 @@ const Graph = (function () {
       firma:      k.Firma || "",
       datum:      Hilfe.datumAusSp(k.Datum),
       essenszeit: k.Essenszeit || "",
+      /* Eigene Frist dieses Termins; "" heisst Standard aus konfig.js. */
+      annahmeschluss: Hilfe.zeitNormieren(k.Annahmeschluss),
       code:       k.Code || "",
       status:     k.Status || "offen",
       /* Erwartete Teilnehmeranzahl. 0 heisst «nicht hinterlegt»: die Spalte
@@ -413,6 +428,10 @@ const Graph = (function () {
     if (daten.firma      !== undefined) felder.Firma      = daten.firma;
     if (daten.datum      !== undefined) felder.Datum      = Hilfe.datumFuerSp(daten.datum);
     if (daten.essenszeit !== undefined) felder.Essenszeit = daten.essenszeit;
+    /* Leer räumt die Spalte aus; dann gilt wieder der Standard. */
+    if (daten.annahmeschluss !== undefined) {
+      felder.Annahmeschluss = Hilfe.zeitNormieren(daten.annahmeschluss) || null;
+    }
     if (daten.code       !== undefined) felder.Code       = daten.code;
     if (daten.status     !== undefined) felder.Status     = daten.status;
     /* null räumt die Zahlenspalte wieder aus. Das ist nicht dasselbe wie 0:
@@ -632,8 +651,8 @@ const Graph = (function () {
 
   /* Korrektur einer bestehenden Bestellung durch die Réception, etwa wenn
      sich jemand im Namen vertippt oder das falsche Menü angetippt hat.
-     Bewusst ohne Frist: die Menüwahl der Gästeseite schliesst um
-     KONFIG.annahmeschluss, die Réception soll danach weiterhin eingreifen
+     Bewusst ohne Frist: die Menüwahl der Gästeseite schliesst am
+     Annahmeschluss, die Réception soll danach weiterhin eingreifen
      können. */
   async function bestellungAendern(id, daten) {
     return anfrage(LISTE_BESTELLUNGEN + "/items/" + id + "/fields", {
@@ -679,6 +698,7 @@ const Graph = (function () {
         firma:      d.firma  || "",
         datum:      d.datum  || "",
         essenszeit: d.essenszeit || "",
+        annahmeschluss: Hilfe.zeitNormieren(d.annahmeschluss),
         code:       suche,
         status:     d.offen === false ? "geschlossen" : "offen"
       };

@@ -75,9 +75,15 @@ einen heiklen Eingriff im Power-Automate-Designer bedeutet, für wenig Nutzen.
 Bis zum 04.09.2026 galt die Frist auch für die Réception; Korrekturen landeten
 von Hand auf dem gedruckten Blatt. Damit standen die Angaben an zwei Orten, und
 das Blatt liess sich nicht neu drucken. Seither kann die Réception jede
-Bestellung in der Verwaltung ändern, nacherfassen und löschen. Eine
-verschiebbare Frist pro Termin wurde verworfen: Die Küche soll sich auf eine
-feste Zeit verlassen können.
+Bestellung in der Verwaltung ändern, nacherfassen und löschen.
+
+### Eigene Frist pro Termin
+
+Eine verschiebbare Frist pro Termin war am 04.09.2026 zuerst verworfen worden,
+damit sich die Küche auf eine feste Zeit verlassen kann. Seit dem 20.10.2026
+kann die Réception sie für einzelne Kurse trotzdem setzen («Menüwahl bis»).
+Der Standard bleibt 10:00; ein leeres Feld ändert nichts. Die Zeit darf nicht nach der
+Essenszeit liegen.
 
 ### Firmen mit dauerhaftem QR-Code
 
@@ -161,3 +167,4 @@ gegen unbemerkt ausgetauschte Dateien.
 | 10.09.2026 | Kürzerer Sprachzusatz im Link: `&fr` statt `&sprache=fr` (alte Links gelten weiter) |
 | 14.09.2026 | **Firmenverzeichnis und dauerhafter Firmen-QR-Code.** Neue Liste «Firmen», Reiter «Firmen», Firmenblatt |
 | 28.09.2026 | Dokumentation überarbeitet und gekürzt |
+| 20.10.2026 | **Eigene Frist pro Termin** («Menüwahl bis»). Neue Spalte `Annahmeschluss` in «Klassen», Flow B gibt sie als `annahmeschluss` weiter |

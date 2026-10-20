@@ -36,7 +36,8 @@ einiges doppelt. **Wer es ändert, ändert beide Stellen.**
 
 | Was | Stelle 1 | Stelle 2 |
 |---|---|---|
-| Annahmeschluss (10 Uhr) | `annahmeschluss` in `konfig.js` | `ANNAHMESCHLUSS` in `index.html` |
+| Standard-Annahmeschluss (`"10:00"`) | `annahmeschluss` in `konfig.js` | `ANNAHMESCHLUSS_STANDARD` in `index.html` |
+| Prüfung einer Uhrzeit `HH:MM` | `Hilfe.zeitNormieren()` in `graph.js` | `zeitNormieren()` in `index.html` |
 | Bildung des Firmencodes | `Hilfe.firmenCode()` in `graph.js` | `firmenCode()` in `index.html` |
 | Prüfung des Firmenschlüssels | `Hilfe.firmaNormieren()` in `graph.js` | `firmaNormieren()` in `index.html` |
 | Adresse von Flow B | `flowKlasseUrl` in `konfig.js` | `FLOW_KLASSE_URL` in `index.html` |

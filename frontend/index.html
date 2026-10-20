@@ -373,12 +373,14 @@
 const FLOW_KLASSE_URL     = "https://default2553fb745dcc40728bb5399d18f72a.f9.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/25/workflows/a1871aeb66df48378bc381039d6d0bee/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=b81V67dqbTZntfasDrX-Ijn64wRp0Fa6egLC8ZV3w-s";  // Flow B (GET), &code= wird angehängt
 const FLOW_BESTELLUNG_URL = "https://default2553fb745dcc40728bb5399d18f72a.f9.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/18/workflows/ce48abf2e1c04be68585defd725d2730/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=fq7lQjQT-OxVRAPWwfIiq-774SEaiFT8b8PqLDOA32U";  // Flow C (POST)
 
-/* Annahmeschluss: volle Stunde in Ortszeit. Bis dahin darf am Kurstag
-   gewählt und geändert werden, danach übernimmt die Réception.
-   Derselbe Wert steht als KONFIG.annahmeschluss in konfig.js für die
-   Admin-Seiten. Diese Seite lädt konfig.js bewusst nicht, weil sie ohne
-   Anmeldung auskommt; wird der Wert geändert, ist er dort mitzuziehen. */
-const ANNAHMESCHLUSS = 10;
+/* Annahmeschluss «HH:MM» in Ortszeit. Bis dahin darf am Kurstag gewählt
+   und geändert werden, danach übernimmt die Réception. Das ist der
+   Standard; liefert Flow B für den Termin eine eigene Zeit
+   (`annahmeschluss`), gilt diese. Derselbe Standard steht als
+   KONFIG.annahmeschluss in konfig.js für die Admin-Seiten. Diese Seite lädt
+   konfig.js bewusst nicht, weil sie ohne Anmeldung auskommt; wird der Wert
+   geändert, ist er dort mitzuziehen. */
+const ANNAHMESCHLUSS_STANDARD = "10:00";
 // =========================================================================
 
 const MOCK_DATEN = {
@@ -639,7 +641,7 @@ function ansichtNachzeichnen() {
     el("falschertag-text").textContent = T.falschertagText(klasse.klasse || "", datumText);
     el("geschlossen-text").textContent = T.geschlossenText(klasse.klasse || "", datumText);
   }
-  el("frist-text").textContent = T.fristText(ANNAHMESCHLUSS_TEXT);
+  el("frist-text").textContent = T.fristText(annahmeschlussText());
   if (letzterFehler) {
     el("fehler-titel").textContent = T[letzterFehler.titel];
     el("fehler-text").textContent = T[letzterFehler.text];
@@ -702,7 +704,7 @@ function firmaNormieren(wert) {
    Tages in Ortszeit, also «SORBA-K7M2-260914». Dieselbe Regel steht in
    graph.js für die Verwaltung, die den Termin unter diesem Code anlegt. Sie
    ist bewusst doppelt, weil die Gästeseite graph.js nicht lädt — wie beim
-   ANNAHMESCHLUSS. Wer sie hier ändert, muss sie dort mitziehen. */
+   ANNAHMESCHLUSS_STANDARD. Wer sie hier ändert, muss sie dort mitziehen. */
 function firmenCode(schluessel, iso) {
   const s = String(schluessel || "").trim().toUpperCase();
   const t = (iso || heuteIso()).split("-");
@@ -717,22 +719,37 @@ function firmenCode(schluessel, iso) {
    weiterhin an, wenn jemand ihn von Hand aufruft. Wer das ausschliessen
    will, baut dieselbe Bedingung in Flow C ein. */
 
-const ANNAHMESCHLUSS_TEXT = String(ANNAHMESCHLUSS).padStart(2, "0") + ":00";
+/* «9:5», «09:05», «0905» -> «09:05»; alles andere -> "". Dieselbe Regel
+   steht als Hilfe.zeitNormieren in graph.js. */
+function zeitNormieren(wert) {
+  const t = String(wert || "").trim().match(/^(\d{1,2}):?(\d{2})$/);
+  if (!t) return "";
+  const h = Number(t[1]), m = Number(t[2]);
+  if (h > 23 || m > 59) return "";
+  return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
+}
 
-function annahmeschlussVorbei() {
-  // Im Mock-Modus lässt sich der Zustand von Hand herbeiführen, sonst wäre
-  // er nur vor beziehungsweise nach 10:00 Uhr zu sehen.
-  if (mock && params.get("spaet") === "1") return true;
-  if (mock && params.get("spaet") === "0") return false;
-  return new Date().getHours() >= ANNAHMESCHLUSS;
+/* Frist des geladenen Termins. Solange er nicht geladen ist oder Flow B
+   keine eigene Zeit liefert, gilt der Standard. */
+function annahmeschlussText() {
+  return (klasse && zeitNormieren(klasse.annahmeschluss)) || ANNAHMESCHLUSS_STANDARD;
 }
 
 /* Millisekunden bis zum heutigen Annahmeschluss, negativ wenn vorbei. */
 function bisAnnahmeschluss() {
+  const [h, m] = annahmeschlussText().split(":").map(Number);
   const jetzt = new Date();
   const schluss = new Date(jetzt.getFullYear(), jetzt.getMonth(), jetzt.getDate(),
-                           ANNAHMESCHLUSS, 0, 0, 0);
+                           h, m, 0, 0);
   return schluss.getTime() - jetzt.getTime();
+}
+
+function annahmeschlussVorbei() {
+  // Im Mock-Modus lässt sich der Zustand von Hand herbeiführen, sonst wäre
+  // er nur vor beziehungsweise nach dem Annahmeschluss zu sehen.
+  if (mock && params.get("spaet") === "1") return true;
+  if (mock && params.get("spaet") === "0") return false;
+  return bisAnnahmeschluss() <= 0;
 }
 
 let fristTimer = null;
@@ -754,7 +771,7 @@ function fristEingetreten() {
 }
 
 function zeigeFrist() {
-  el("frist-text").textContent = T.fristText(ANNAHMESCHLUSS_TEXT);
+  el("frist-text").textContent = T.fristText(annahmeschlussText());
   window.scrollTo(0, 0);
   zeige("frist");
 }
@@ -846,7 +863,7 @@ function erfolgFuellen(b) {
   const vorbei = annahmeschlussVorbei();
   el("btn-bearbeiten").style.display = vorbei ? "none" : "";
   el("erfolg-frist").style.display = vorbei ? "block" : "none";
-  el("erfolg-frist-text").textContent = T.aenderungFrist(ANNAHMESCHLUSS_TEXT);
+  el("erfolg-frist-text").textContent = T.aenderungFrist(annahmeschlussText());
   if (!vorbei) fristUeberwachen();
 }
 
@@ -873,6 +890,8 @@ async function ladeKlasse() {
       }
       daten = MOCK_DATEN;
       daten.datum = params.get("falschertag") === "1" ? "2099-01-01" : heuteIso();
+      // `&bis=10:15` spielt einen Termin mit eigenem Annahmeschluss nach.
+      daten.annahmeschluss = params.get("bis") || "";
     } else {
       // Kein Custom-Header → «simple request», kein CORS-Preflight
       const antwort = await fetch(FLOW_KLASSE_URL + "&code=" + encodeURIComponent(code));
@@ -940,7 +959,7 @@ el("formular").addEventListener("submit", async ev => {
   /* Der Annahmeschluss kann eintreten, während das Formular offen liegt.
      Deshalb wird er beim Absenden nochmals geprüft. */
   if (annahmeschlussVorbei()) {
-    fehlerFeld.textContent = T.seitGeschlossen(ANNAHMESCHLUSS_TEXT);
+    fehlerFeld.textContent = T.seitGeschlossen(annahmeschlussText());
     fehlerFeld.style.display = "block";
     el("btn-absenden").disabled = true;
     window.scrollTo(0, 0);

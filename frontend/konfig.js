@@ -28,13 +28,15 @@ const KONFIG = {
   gastBasis: "https://menue.campus-sursee.ch/",
 
   /* ---- Annahmeschluss ----
-     Volle Stunde in Ortszeit, bis zu der die Teilnehmenden am Kurstag wählen
-     und ihre Wahl ändern dürfen. Danach übernimmt die Réception.
+     Uhrzeit «HH:MM» in Ortszeit, bis zu der die Teilnehmenden am Kurstag
+     wählen und ihre Wahl ändern dürfen. Danach übernimmt die Réception.
+     Das ist der Standard; ein einzelner Termin kann in der Verwaltung eine
+     eigene Zeit bekommen (Spalte Annahmeschluss).
      ACHTUNG: `index.html` lädt konfig.js nicht, weil die Gästeseite ohne
      Anmeldung auskommt und deshalb keine der Admin-Dateien einbindet. Dort
-     steht derselbe Wert nochmals als Konstante ANNAHMESCHLUSS im Kopf des
-     Skripts. Wird er hier geändert, ist er dort mitzuziehen. */
-  annahmeschluss: 10,
+     steht derselbe Wert nochmals als Konstante ANNAHMESCHLUSS_STANDARD im
+     Kopf des Skripts. Wird er hier geändert, ist er dort mitzuziehen. */
+  annahmeschluss: "10:00",
 
   /* ---- Power Automate Flow B «API Klasse laden» ----
      Wird weiterhin gebraucht, weil dort die Lunchgate-Anbindung sitzt

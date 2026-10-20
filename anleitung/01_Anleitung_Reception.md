@@ -27,11 +27,12 @@ So bedienen Sie die Menüwahl für das Restaurant BAULÜÜT, Schritt für Schrit
   [menue.campus-sursee.ch/admin](https://menue.campus-sursee.ch/admin)
 - Beim Speichern entsteht ein Zugangscode, zum Beispiel `M2VJ8KWS`. Daraus macht
   die Verwaltung einen **Link** und ein **Kursblatt mit QR-Code** für den Kurs.
-- Die Teilnehmenden wählen am Kurstag am Handy, **bis 10:00 Uhr**.
+- Die Teilnehmenden wählen am Kurstag am Handy, **bis 10:00 Uhr** (pro Termin anpassbar).
 - Am Kurstag drucken Sie das **Menüblatt** und geben es der Küche.
 
 **Die 10-Uhr-Regel.** Bis 10:00 Uhr können die Teilnehmenden wählen und ihre
-Wahl beliebig oft ändern. Danach geht das nur noch über Sie. **Für Sie gilt die
+Wahl beliebig oft ändern. Danach geht das nur noch über Sie. Braucht ein Kurs
+eine andere Zeit, tragen Sie sie beim Termin unter **«Menüwahl bis»** ein. **Für Sie gilt die
 Grenze nicht:** In der Verwaltung können Sie jede Bestellung jederzeit ändern,
 nacherfassen oder löschen.
 
@@ -85,6 +86,7 @@ braucht es drei Termine.
    | **Firma** | Auftraggeber, zum Beispiel «Implenia Schweiz AG». Frei eintippen oder eine Firma aus dem Verzeichnis wählen (siehe [Abschnitt 5](#5-firmen-mit-dauerhaftem-qr-code)). |
    | **Datum** | Tag des Mittagessens. Vorgeschlagen ist heute, meist müssen Sie es anpassen. **Nur an diesem Tag** können die Teilnehmenden wählen. |
    | **Essenszeit** | Uhrzeit des Mittagessens, vorgeschlagen 12:00. Nur zur Information. |
+   | **Menüwahl bis** | Bis wann die Teilnehmenden selbst wählen können. **Leer lassen** heisst 10:00 Uhr. Nur ausfüllen, wenn der Kurs eine andere Zeit braucht, zum Beispiel `10:15`. Darf nicht nach der Essenszeit liegen. |
    | **Erwartete Teilnehmeranzahl** | Wenn bekannt, zum Beispiel `18`. Nur ein Richtwert, es dürfen auch mehr bestellen. Darf leer bleiben. |
 
 3. Klicken Sie auf **«Termin speichern»**.
@@ -204,7 +206,7 @@ Fehlen Bestellungen (zum Beispiel «5 / 18»), erinnern Sie die Kursleitung.
 
 ### Bestellung ändern, nacherfassen oder löschen
 
-Das geht jederzeit, auch nach 10:00 Uhr.
+Das geht jederzeit, auch nach Ablauf der Menüwahl.
 
 | Was | So geht's |
 |---|---|
@@ -272,11 +274,11 @@ Diese Meldungen sind **kein Fehler**:
 | Meldung | Bedeutung |
 |---|---|
 | «Menüwahl noch nicht möglich» | Der Link wurde vor dem Kurstag geöffnet. Am Kurstag nochmals öffnen. |
-| «Änderungen nicht mehr möglich» | Es ist nach 10:00 Uhr. Änderungen laufen über Sie. |
-| «Menüwahl geschlossen» | Es ist nach 10:00 Uhr und die Person hat noch nicht bestellt. Nehmen Sie die Bestellung entgegen. |
+| «Änderungen nicht mehr möglich» | Die Menüwahl ist abgelaufen (10:00 Uhr oder die Zeit unter «Menüwahl bis»). Änderungen laufen über Sie. |
+| «Menüwahl geschlossen» | Die Menüwahl ist abgelaufen und die Person hat noch nicht bestellt. Nehmen Sie die Bestellung entgegen. |
 | «Kein Kurs gefunden» | Firmen-QR-Code, aber heute kein Termin dieser Firma. Siehe [Abschnitt 5](#teilnehmende-melden-kein-kurs-gefunden). |
 
-Bis 10:00 Uhr können die Teilnehmenden ihre Wahl über **«Auswahl bearbeiten»**
+Bis zum Ablauf der Menüwahl können die Teilnehmenden ihre Wahl über **«Auswahl bearbeiten»**
 selbst ändern, allerdings nur auf demselben Handy.
 
 ---
@@ -284,15 +286,19 @@ selbst ändern, allerdings nur auf demselben Handy.
 ## 9. Häufige Fragen
 
 **Jemand hat sich vertippt oder das falsche Menü gewählt.**
-Vor 10:00 Uhr: selbst über «Auswahl bearbeiten» auf demselben Handy. Sonst
+Vor Ablauf der Menüwahl: selbst über «Auswahl bearbeiten» auf demselben Handy. Sonst
 korrigieren Sie es in der Verwaltung über «Ändern» ([Abschnitt 6](#6-am-kurstag)).
 
-**Jemand meldet sich nach 10:00 Uhr und hat noch nicht bestellt.**
+**Jemand meldet sich nach Ablauf der Menüwahl und hat noch nicht bestellt.**
 Das ist so vorgesehen. Fragen Sie nach Name, Vorspeise, Hauptgang und Allergien
 und erfassen Sie die Bestellung über «Bestellung erfassen».
 
 **Kann ich die 10-Uhr-Grenze für einen Kurs verschieben?**
-Nein, sie gilt für alle Kurse. Wünsche für eine andere Uhrzeit an die ICT-Services.
+Ja. Termin **«Bearbeiten»**, im Feld **«Menüwahl bis»** die gewünschte Zeit
+eintragen und speichern. Die Zeit gilt nur für diesen Termin und erscheint auf
+der Menüwahl und auf dem Kursblatt. Ein bereits gedrucktes Kursblatt zeigt noch
+die alte Zeit; drucken Sie es bei Bedarf neu. Das Firmenblatt nennt immer
+10:00 Uhr, weil es für alle Kurstage der Firma gilt.
 
 **Ein Termin fehlt in der Liste.**
 1. Er liegt nicht auf heute: über «Filter» die zukünftigen oder vergangenen
